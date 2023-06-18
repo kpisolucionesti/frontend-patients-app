@@ -1,6 +1,6 @@
 import axios from 'axios';
-const baseUrl = "http://localhost:3100";
-const axiosInstance = axios.create({ baseURL: baseUrl })
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+const axiosInstance = axios.create({ baseURL: `${API_ENDPOINT}` })
 
 export const BackendAPI = {
     patients: {
@@ -116,6 +116,35 @@ export const BackendAPI = {
                 console.log(e)
             }
         },
-    }
+    },
+    emergencies: {
+        getAll: async () => {
+            try {
+                const res = await axiosInstance.get("/emergencies")
+                return res.data
+            }
+            catch (e) {
+                console.log(e)
+            }
+        },
+        create: async (emergency) => {
+            try {
+                const res = await axiosInstance.post('/emergencies', emergency)
+                return res.data
+            }
+            catch (e) {
+                console.log(e)
+            }
+        },
+        update: async (emergency) => {
+            try {
+                const res = await axiosInstance.put('/emergencies/'+emergency.id, emergency)
+                return res.data
+            }
+            catch (e) {
+                console.log(e)
+            }
+        },
+    },
 
 }

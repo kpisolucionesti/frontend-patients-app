@@ -9,21 +9,25 @@ import EditPatients from '../Modals/editPatientModal';
 
 const TablePatients = () => {
     const [tableData, setTableData] = useState([])
-        
+    
     useEffect(() => {
       refresh()
     },[])
 
     const refresh = () => {
       console.log("Voy a actualizar")
-      BackendAPI.patients.getAll().then(res => setTableData(res))
+      BackendAPI.patients.getAll().then(res => {
+          setTableData(res)
+          console.log(res)
+      })
       setTimeout(refresh,10000)
-  }
+    }
 
-    const handleCreatePatients = (patient) => {
-        BackendAPI.patients.create(patient).then(res => {
-          setTableData([...tableData,res])
-        })
+    const handleCreatePatients = (data) => {
+      BackendAPI.patients.create(data).then(res => {
+        setTableData([...tableData, res])
+        console.log(res)
+      })
     }
 
     const handleUpdatePatients = (values) => {
@@ -44,6 +48,14 @@ const TablePatients = () => {
                 enableColumnOrdering: false,
                 enableEditing: false,
                 enableSorting: false,
+            },
+            {
+                header: "F. Ingreso",
+                accessorKey: "ingress_date",
+                enableColumnOrdering: false,
+                enableEditing: false,
+                enableSorting: false,
+                size: 30,
             },
             {
                 header: "Cedula",
@@ -73,7 +85,7 @@ const TablePatients = () => {
                 maxSize: 300,
             },
             {
-                header: "Medico Tratante",
+                header: "Medico",
                 accessorKey: 'current_doctor',
                 size: 80,
             },
@@ -114,13 +126,15 @@ const TablePatients = () => {
             }}
             renderDetailPanel={({ row }) => {
               return (
-                <p>{row.original.name}</p>
+              <div>
+                <p> {row.original.patient_id} + {row.original.name} + {row.original.ingress_date} + {row.original.ci} + {row.original.age} </p>
+              </div>
               )}
             }
             enableFullScreenToggle
             columns={columns}
             data={tableData}
-            initialState={{ columnVisibility: { id: false, age: false, gender: false,  treatment: false }}}
+            initialState={{ columnVisibility: { id: false, age: false, gender: false,  treatment: false }, density: 'compact'} }
             editingMode='modal'
             enableRowActions
             enableColumnOrdering={false}
@@ -131,11 +145,6 @@ const TablePatients = () => {
             enableColumnResizing
             renderRowActions={({ row, table }) => (
                 <EditPatients onSubmit={handleUpdatePatients} row={row.original} />
-                // <Tooltip arrow placement="right" title="Edit">
-                //   <IconButton disabled={row.status === 2 ?  true : false}  onClick={() => table.setEditingRow(row)}>
-                //     <Edit />
-                //   </IconButton>
-                // </Tooltip>
             )}
             renderTopToolbarCustomActions={() => {
               return (
