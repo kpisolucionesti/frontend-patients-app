@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MaterialReactTable } from 'material-react-table';
-import { Chip } from '@mui/material';
+import { Chip, Stack, Typography } from '@mui/material';
 import CreatePatients from '../Modals/addPatientsModal';
 import { BackendAPI } from '../../services/BackendApi';
 import AsignRoom from '../Modals/asignRoomModal';
 import ReleasePatient from '../Modals/releasePatientModal';
 import EditPatients from '../Modals/editPatientModal';
+import MovePatient from '../Modals/movePatientsModal';
 
 const TablePatients = () => {
     const [tableData, setTableData] = useState([])
@@ -16,24 +17,20 @@ const TablePatients = () => {
 
     const refresh = () => {
       console.log("Voy a actualizar")
-      BackendAPI.patients.getAll().then(res => {
-          setTableData(res)
-          console.log(res)
-      })
+      BackendAPI.patients.getAll().then(res => setTableData(res))
       setTimeout(refresh,10000)
     }
 
-    const handleCreatePatients = (data) => {
+    const handleCreatePatients = (data, room) => {
       BackendAPI.patients.create(data).then(res => {
         setTableData([...tableData, res])
-        console.log(res)
+        BackendAPI.rooms.update({...room, patient_id: res.id}).then(rest => console.log(rest))
       })
     }
 
-    const handleUpdatePatients = (values) => {
-      console.log(values)
-      BackendAPI.patients.update(values).then(res => {
-        let userIndex = tableData.findIndex(x=>x.id === values.id)
+    const handleUpdatePatients = (patient) => {
+      BackendAPI.patients.update(patient).then(res => {
+        let userIndex = tableData.findIndex(x=>x.id === patient.id)
         let newState = [...tableData];
         newState[userIndex]=res;
         setTableData(newState);
@@ -102,8 +99,8 @@ const TablePatients = () => {
               size: 50,
               Cell: ({ cell }) => 
                 <Chip 
-                  color={cell.getValue() === 0 ? 'success' : cell.getValue() === 1 ? "warning" : "error" } 
-                  label={cell.getValue() === 0 ? "ESPERANDO" : cell.getValue() === 1 ? "ASIGNADO" : "ALTA" } 
+                  color={cell.getValue() === 0 ? 'success' : cell.getValue() === 1 ? "warning" : cell.getValue() === 3 ? "info" : "error" } 
+                  label={cell.getValue() === 0 ? "ESPERANDO" : cell.getValue() === 1 ? "ATENDIDO" : cell.getValue() === 3 ? 'INGRESADO' : "ALTA" } 
                 />,
                 enableColumnOrdering: false,
                 enableEditing: false,
@@ -117,24 +114,38 @@ const TablePatients = () => {
         <MaterialReactTable
             displayColumnDefOptions={{
                 'mrt-row-actions': {
-                muiTableHeadCellProps: {
+                  muiTableHeadCellProps: {
                     align: 'center',
                 },
-                header: "Editar",
-                size: 30,
+                  header: "Editar",
+                  size: 100,
+                },
+                'mrt-row-expand': {
+                  muiTableHeadCellProps: {
+                    align: 'right',
+                  },
+                  muiTableBodyCellProps: {
+                    align: 'right',
+                  },
+                  header: "Detalles",
+                  size: 5,
                 },
             }}
             renderDetailPanel={({ row }) => {
               return (
               <div>
-                <p> {row.original.patient_id} + {row.original.name} + {row.original.ingress_date} + {row.original.ci} + {row.original.age} </p>
+                <Typography sx={{ fontWeight: 'bold' }} h2>DETALLES DE LA EMERGENCIA</Typography>
+                <p>DIAGNOSTICO: {row.original.current_diagnostic} </p>
+                <p>{row.original.medical_exit ? "CAUSA DE ALTA MEDICA: " : "AREA DE INGRESO: " } {row.original.medical_exit ? row.original.medical_exit : row.original.transfer}</p>
+                <p>{row.original.medical_exit ? "OBSERVACIONES: " : "" } {row.original.medical_exit ? row.original.observations : ""}</p>
               </div>
               )}
             }
             enableFullScreenToggle
+            positionExpandColumn="last"
             columns={columns}
             data={tableData}
-            initialState={{ columnVisibility: { id: false, age: false, gender: false,  treatment: false }, density: 'compact'} }
+            initialState={{ pagination: { pageSize: 25 } ,columnVisibility: { id: false, age: false, gender: false,  treatment: false, current_diagnostic: false }, density: 'compact'} }
             editingMode='modal'
             enableRowActions
             enableColumnOrdering={false}
@@ -144,14 +155,17 @@ const TablePatients = () => {
             enableGlobalFilter={false}
             enableColumnResizing
             renderRowActions={({ row, table }) => (
+              <Stack direction="row" spacing={1} >
                 <EditPatients onSubmit={handleUpdatePatients} row={row.original} />
+                <AsignRoom row={row.original} />
+                <MovePatient row={row.original} />
+                <ReleasePatient row={row.original} />
+              </Stack>
             )}
             renderTopToolbarCustomActions={() => {
               return (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <CreatePatients onSubmit={handleCreatePatients} />
-                  <AsignRoom patients={tableData} />
-                  <ReleasePatient patients={tableData} /> 
                 </div>
               );
             }}

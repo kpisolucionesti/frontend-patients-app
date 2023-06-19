@@ -9,14 +9,14 @@ export const EditPatients = ({ onSubmit, row }) => {
     const [values, setValues] = useState(row);
     const [openModal, setOpenModal] = useState(false)
     const [doctorsList, setDoctorsList] = useState([])
+    const [validation, setValidation] = useState(false)
 
     useEffect(() => {
       BackendAPI.doctors.getAll().then((res) => setDoctorsList(res) )
-    },[])
+    },[values])
 
   	const handleValueChange = (target)=>{
       setValues({...values, [target.name]:target.value})
-      console.log(values)
     }
 
     const handleOpen = () => {
@@ -32,8 +32,14 @@ export const EditPatients = ({ onSubmit, row }) => {
       if(!Object.keys(values).length){
         alert("POR FAVOR LLENAR EL FORMULARIO")
       } else {
-        onSubmit(values);
-        handleClose();
+        if( !values.ci || !values.name || !values.age || !values.gender) {
+          alert("FALTAN DATOS POR LLENAR")
+          setValidation(true)
+        } else {
+          onSubmit(values)
+          setValidation(false)
+          handleClose();
+        }
       }
     };
   
@@ -44,21 +50,21 @@ export const EditPatients = ({ onSubmit, row }) => {
         onClick={handleOpen}
         variant="contained"
         startIcon={<Edit />}
-        disabled={values.status === 2 ? true : false}
-      />  
+        disabled={row.status !== 1 ? true : false}
+      />
       <Dialog open={openModal} onClose={handleClose} >
         <DialogTitle textAlign="center" sx={{ bgcolor: 'success.main', color: 'text.primary', fontWeight: 'bold' }}>EDITAR PACIENTE</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit}>
             <Stack direction="row" spacing={1} sx={{ mb: 2, mt: 3 }}>	
-              <TextField fullWidth helperText='Campo requerido' required label="Cedula" name="ci" value={values.ci} onChange={({target})=>handleValueChange(target)}/>
-              <TextField fullWidth helperText='Campo requerido' required label="Nombre y Apellido" name="name"	value={values.name} onChange={({target})=>handleValueChange(target)}/>
+              <TextField error={validation} fullWidth helperText='Campo requerido' required label="Cedula" name="ci" value={values.ci} onChange={({target})=>handleValueChange(target)}/>
+              <TextField error={validation} fullWidth helperText='Campo requerido' required label="Nombre y Apellido" name="name"	value={values.name} onChange={({target})=>handleValueChange(target)}/>
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-              <TextField fullWidth helperText='Campo requerido' required label="Edad" name="age" value={values.age}	onChange={({target})=>handleValueChange(target)}/>
+              <TextField error={validation} fullWidth helperText='Campo requerido' required label="Edad" name="age" value={values.age}	onChange={({target})=>handleValueChange(target)}/>
               <FormControl fullWidth>
                 <InputLabel>Genero</InputLabel>
-                <Select label="Genero" helperText='Campo requerido' required name='gender' value={values.gender}	onChange={({target})=>handleValueChange(target)}>
+                <Select error={validation} label="Genero" helperText='Campo requerido' required name='gender' value={values.gender}	onChange={({target})=>handleValueChange(target)}>
                   <MenuItem key="Masculino" value='Masculino'>Masculino</MenuItem>
                   <MenuItem key="Femenino" value='Femenino'>Femenino</MenuItem>
                   <MenuItem key="Otro" value='Otros'>Otros</MenuItem>
@@ -72,7 +78,7 @@ export const EditPatients = ({ onSubmit, row }) => {
                 <InputLabel>Medico Tratante</InputLabel>
                 <Select label="Medico Tratante" name="current_doctor" value={values.current_doctor} onChange={({target})=> setValues({...values,[target.name]:target.value})}>
                   {doctorsList.map(doctor=>(
-                    <MenuItem key={doctor.id} value={doctor.id}>{doctor.name}</MenuItem>
+                    <MenuItem key={doctor.id} value={doctor.name}>{doctor.name}</MenuItem>
                     ))}
                 </Select>
               </FormControl>

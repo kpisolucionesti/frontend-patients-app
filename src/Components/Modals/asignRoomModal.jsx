@@ -1,61 +1,57 @@
 import React, { useState, useEffect } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { BedOutlined } from "@mui/icons-material";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Stack } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
 
-const AsignRoom = ({ patients }) => {
+const AsignRoom = ({ row }) => {
     const [openModal, setOpenModal] = useState(false)
-    const [patientSelected, setPatientSelected] = useState({})
     const [roomSelected, setRoomSelected] = useState({})
     const [roomsList, setRoomsList] = useState([])
+    const [validation, setValidation] = useState(false)
 
     useEffect(() => {
         BackendAPI.rooms.getAll().then(res => setRoomsList(res))
-    },[])
+    },[roomSelected])
 
     const handleSubmit = () => {
-        let asignRoom = {...roomSelected, patient_id: patientSelected.id}
-        BackendAPI.patients.update({...patientSelected, status: 1}).then(res => console.log(res))
-        BackendAPI.rooms.update(asignRoom).then(res => console.log(res))
-        setPatientSelected({})
-        setRoomSelected({})
-        handleClose()
+        let removeRoom = roomsList.find(f => f.patient_id === row.id)
+        if(roomSelected) {
+            BackendAPI.rooms.update({...roomSelected, patient_id: row.id}).then(res => console.log(res))
+            BackendAPI.rooms.update({...removeRoom, patient_id: null}).then(res => console.log(res))
+            setValidation(false)
+            setRoomSelected({})
+            handleClose()
+        } else {
+            alert("FALTAN DATOS POR LLENAR")
+            setValidation(true)
+        }
     }
 
     const handleOpen = () => setOpenModal(true)
     const handleClose = () => {
         setOpenModal(false)
-        setPatientSelected({})
         setRoomSelected({})
     }
 
     return (
         <>
             <Button
-                color="info"
+                color="warning"
                 variant="contained"
                 startIcon={<BedOutlined />}
                 onClick={handleOpen}
-            >
-                UBICACION
-            </Button>
+                disabled={row.status !== 1 ? true : false}
+            />
             <Dialog open={openModal} onClose={handleClose} >
-                <DialogTitle textAlign="center" sx={{ bgcolor: 'info.main', color: 'text.primary', fontWeight: 'bold' }} >ASIGNAR UBICACION</DialogTitle>
+                <DialogTitle textAlign="center" sx={{ bgcolor: 'warning.main', color: 'text.primary', fontWeight: 'bold' }} >CAMBIAR UBICACION</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <Stack spacing={2} sx={{ mb: 2, mt: 3 }}>
-                            <FormControl>
-                                <InputLabel>Paciente</InputLabel>
-                                <Select fullWidth label="Paciente" required name="id" value={patientSelected.id} onChange={({target}) => setPatientSelected(patients.find(p => p.id === target.value))} >
-                                    {patients.filter(f => f.status === 0 ).map(p => (
-                                        <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                            <TextField disabled fullWidth label="Paciente" value={row.name} />
                             <FormControl>
                                 <InputLabel>Ubicacion</InputLabel>
-                                <Select disabled={!Object.keys(patientSelected).length} fullWidth label="Paciente" required name="id" value={roomSelected.id} onChange={({target}) => setRoomSelected(roomsList.find(r => r.id === target.value))} >
-                                    {roomsList.filter(f => patientSelected.age < 12 ? f.room_type === 'pediatria' : f.room_type === 'adulto' && !f.patient_id ).map(r => (
+                                <Select error={validation} fullWidth label="Ubicacion" required name="id" value={roomSelected.id} onChange={({target}) => setRoomSelected(roomsList.find(r => r.id === target.value))} >
+                                    {roomsList.filter(f => row.age < 12 ? f.room_type === 'pediatria' : f.room_type === 'adulto' && !f.patient_id ).map(r => (
                                         <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
                                     ))}
                                 </Select>
