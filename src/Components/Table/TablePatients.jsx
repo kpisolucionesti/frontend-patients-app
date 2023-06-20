@@ -18,12 +18,13 @@ const TablePatients = () => {
     const refresh = () => {
       console.log("Voy a actualizar")
       BackendAPI.patients.getAll().then(res => setTableData(res))
-      setTimeout(refresh,10000)
+      setTimeout(refresh,5000)
     }
 
     const handleCreatePatients = (data, room) => {
       BackendAPI.patients.create(data).then(res => {
         setTableData([...tableData, res])
+        console.log(res)
         BackendAPI.rooms.update({...room, patient_id: res.id}).then(rest => console.log(rest))
       })
     }

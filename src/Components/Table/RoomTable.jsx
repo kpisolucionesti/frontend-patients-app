@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BackendAPI } from '../../services/BackendApi';
-import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, ThemeProvider, Typography, createTheme } from '@mui/material';
+import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, ThemeProvider, Typography, createTheme, tableCellClasses } from '@mui/material';
 
 
 const RoomTable = () => {
@@ -15,7 +15,7 @@ const RoomTable = () => {
         console.log("Voy a actualizar")
         BackendAPI.rooms.getAll().then(room => setRoomsList(room))
         BackendAPI.patients.getAll().then(patient => setPatientsList(patient))
-        setTimeout(refresh,10000)
+        setTimeout(refresh,5000)
     }
 
     const theme = createTheme({
@@ -31,33 +31,33 @@ const RoomTable = () => {
         <Grid container sx={{ minHeight: '100%' }} >
             <Grid lg={12}>
                 <ThemeProvider theme={theme}>
-                    <Typography variant='h3' textAlign="center" sx={{ pb: 1, bgcolor: 'primary.main' }}>EMERGENCIA ADULTO</Typography>
+                    <Typography variant='h3' textAlign="center" sx={{ p: 1, bgcolor: 'darkblue' }}>EMERGENCIA ADULTO</Typography>
                 </ThemeProvider>
             </Grid>
             <Grid lg={12}>
                 <TableContainer>
                     <Table size='small'>
-                        <TableHead sx={{ textAlign: "center", bgcolor: "primary.main" }} >
+                        <TableHead sx={{ textAlign: "center", bgcolor: "darkblue" }} >
                             <TableRow sx={{ fontSize: 30 }}>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 60, minWidth: 60 }} >UBICACION</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 60, minWidth: 60 }} >PACIENTE</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 15, minWidth: 15 }} >EDAD</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 150, minWidth: 150 }} >DIAGNOSTICO</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 100, minWidth: 100 }} >MEDICO TRATANTE</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 150, minWidth: 150 }}>PLAN</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 60, minWidth: 60 }} >UBICACIÓN</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 60, minWidth: 60 }} >PACIENTE</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 15, minWidth: 15 }} >EDAD</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 150, minWidth: 150 }} >DIAGNÓSTICO</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 100, minWidth: 100 }} >MÉDICO TRATANTE</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 150, minWidth: 150 }}>PLAN</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody sx={{ textTransform: "uppercase" }} >
                             {roomsList.filter(r => r.room_type === "adulto").sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1 ).map((room) => (
-                                <TableRow key={room.name} sx={{ fontSize: 25, '&:last-child td, &:last-child th': { border: 0 } }} >
-                                    <TableCell sx={{ fontSize: 20, pb: 1, maxWidth: 60, minWidth: 60 }} >{room.name}</TableCell>
+                                <TableRow key={room.name} >
+                                    <TableCell sx={{ borderColor: 'white', border: 2, textAlign: 'center', bgcolor: 'text.secondary', color: 'white', fontSize: 20, pb: 1, maxWidth: 60, minWidth: 60 }} >{room.name}</TableCell>
                                     {patientsList.filter(f => f.id === room.patient_id).map((p) => (
                                     <>
-                                        <TableCell sx={{ maxWidth: 60, minWidth: 60 }} >{p.name}</TableCell>
-                                        <TableCell sx={{ maxWidth: 15, minWidth: 15 }} >{p.age}</TableCell>
-                                        <TableCell sx={{ maxWidth: 150, minWidth: 150 }} >{p.current_diagnostic}</TableCell>
-                                        <TableCell sx={{ maxWidth: 100, minWidth: 100 }} >{p.current_doctor}</TableCell>
-                                        <TableCell sx={{ maxWidth: 150, minWidth: 150 }} >{p.treatment}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 60, minWidth: 60 }} >{p.name}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 15, minWidth: 15 }} >{p.age}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 150, minWidth: 150 }} >{p.current_diagnostic}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 100, minWidth: 100 }} >{p.current_doctor}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 150, minWidth: 150 }} >{p.treatment}</TableCell>
                                     </>
                                     ))}
                                 </TableRow>
@@ -69,33 +69,33 @@ const RoomTable = () => {
             </Grid>
             <Grid lg={12}>
                 <ThemeProvider theme={theme}>
-                    <Typography variant='h3' textAlign="center" sx={{ pb: 1, bgcolor: 'primary.main' }}>EMERGENCIA PEDIATRIA</Typography>
+                    <Typography variant='h3' textAlign="center" sx={{ p: 1, bgcolor: 'darkblue' }}>EMERGENCIA PEDIÁTRICA</Typography>
                 </ThemeProvider>
             </Grid>
             <Grid lg={12} >
                 <TableContainer>
-                    <Table size='small' >
-                        <TableHead sx={{ textAlign: "center", bgcolor: "primary.main" }} >
-                        <TableRow sx={{ fontSize: 30 }}>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 60, minWidth: 60 }} >UBICACION</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 60, minWidth: 60 }} >PACIENTE</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 15, minWidth: 15 }} >EDAD</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 150, minWidth: 150 }} >DIAGNOSTICO</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 100, minWidth: 100 }} >MEDICO TRATANTE</TableCell>
-                                <TableCell sx={{ color: 'white', p: 1, fontSize: 20, maxWidth: 150, minWidth: 150 }}>PLAN</TableCell>
+                    <Table size='small' sx={{ [`& .${tableCellClasses.root}`]: {border: 2} }} >
+                        <TableHead sx={{ textAlign: "center", bgcolor: "darkblue" }} >
+                            <TableRow sx={{ fontSize: 30 }}>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 60, minWidth: 60 }} >UBICACIÓN</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 60, minWidth: 60 }} >PACIENTE</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 15, minWidth: 15 }} >EDAD</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 150, minWidth: 150 }} >DIAGNÓSTICO</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 100, minWidth: 100 }} >MÉDICO TRATANTE</TableCell>
+                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 150, minWidth: 150 }}>PLAN</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody sx={{ textTransform: "uppercase" }} >
                             {roomsList.filter(r => r.room_type === "pediatria").sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1 ).map((room) => (
-                                <TableRow key={room.name} sx={{ fontSize: 25, '&:last-child td, &:last-child th': { border: 0 } }}>
-                                    <TableCell sx={{ fontSize: 20, pb: 1, maxWidth: 80, minWidth: 80  }} >{room.name}</TableCell>
+                                <TableRow key={room.name} >
+                                    <TableCell sx={{ borderColor: 'white', border: 2, textAlign: 'center', bgcolor: 'text.secondary', color: 'white', fontSize: 20, pb: 1, maxWidth: 60, minWidth: 60 }} >{room.name}</TableCell>
                                     {patientsList.filter(f => f.id === room.patient_id).map((p) => (
                                     <>
-                                        <TableCell sx={{ maxWidth: 100, minWidth: 100 }} >{p.name}</TableCell>
-                                        <TableCell sx={{ maxWidth: 10, minWidth: 10 }} >{p.age}</TableCell>
-                                        <TableCell sx={{ maxWidth: 150, minWidth: 150 }} >{p.current_diagnostic}</TableCell>
-                                        <TableCell sx={{ maxWidth: 100, minWidth: 100 }} >{p.current_doctor}</TableCell>
-                                        <TableCell sx={{ maxWidth: 150, minWidth: 150 }} >{p.treatment}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 60, minWidth: 60 }} >{p.name}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 15, minWidth: 15 }} >{p.age}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 150, minWidth: 150 }} >{p.current_diagnostic}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 100, minWidth: 100 }} >{p.current_doctor}</TableCell>
+                                        <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 150, minWidth: 150 }} >{p.treatment}</TableCell>
                                     </>
                                     ))}
                                 </TableRow>
