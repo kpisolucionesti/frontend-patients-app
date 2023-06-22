@@ -1,12 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MaterialReactTable } from 'material-react-table';
-import { Chip, Stack, Typography } from '@mui/material';
+import { Chip, Grid, Stack, Typography } from '@mui/material';
 import CreatePatients from '../Modals/addPatientsModal';
 import { BackendAPI } from '../../services/BackendApi';
 import AsignRoom from '../Modals/asignRoomModal';
 import ReleasePatient from '../Modals/releasePatientModal';
 import EditPatients from '../Modals/editPatientModal';
 import MovePatient from '../Modals/movePatientsModal';
+import NotesPatient from '../Modals/notesPatientModal';
+import NotesTable from './NotesTables';
+import DetailsPatients from './DetailsPatients';
 
 const TablePatients = () => {
     const [tableData, setTableData] = useState([])
@@ -118,8 +121,8 @@ const TablePatients = () => {
                   muiTableHeadCellProps: {
                     align: 'center',
                 },
-                  header: "Editar",
-                  size: 100,
+                  header: "Acciones",
+                  size: 75,
                 },
                 'mrt-row-expand': {
                   muiTableHeadCellProps: {
@@ -134,12 +137,15 @@ const TablePatients = () => {
             }}
             renderDetailPanel={({ row }) => {
               return (
-              <div>
-                <Typography sx={{ fontWeight: 'bold' }} h2>DETALLES DE LA EMERGENCIA</Typography>
-                <p>DIAGNOSTICO: {row.original.current_diagnostic} </p>
-                <p>{row.original.medical_exit ? "CAUSA DE ALTA MEDICA: " : "AREA DE INGRESO: " } {row.original.medical_exit ? row.original.medical_exit : row.original.transfer}</p>
-                <p>{row.original.medical_exit ? "OBSERVACIONES: " : "" } {row.original.medical_exit ? row.original.observations : ""}</p>
-              </div>
+              <Grid container spacing={2} >
+                <Grid xs={4}>
+                  <DetailsPatients row={row.original} />       
+                </Grid>
+                <Grid xs={8}>
+                  <NotesTable row={row.original} />
+                </Grid>
+              </Grid> 
+                
               )}
             }
             enableFullScreenToggle
@@ -158,6 +164,7 @@ const TablePatients = () => {
             renderRowActions={({ row, table }) => (
               <Stack direction="row" spacing={1} >
                 <EditPatients onSubmit={handleUpdatePatients} row={row.original} />
+                <NotesPatient row={row.original} />
                 <AsignRoom row={row.original} />
                 <MovePatient row={row.original} />
                 <ReleasePatient row={row.original} />
@@ -175,4 +182,3 @@ const TablePatients = () => {
 }
 
 export default TablePatients
-

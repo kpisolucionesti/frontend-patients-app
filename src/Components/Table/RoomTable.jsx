@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BackendAPI } from '../../services/BackendApi';
-import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, ThemeProvider, Typography, createTheme, tableCellClasses } from '@mui/material';
+import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, ThemeProvider, Typography, createTheme } from '@mui/material';
 
 
 const RoomTable = () => {
@@ -38,7 +38,7 @@ const RoomTable = () => {
                 <TableContainer>
                     <Table size='small'>
                         <TableHead sx={{ textAlign: "center", bgcolor: "darkblue" }} >
-                            <TableRow sx={{ fontSize: 30 }}>
+                            <TableRow>
                                 <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 60, minWidth: 60 }} >UBICACIÓN</TableCell>
                                 <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 60, minWidth: 60 }} >PACIENTE</TableCell>
                                 <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 15, minWidth: 15 }} >EDAD</TableCell>
@@ -48,9 +48,9 @@ const RoomTable = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody sx={{ textTransform: "uppercase" }} >
-                            {roomsList.filter(r => r.room_type === "adulto").sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1 ).map((room) => (
+                            {roomsList.filter(r => r.room_type === "adulto" && r.name === "Traumashock" ).sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1 ).map((room) => (
                                 <TableRow key={room.name} >
-                                    <TableCell sx={{ borderColor: 'white', border: 2, textAlign: 'center', bgcolor: 'text.secondary', color: 'white', fontSize: 20, pb: 1, maxWidth: 60, minWidth: 60 }} >{room.name}</TableCell>
+                                    <TableCell sx={{ borderColor: 'white', border: 2, textAlign: 'center', bgcolor: 'text.secondary', color: 'white', fontSize: 20, pt: 2, pb: 2, maxWidth: 60, minWidth: 60 }} >{room.name}</TableCell>
                                     {patientsList.filter(f => f.id === room.patient_id).map((p) => (
                                     <>
                                         <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 60, minWidth: 60 }} >{p.name}</TableCell>
@@ -63,32 +63,10 @@ const RoomTable = () => {
                                 </TableRow>
                             ))
                             }
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Grid>
-            <Grid lg={12}>
-                <ThemeProvider theme={theme}>
-                    <Typography variant='h3' textAlign="center" sx={{ p: 1, bgcolor: 'darkblue' }}>EMERGENCIA PEDIÁTRICA</Typography>
-                </ThemeProvider>
-            </Grid>
-            <Grid lg={12} >
-                <TableContainer>
-                    <Table size='small' sx={{ [`& .${tableCellClasses.root}`]: {border: 2} }} >
-                        <TableHead sx={{ textAlign: "center", bgcolor: "darkblue" }} >
-                            <TableRow sx={{ fontSize: 30 }}>
-                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 60, minWidth: 60 }} >UBICACIÓN</TableCell>
-                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 60, minWidth: 60 }} >PACIENTE</TableCell>
-                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 15, minWidth: 15 }} >EDAD</TableCell>
-                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 150, minWidth: 150 }} >DIAGNÓSTICO</TableCell>
-                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 100, minWidth: 100 }} >MÉDICO TRATANTE</TableCell>
-                                <TableCell sx={{ borderColor: 'white', border: 1, textAlign: 'center', color: 'white', p: 1, pl: 2, fontSize: 20, maxWidth: 150, minWidth: 150 }}>PLAN</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody sx={{ textTransform: "uppercase" }} >
-                            {roomsList.filter(r => r.room_type === "pediatria").sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1 ).map((room) => (
+                            
+                            {roomsList.filter(r => r.room_type === "adulto" && r.name !== "Traumashock" ).sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1 ).map((room) => (
                                 <TableRow key={room.name} >
-                                    <TableCell sx={{ borderColor: 'white', border: 2, textAlign: 'center', bgcolor: 'text.secondary', color: 'white', fontSize: 20, pb: 1, maxWidth: 60, minWidth: 60 }} >{room.name}</TableCell>
+                                    <TableCell sx={{ borderColor: 'white', border: 2, textAlign: 'center', bgcolor: 'text.secondary', color: 'white', fontSize: 20, pt: 2, pb: 2, maxWidth: 60, minWidth: 60 }} >{room.name}</TableCell>
                                     {patientsList.filter(f => f.id === room.patient_id).map((p) => (
                                     <>
                                         <TableCell sx={{ border: 2, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 60, minWidth: 60 }} >{p.name}</TableCell>

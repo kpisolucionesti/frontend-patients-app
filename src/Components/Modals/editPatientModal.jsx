@@ -1,4 +1,4 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Select, MenuItem, FormControl, InputLabel, Button } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Select, MenuItem, FormControl, InputLabel, Button, IconButton, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Edit } from '@mui/icons-material';
 import { BackendAPI } from "../../services/BackendApi";
@@ -45,13 +45,11 @@ export const EditPatients = ({ onSubmit, row }) => {
   
     return (
       <>
-      <Button
-        color="success"
-        onClick={handleOpen}
-        variant="contained"
-        startIcon={<Edit />}
-        disabled={row.status !== 1 ? true : false}
-      />
+      <Tooltip title='Editar' arrow>
+        <IconButton color="success" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size="large"  >
+          <Edit />
+        </IconButton>
+      </Tooltip>
       <Dialog open={openModal} onClose={handleClose} >
         <DialogTitle textAlign="center" sx={{ bgcolor: 'success.main', color: 'text.primary', fontWeight: 'bold' }}>EDITAR PACIENTE</DialogTitle>
         <DialogContent>

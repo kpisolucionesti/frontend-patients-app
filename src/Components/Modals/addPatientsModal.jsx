@@ -1,6 +1,6 @@
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Select, MenuItem, FormControl, InputLabel, Button, FormHelperText } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { AddCircleOutlineRounded } from '@mui/icons-material'
+import { AddCircleOutlineRounded, CheckCircle } from '@mui/icons-material'
 import { BackendAPI } from "../../services/BackendApi";
 
 
@@ -10,26 +10,29 @@ export const CreatePatients = ({ onSubmit }) => {
     const [openModal, setOpenModal] = useState(false)
     const [doctorsList, setDoctorsList] = useState([])
     const [patientsList, setPatientsList] = useState([])
-    const [currentDate, setCurrentDate] = useState(new Date())
+    const [currentDate, setCurrentDate] = useState("")
     const [roomsList, setRoomsList] = useState([])
     const [roomSelected, setRoomSelected] = useState({})
     const [validation, setValidation] = useState(false)
+    const [check, setCheck] = useState(0)
     
     useEffect(() => {
       BackendAPI.doctors.getAll().then((res) => setDoctorsList(res) )
       BackendAPI.patients.getAll().then((res) => setPatientsList(res) )
       BackendAPI.rooms.getAll().then((res) => setRoomsList(res))
-      const newDate = `${currentDate.getDate()}/${currentDate.getMonth()+1}/${currentDate.getFullYear()}`
+      const newDate = `${new Date().getDate()}/${new Date().getMonth()+1}/${new Date().getFullYear()}`
       setCurrentDate(newDate)
     },[])
 
     const validationPatient = () => {
       if(Object.keys(values).length){
-        let check = patientsList.find(f => f.ci === values.ci)
-        if(typeof check !== 'undefined' ) {
-            setValues({ingress_date: currentDate, ci: check.ci, name: check.name, age: check.age, gender: check.gender})
+        let filterPatient = patientsList.find(f => f.ci === values.ci)
+        if(typeof filterPatient !== 'undefined' ) {
+            setValues({ingress_date: currentDate, ci: filterPatient.ci, name: filterPatient.name, age: filterPatient.age, gender: filterPatient.gender})
+            setCheck(2)
         } else {
           setValues({...values, ingress_date: currentDate, name: '', age: '', gender: ''})
+          setCheck(2)
         }
       }
     }
@@ -37,6 +40,9 @@ export const CreatePatients = ({ onSubmit }) => {
 
   	const handleValueChange = (target) => {
       setValues({...values, status: 1, [target.name]:target.value})
+      if(check === 0) {
+        setCheck(1)
+      }
     }
 
     const handleOpen = () => {
@@ -47,6 +53,7 @@ export const CreatePatients = ({ onSubmit }) => {
       setValues({})
       setValidation(false)
       setOpenModal(false)
+      setCheck(false)
     }    
 
     const handleSubmit = (event) => {
@@ -60,6 +67,7 @@ export const CreatePatients = ({ onSubmit }) => {
         } else {
           onSubmit(values, roomSelected)
           setValidation(false)
+          setCheck(false)
           handleClose();
         }
       }
@@ -81,16 +89,16 @@ export const CreatePatients = ({ onSubmit }) => {
         <DialogContent>
           <form onSubmit={handleSubmit}>
             <Stack useFlexGap direction="row" spacing={1} sx={{ mb: 2, mt: 3 }}>	
-              <TextField error={validation} defaultValue="" helperText='Requerido' required label="Cedula" name="ci" value={values.ci} onChange={({target})=>handleValueChange(target)}/>
-              <TextField defaultValue={currentDate} helperText='Fecha de Ingreso' label='F. Ingreso' name="ingress_date" disabled />
-              <Button onClick={validationPatient} variant="contained" >VALIDAR</Button>
+              <TextField variant="outlined" error={validation} defaultValue="" helperText='Requerido' required label="Cedula" name="ci" value={values.ci} onChange={({target})=>handleValueChange(target)}/>
+              <TextField variant="outlined" defaultValue={currentDate} helperText='Fecha de Ingreso' label='F. Ingreso' name="ingress_date" disabled />
+              <Button disabled={ check === 1 || check === 2 ? false : true } onClick={validationPatient} variant="contained" startIcon={<CheckCircle />} >VALIDAR</Button>
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-              <TextField error={validation} fullWidth defaultValue="" helperText='Requerido' required placeholder="Nombre y Apellido" name="name" value={values.name} onChange={({target})=>handleValueChange(target)}/>
-              <TextField error={validation} defaultValue="" helperText='Requerido' required placeholder="Edad" name="age" value={values.age}	onChange={({target})=>handleValueChange(target)}/>
+              <TextField variant="outlined" disabled={ check === 2 ? false : true } error={validation} fullWidth defaultValue="" helperText='Requerido' required placeholder="Nombre y Apellido" name="name" value={values.name} onChange={({target})=>handleValueChange(target)}/>
+              <TextField variant="outlined" disabled={ check === 2 ? false : true } error={validation} defaultValue="" helperText='Requerido' required placeholder="Edad" name="age" value={values.age}	onChange={({target})=>handleValueChange(target)}/>
               <FormControl fullWidth>
                 <InputLabel>Genero</InputLabel>
-                <Select error={validation} required defaultValue="" placeholder="Genero" label="Genero" name='gender' value={values.gender}	onChange={({target})=>handleValueChange(target)}>
+                <Select variant="outlined" disabled={ check === 2 ? false : true } error={validation} required defaultValue="" placeholder="Genero" label="Genero" name='gender' value={values.gender}	onChange={({target})=>handleValueChange(target)}>
                   <MenuItem key="Masculino" value='Masculino'>Masculino</MenuItem>
                   <MenuItem key="Femenino" value='Femenino'>Femenino</MenuItem>
                   <MenuItem key="Otro" value='Otros'>Otros</MenuItem>
@@ -99,11 +107,11 @@ export const CreatePatients = ({ onSubmit }) => {
               </FormControl>
             </Stack>
             <Stack >
-              <TextField defaultValue="" sx={{ mb: 3}} fullWidth placeholder="Diagnostico" 	name="current_diagnostic" value={values.current_diagnostic}		onChange={({target})=>handleValueChange(target)}/>
-              <TextField defaultValue="" sx={{ mb: 3}} fullWidth placeholder="Plan" name="treatment" value={values.treatment}	onChange={({target})=>handleValueChange(target)}/>
+              <TextField variant="outlined" disabled={ check === 2 ? false : true } defaultValue="" sx={{ mb: 3}} fullWidth placeholder="Diagnostico" 	name="current_diagnostic" value={values.current_diagnostic}		onChange={({target})=>handleValueChange(target)}/>
+              <TextField variant="outlined" disabled={ check === 2 ? false : true } defaultValue="" sx={{ mb: 3}} fullWidth placeholder="Plan" name="treatment" value={values.treatment}	onChange={({target})=>handleValueChange(target)}/>
               <FormControl fullWidth sx={{ mb: 3}}>
                 <InputLabel>Medico Tratante</InputLabel>
-                <Select defaultValue="" placeholder="Medico Tratante" label="Medico Tratante" name="current_doctor" value={values.current_doctor} onChange={({target})=> handleValueChange(target)}>
+                <Select variant="outlined" disabled={ check === 2 ? false : true } defaultValue="" placeholder="Medico Tratante" label="Medico Tratante" name="current_doctor" value={values.current_doctor} onChange={({target})=> handleValueChange(target)}>
                   {doctorsList.map(doctor=>(
                     <MenuItem key={doctor.id} value={doctor.name}>{doctor.name} -- {doctor.speciality} </MenuItem>
                     ))}
@@ -111,7 +119,7 @@ export const CreatePatients = ({ onSubmit }) => {
               </FormControl>
               <FormControl>
                 <InputLabel>Ubicacion</InputLabel>
-                <Select error={validation} helperText='Requerido' disabled={Object.keys(values).length ? false : true} fullWidth label="Paciente" required name="id" value={roomSelected.id} onChange={({target}) => setRoomSelected(roomsList.find(r => r.id === target.value))} >
+                <Select variant="outlined" error={validation} helperText='Requerido' disabled={check === 2 ? false : true} fullWidth label="Paciente" required name="id" value={roomSelected.id} onChange={({target}) => setRoomSelected(roomsList.find(r => r.id === target.value))} >
                   {roomsList.filter(f => values.age < 12 ? f.room_type === 'pediatria' : f.room_type === 'adulto' && !f.patient_id ).map(r => (
                   <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
                 ))}

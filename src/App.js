@@ -7,7 +7,7 @@ function App() {
   return (
     <Routes >
       <Route path="/" element={<TablePatients />} exact />
-      <Route path="/rooms" element={<RoomTable />} exact />
+      <Route path="/adulto" element={<RoomTable />} exact />
     </Routes >
   );
 }

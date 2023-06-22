@@ -117,28 +117,19 @@ export const BackendAPI = {
             }
         },
     },
-    emergencies: {
+    notes: {
         getAll: async () => {
             try {
-                const res = await axiosInstance.get("/emergencies")
+                const res = await axiosInstance.get("/notes")
                 return res.data
             }
             catch (e) {
                 console.log(e)
             }
         },
-        create: async (emergency) => {
+        create: async (note) => {
             try {
-                const res = await axiosInstance.post('/emergencies', emergency)
-                return res.data
-            }
-            catch (e) {
-                console.log(e)
-            }
-        },
-        update: async (emergency) => {
-            try {
-                const res = await axiosInstance.put('/emergencies/'+emergency.id, emergency)
+                const res = await axiosInstance.post('/notes', note)
                 return res.data
             }
             catch (e) {

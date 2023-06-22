@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BackendAPI } from "../../services/BackendApi";
-import { BedOutlined } from "@mui/icons-material";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
+import { KingBed } from "@mui/icons-material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField, Tooltip } from "@mui/material";
 
 const AsignRoom = ({ row }) => {
     const [openModal, setOpenModal] = useState(false)
@@ -35,13 +35,11 @@ const AsignRoom = ({ row }) => {
 
     return (
         <>
-            <Button
-                color="warning"
-                variant="contained"
-                startIcon={<BedOutlined />}
-                onClick={handleOpen}
-                disabled={row.status !== 1 ? true : false}
-            />
+            <Tooltip title='Camas' arrow>
+                <IconButton color="warning" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size="large" >
+                    <KingBed />
+                </IconButton>
+            </Tooltip>
             <Dialog open={openModal} onClose={handleClose} >
                 <DialogTitle textAlign="center" sx={{ bgcolor: 'warning.main', color: 'text.primary', fontWeight: 'bold' }} >CAMBIAR UBICACION</DialogTitle>
                 <DialogContent>

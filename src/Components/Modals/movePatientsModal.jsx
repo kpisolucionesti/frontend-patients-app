@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BackendAPI } from "../../services/BackendApi";
-import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select, InputLabel, MenuItem, DialogActions, TextField, Alert } from "@mui/material";
+import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select, InputLabel, MenuItem, DialogActions, TextField, Alert, IconButton, Tooltip } from "@mui/material";
 import { TransferWithinAStationOutlined } from "@mui/icons-material";
 
 const MovePatient = ({ row }) => {
@@ -36,14 +36,12 @@ const MovePatient = ({ row }) => {
     }
 
     return(
-    <>
-        <Button
-            startIcon={<TransferWithinAStationOutlined />}
-            variant="contained"
-            color="info"
-            onClick={handleOpen}
-            disabled={row.status !== 1 ? true : false}
-        />
+    <> 
+        <Tooltip title='Ingreso' arrow>
+            <IconButton color="info" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size="large">
+                <TransferWithinAStationOutlined />
+            </IconButton>
+        </Tooltip>
         <Dialog open={open} onClose={handleClose} >
             <DialogTitle textAlign="center" sx={{ bgcolor: 'info.main', color: 'text.primary', fontWeight: 'bold' }}>INGRESO PACIENTE</DialogTitle>
             <DialogContent dividers>
