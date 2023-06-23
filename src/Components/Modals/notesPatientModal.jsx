@@ -1,5 +1,5 @@
 import { NoteAdd } from "@mui/icons-material";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 
@@ -23,9 +23,11 @@ const NotesPatient = ({ row }) => {
 
     return (
     <>
-        <IconButton color="secondary" onClick={handleOpen} >
-            <NoteAdd />
-        </IconButton>
+        <Tooltip title='Notas' arrow>
+            <IconButton color="secondary" onClick={handleOpen} disabled={row.status !== 1 ? true : false} >
+                <NoteAdd />
+            </IconButton>
+        </Tooltip>
         <Dialog fullWidth maxWidth='xs' open={open} onClose={handleClose} >
             <DialogTitle sx={{ bgcolor: 'secondary.main', color: 'white', fontWeight: 'bold' }} textAlign='center'>AGREGAR NOTA PACIENTE</DialogTitle>
             <DialogContent dividers >

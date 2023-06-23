@@ -40,7 +40,7 @@ export const CreatePatients = ({ onSubmit }) => {
 
   	const handleValueChange = (target) => {
       setValues({...values, status: 1, [target.name]:target.value})
-      if(check === 0) {
+      if(check === 0 ) {
         setCheck(1)
       }
     }
@@ -53,7 +53,7 @@ export const CreatePatients = ({ onSubmit }) => {
       setValues({})
       setValidation(false)
       setOpenModal(false)
-      setCheck(false)
+      setCheck(0)
     }    
 
     const handleSubmit = (event) => {
