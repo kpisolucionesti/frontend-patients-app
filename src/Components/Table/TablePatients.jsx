@@ -27,7 +27,6 @@ const TablePatients = () => {
     const handleCreatePatients = (data, room) => {
       BackendAPI.patients.create(data).then(res => {
         setTableData([...tableData, res])
-        console.log(res)
         BackendAPI.rooms.update({...room, patient_id: res.id}).then(rest => console.log(rest))
       })
     }
@@ -44,18 +43,9 @@ const TablePatients = () => {
     const columns = useMemo(
         () => [
             {
-                header: "ID",
-                accessorKey: 'id',
-                enableColumnOrdering: false,
-                enableEditing: false,
-                enableSorting: false,
-            },
-            {
                 header: "F. Ingreso",
                 accessorKey: "ingress_date",
-                enableColumnOrdering: false,
                 enableEditing: false,
-                enableSorting: false,
                 size: 30,
             },
             {
@@ -74,28 +64,9 @@ const TablePatients = () => {
                 size: 10,
             },
             {
-                header: "Genero",
-                accessorKey: 'gender',
-                size: 40,
-            },
-            {
-                header: "Diagnostico",
-                accessorKey: 'current_diagnostic',
-                size: 150,
-                minSize: 100,
-                maxSize: 300,
-            },
-            {
                 header: "Medico",
                 accessorKey: 'current_doctor',
                 size: 80,
-            },
-            {
-                header: "Plan Medico",
-                accessorKey: 'treatment',
-                size: 150,
-                minSize: 100,
-                maxSize: 300,
             },
             {
               header: 'Estatus',
@@ -108,7 +79,6 @@ const TablePatients = () => {
                 />,
                 enableColumnOrdering: false,
                 enableEditing: false,
-                enableSorting: false,
             }
         ],
         [],
@@ -122,7 +92,7 @@ const TablePatients = () => {
                     align: 'center',
                 },
                   header: "Acciones",
-                  size: 75,
+                  size: 80,
                 },
                 'mrt-row-expand': {
                   muiTableHeadCellProps: {
@@ -152,8 +122,9 @@ const TablePatients = () => {
             positionExpandColumn="last"
             columns={columns}
             data={tableData}
-            initialState={{ pagination: { pageSize: 25 } ,columnVisibility: { id: false, age: false, gender: false,  treatment: false, current_diagnostic: false }, density: 'compact'} }
+            initialState={{ pagination: { pageSize: 25 }, density: 'compact', sorting: [{ id: 'ingress_date', desc: true }] }}
             editingMode='modal'
+            enableSorting
             enableRowActions
             enableColumnOrdering={false}
             enableEditing
@@ -162,7 +133,7 @@ const TablePatients = () => {
             enableGlobalFilter={false}
             enableColumnResizing
             renderRowActions={({ row, table }) => (
-              <Stack direction="row" spacing={1} >
+              <Stack direction="row" >
                 <EditPatients onSubmit={handleUpdatePatients} row={row.original} />
                 <NotesPatient row={row.original} />
                 <AsignRoom row={row.original} />

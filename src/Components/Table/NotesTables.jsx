@@ -8,7 +8,7 @@ const NotesTable = ({ row }) => {
 
     useEffect(() => {
         BackendAPI.notes.getAll().then(res => setNotesList(res))
-    })
+    },[])
 
     const StyledTableCell = styled(TableCell)(({ theme }) => ({
         [`&.${tableCellClasses.head}`]: {
@@ -34,7 +34,7 @@ const NotesTable = ({ row }) => {
             <Table size="small" >
                 <TableHead sx={{ textAlign: 'center', bgcolor: 'darkblue' }} >
                     <TableRow >
-                        <StyledTableCell sx={{ color: 'white', textAlign: 'center', fontSize: 30, p: 2 }} >NOTAS</StyledTableCell>
+                        <StyledTableCell sx={{ color: 'white', textAlign: 'center', fontSize: "2rem", p: 2 }} >NOTAS</StyledTableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
