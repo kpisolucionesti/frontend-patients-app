@@ -8,7 +8,7 @@ const NotesPatient = ({ row }) => {
     const [open, setOpen] = useState(false)
 
     const handleCreateNote = () => {
-        BackendAPI.notes.create({...values, patient_id: row.id}).then(res => console.log(res))
+        BackendAPI.notes.create({...values, patient_id: row.id}).then()
         handleClose()
     }
 
@@ -18,8 +18,6 @@ const NotesPatient = ({ row }) => {
         setValues({})
         setOpen(false)
     }
-
-    console.log(values)
 
     return (
     <>

@@ -2,6 +2,7 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Se
 import React, { useEffect, useState } from "react";
 import { AddCircleOutlineRounded, CheckCircle } from '@mui/icons-material'
 import { BackendAPI } from "../../services/BackendApi";
+import moment from 'moment';
 
 
 export const CreatePatients = ({ onSubmit }) => {
@@ -20,8 +21,8 @@ export const CreatePatients = ({ onSubmit }) => {
       BackendAPI.doctors.getAll().then((res) => setDoctorsList(res) )
       BackendAPI.patients.getAll().then((res) => setPatientsList(res) )
       BackendAPI.rooms.getAll().then((res) => setRoomsList(res))
-      const newDate = `${new Date().getDate()}/${new Date().getMonth()+1}/${new Date().getFullYear()}`
-      setCurrentDate(newDate)
+      // const newDate = `${new Date().getMonth()+1}/${new Date().getDate()}/${new Date().getFullYear()}`
+      setCurrentDate(moment().format('DD/M/YYYY'))
     },[])
 
     const validationPatient = () => {

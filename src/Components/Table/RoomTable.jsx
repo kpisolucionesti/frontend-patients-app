@@ -50,14 +50,14 @@ const RoomTable = () => {
                         <TableBody sx={{ textTransform: "uppercase" }} >
                             {roomsList.filter(r => r.room_type === "adulto" && r.name === "Traumashock" ).sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1 ).map((room) => (
                                 <TableRow key={room.name} >
-                                    <TableCell sx={{ borderColor: 'white', border: 4, textAlign: 'center', bgcolor: 'red', color: 'white', fontSize: 20, pt: 2, pb: 2, maxWidth: 60, minWidth: 60 }} >{room.name}</TableCell>
+                                    <TableCell sx={{ borderColor: 'white', border: 4, textAlign: 'center', bgcolor: 'text.secondary', color: 'white', fontSize: 20, pt: 2, pb: 2, maxWidth: 60, minWidth: 60 }} >{room.name}</TableCell>
                                     {patientsList.filter(f => f.id === room.patient_id).map((p) => (
                                     <>
-                                        <TableCell sx={{ border: 4, bgcolor: "red", textAlign: 'center', color: "white",  fontSize: 20, maxWidth: 60, minWidth: 60 }} >{p.name}</TableCell>
-                                        <TableCell sx={{ border: 4, bgcolor: "red", textAlign: 'center', color: "white",  fontSize: 20, maxWidth: 15, minWidth: 15 }} >{p.age}</TableCell>
-                                        <TableCell sx={{ border: 4, bgcolor: "red", textAlign: 'center', color: "white",  fontSize: 20, maxWidth: 150, minWidth: 150 }} >{p.current_diagnostic}</TableCell>
-                                        <TableCell sx={{ border: 4, bgcolor: "red", textAlign: 'center', color: "white",  fontSize: 20, maxWidth: 100, minWidth: 100 }} >{p.current_doctor}</TableCell>
-                                        <TableCell sx={{ border: 4, bgcolor: "red", textAlign: 'center', color: "white",  fontSize: 20, maxWidth: 150, minWidth: 150 }} >{p.treatment}</TableCell>
+                                        <TableCell sx={{ border: 4, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 60, minWidth: 60 }} >{p.name}</TableCell>
+                                        <TableCell sx={{ border: 4, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 15, minWidth: 15 }} >{p.age}</TableCell>
+                                        <TableCell sx={{ border: 4, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 150, minWidth: 150 }} >{p.current_diagnostic}</TableCell>
+                                        <TableCell sx={{ border: 4, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 100, minWidth: 100 }} >{p.current_doctor}</TableCell>
+                                        <TableCell sx={{ border: 4, borderColor: 'info.main', textAlign: 'center', fontSize: 20, maxWidth: 150, minWidth: 150 }} >{p.treatment}</TableCell>
                                     </>
                                     ))}
                                 </TableRow>

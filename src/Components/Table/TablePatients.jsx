@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MaterialReactTable } from 'material-react-table';
-import { Chip, Grid, Stack, Typography } from '@mui/material';
+import { Chip, Grid, Stack } from '@mui/material';
 import CreatePatients from '../Modals/addPatientsModal';
 import { BackendAPI } from '../../services/BackendApi';
 import AsignRoom from '../Modals/asignRoomModal';
@@ -10,6 +10,7 @@ import MovePatient from '../Modals/movePatientsModal';
 import NotesPatient from '../Modals/notesPatientModal';
 import NotesTable from './NotesTables';
 import DetailsPatients from './DetailsPatients';
+import moment from 'moment';
 
 const TablePatients = () => {
     const [tableData, setTableData] = useState([])
@@ -20,8 +21,13 @@ const TablePatients = () => {
 
     const refresh = () => {
       console.log("Voy a actualizar")
-      BackendAPI.patients.getAll().then(res => setTableData(res))
-      setTimeout(refresh,5000)
+      BackendAPI.patients.getAll().then(res => {
+        let newData = res.map(x => { return {...x, ingress_date: moment(x.ingress_date, 'DD/M/YYYY').format('MM/DD/YYYY')}})
+        console.log(newData)
+        console.log(res)
+        setTableData(newData)
+      })
+      setTimeout(refresh,10000)
     }
 
     const handleCreatePatients = (data, room) => {
@@ -122,7 +128,7 @@ const TablePatients = () => {
             positionExpandColumn="last"
             columns={columns}
             data={tableData}
-            initialState={{ pagination: { pageSize: 25 }, density: 'compact', sorting: [{ id: 'ingress_date', desc: true }] }}
+            initialState={{ pagination: { pageSize: 100 }, density: 'compact', sorting: [{ id: 'ingress_date', desc: true }] }}
             editingMode='modal'
             enableSorting
             enableRowActions
