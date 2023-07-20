@@ -91,7 +91,7 @@ export const CreatePatients = ({ onSubmit }) => {
           <form onSubmit={handleSubmit}>
             <Stack useFlexGap direction="row" spacing={1} sx={{ mb: 2, mt: 3 }}>	
               <TextField variant="outlined" error={validation} defaultValue="" helperText='Requerido' required label="Cedula" name="ci" value={values.ci} onChange={({target})=>handleValueChange(target)}/>
-              <TextField variant="outlined" defaultValue={currentDate} helperText='Fecha de Ingreso' label='F. Ingreso' name="ingress_date" disabled />
+              <TextField variant="outlined" defaultValue={currentDate} label='Fecha de Ingreso' name="ingress_date" disabled />
               <Button disabled={ check === 1 || check === 2 ? false : true } onClick={validationPatient} variant="contained" startIcon={<CheckCircle />} >VALIDAR</Button>
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
@@ -120,7 +120,7 @@ export const CreatePatients = ({ onSubmit }) => {
               </FormControl>
               <FormControl>
                 <InputLabel>Ubicacion</InputLabel>
-                <Select variant="outlined" error={validation} helperText='Requerido' disabled={check === 2 ? false : true} fullWidth label="Paciente" required name="id" value={roomSelected.id} onChange={({target}) => setRoomSelected(roomsList.find(r => r.id === target.value))} >
+                <Select variant="outlined" error={validation} disabled={check === 2 ? false : true} defaultValue='' fullWidth label="Paciente" required name="id" value={roomSelected.id} onChange={({target}) => setRoomSelected(roomsList.find(r => r.id === target.value))} >
                   {roomsList.filter(f => values.age < 12 ? f.room_type === 'pediatria' : f.room_type === 'adulto' && !f.patient_id ).map(r => (
                   <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
                 ))}

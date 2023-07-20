@@ -34,12 +34,12 @@ const NotesTable = ({ row }) => {
             <Table size="small" >
                 <TableHead sx={{ textAlign: 'center', bgcolor: 'darkblue' }} >
                     <TableRow >
-                        <StyledTableCell sx={{ color: 'white', textAlign: 'center', fontSize: "2rem", p: 2 }} >NOTAS</StyledTableCell>
+                        <StyledTableCell sx={{ color: 'white', textAlign: 'center', fontSize: "2rem", p: 1 }} >NOTAS</StyledTableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                         {notesList.filter(f =>  f.patient_id === row.id).map((note) => (
-                            <StyledTableRow key={note.name}>
+                            <StyledTableRow key={note.id}>
                                 <StyledTableCell component='th' scope="note" >{note.note}</StyledTableCell>
                             </StyledTableRow>
                         ) )}

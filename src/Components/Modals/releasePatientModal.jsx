@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select, InputLabel, MenuItem, DialogActions, TextField, Alert, IconButton, Tooltip } from "@mui/material";
 import { HealthAndSafetyOutlined } from "@mui/icons-material";
+import moment from "moment";
 
 const ReleasePatient = ({ row }) => {
     const [open, setOpen] = useState(false)
@@ -22,7 +23,8 @@ const ReleasePatient = ({ row }) => {
     const handleReleasePatient = () => {
         let filterRoom = roomsOcupated.find(f => f.patient_id === row.id)
         if(extraData.medical_exit !== "") {
-            BackendAPI.patients.update({...extraData, status: 2}).then(res => console.log(res))
+            let newDate = moment(extraData.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')
+            BackendAPI.patients.update({...extraData, ingress_date: newDate, status: 2}).then(res => console.log(res))
             BackendAPI.rooms.update({...filterRoom, patient_id: null}).then(res => console.log(res))
             setExtraData({})
             setValidation(false)
@@ -48,7 +50,7 @@ const ReleasePatient = ({ row }) => {
                         <TextField disabled fullWidth label="Paciente" value={row.name} />
                         <FormControl>
                             <InputLabel>Causas</InputLabel>
-                            <Select error={validation}  fullWidth label="Egreso" required name="medical_exit" value={extraData.medical_exit} onChange={({target}) => setExtraData({...row, [target.name]:target.value})} >
+                            <Select error={validation}  fullWidth label="Egreso" defaultValue='' required name="medical_exit" value={extraData.medical_exit} onChange={({target}) => setExtraData({...row, [target.name]:target.value})} >
                                 <MenuItem key="Mejoria Medica" value="Mejoria Medica">Mejoria Medica</MenuItem>
                                 <MenuItem key="Referencia" value="Referencia">Referencia</MenuItem>
                                 <MenuItem key="Contra opinion Medica" value="Contra opinion Medica">Contra opinion Medica</MenuItem>

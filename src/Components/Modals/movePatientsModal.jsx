@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { BackendAPI } from "../../services/BackendApi";
-import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select, InputLabel, MenuItem, DialogActions, TextField, Alert, IconButton, Tooltip } from "@mui/material";
+import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select, InputLabel, MenuItem, DialogActions, TextField, Alert, IconButton, Tooltip, FormHelperText } from "@mui/material";
 import { TransferWithinAStationOutlined } from "@mui/icons-material";
+import moment from "moment";
 
 const MovePatient = ({ row }) => {
     const [open, setOpen] = useState(false)
@@ -24,8 +25,10 @@ const MovePatient = ({ row }) => {
     const handleReleasePatient = () => {
         let filterRoom = roomsOcupated.find(f => f.patient_id === row.id)
         if(transfer.transfer) {
-            BackendAPI.patients.update({...row, ...transfer, status: 3}).then(res => console.log(res))
-            BackendAPI.rooms.update({...filterRoom, patient_id: null}).then(res => console.log(res))
+            let newDate = moment(row.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')
+            console.log(newDate)
+            BackendAPI.patients.update({...row, ...transfer, status: 3, ingress_date: newDate }).then(res => console.log(res))
+            BackendAPI.rooms.update({...filterRoom, patient_id: null}).then()
             setTransfer({})
             setValidation(false)
             handleClose()
@@ -51,11 +54,12 @@ const MovePatient = ({ row }) => {
                         <TextField disabled fullWidth label="Paciente" value={row.name} />
                         <FormControl>
                             <InputLabel>Ubicacion</InputLabel>
-                            <Select error={validation} fullWidth label="Ingresado a..." required name="transfer" value={row.transfer} onChange={({target}) => setTransfer({...row, [target.name]:target.value})} >
+                            <Select error={validation} fullWidth label="Ingresado a..." required defaultValue='' name="transfer" value={row.transfer} onChange={({target}) => setTransfer({...row, [target.name]:target.value})} >
                                 <MenuItem key="Quirofano" value="Quirofano">Quirofano</MenuItem>
                                 <MenuItem key="Hospitalizacion" value="Hospitalizacion">Hospitalizacion</MenuItem>
                                 <MenuItem key="UCI" value="UCI">UCI</MenuItem>
                             </Select>
+                            <FormHelperText>Requerido</FormHelperText>
                         </FormControl>
                     </Stack>
                 </form>

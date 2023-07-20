@@ -1,4 +1,4 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Select, MenuItem, FormControl, InputLabel, Button, IconButton, Tooltip } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Select, MenuItem, FormControl, InputLabel, Button, IconButton, Tooltip, FormHelperText } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Edit } from '@mui/icons-material';
 import { BackendAPI } from "../../services/BackendApi";
@@ -55,18 +55,19 @@ export const EditPatients = ({ onSubmit, row }) => {
         <DialogContent>
           <form onSubmit={handleSubmit}>
             <Stack direction="row" spacing={1} sx={{ mb: 2, mt: 3 }}>	
-              <TextField error={validation} fullWidth helperText='Campo requerido' required label="Cedula" name="ci" value={values.ci} onChange={({target})=>handleValueChange(target)}/>
-              <TextField error={validation} fullWidth helperText='Campo requerido' required label="Nombre y Apellido" name="name"	value={values.name} onChange={({target})=>handleValueChange(target)}/>
+              <TextField error={validation} fullWidth helperText='Requerido' required label="Cedula" name="ci" value={values.ci} onChange={({target})=>handleValueChange(target)}/>
+              <TextField error={validation} fullWidth helperText='Requerido' required label="Nombre y Apellido" name="name"	value={values.name} onChange={({target})=>handleValueChange(target)}/>
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-              <TextField error={validation} fullWidth helperText='Campo requerido' required label="Edad" name="age" value={values.age}	onChange={({target})=>handleValueChange(target)}/>
+              <TextField error={validation} fullWidth helperText='Requerido' required label="Edad" name="age" value={values.age}	onChange={({target})=>handleValueChange(target)}/>
               <FormControl fullWidth>
                 <InputLabel>Genero</InputLabel>
-                <Select error={validation} label="Genero" helperText='Campo requerido' required name='gender' value={values.gender}	onChange={({target})=>handleValueChange(target)}>
+                <Select error={validation} label="Genero" required name='gender' value={values.gender}	onChange={({target})=>handleValueChange(target)}>
                   <MenuItem key="Masculino" value='Masculino'>Masculino</MenuItem>
                   <MenuItem key="Femenino" value='Femenino'>Femenino</MenuItem>
                   <MenuItem key="Otro" value='Otros'>Otros</MenuItem>
                 </Select>
+                <FormHelperText>Requerido</FormHelperText>
               </FormControl>
             </Stack>
             <Stack>

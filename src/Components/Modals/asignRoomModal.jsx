@@ -48,7 +48,7 @@ const AsignRoom = ({ row }) => {
                             <TextField disabled fullWidth label="Paciente" value={row.name} />
                             <FormControl>
                                 <InputLabel>Ubicacion</InputLabel>
-                                <Select error={validation} fullWidth label="Ubicacion" required name="id" value={roomSelected.id} onChange={({target}) => setRoomSelected(roomsList.find(r => r.id === target.value))} >
+                                <Select error={validation} fullWidth label="Ubicacion" defaultValue='' required name="id" value={roomSelected.id} onChange={({target}) => setRoomSelected(roomsList.find(r => r.id === target.value))} >
                                     {roomsList.filter(f => row.age < 12 ? f.room_type === 'pediatria' : f.room_type === 'adulto' && !f.patient_id ).map(r => (
                                         <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
                                     ))}

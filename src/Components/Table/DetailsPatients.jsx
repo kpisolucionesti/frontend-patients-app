@@ -7,7 +7,7 @@ const DetailsPatients = ({ row }) => {
         <Card variant="outlined" sx={{ m: 2 }} >
             <CardHeader
                 title='DETALLES DE LA EMERGENCIA'
-                sx={{ bgcolor: 'darkblue', color: 'white' }}
+                sx={{ bgcolor: 'darkblue', color: 'white', p: 2 }}
             />
             <CardContent>
                 <Typography>DIAGNOSTICO: {row.current_diagnostic}</Typography>

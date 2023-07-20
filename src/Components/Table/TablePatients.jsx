@@ -114,10 +114,10 @@ const TablePatients = () => {
             renderDetailPanel={({ row }) => {
               return (
               <Grid container spacing={2} >
-                <Grid xs={4}>
+                <Grid item xs={4}>
                   <DetailsPatients row={row.original} />       
                 </Grid>
-                <Grid xs={8}>
+                <Grid item xs={8}>
                   <NotesTable row={row.original} />
                 </Grid>
               </Grid> 
