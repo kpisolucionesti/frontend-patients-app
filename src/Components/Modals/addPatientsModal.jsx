@@ -21,7 +21,6 @@ export const CreatePatients = ({ onSubmit }) => {
       BackendAPI.doctors.getAll().then((res) => setDoctorsList(res) )
       BackendAPI.patients.getAll().then((res) => setPatientsList(res) )
       BackendAPI.rooms.getAll().then((res) => setRoomsList(res))
-      // const newDate = `${new Date().getMonth()+1}/${new Date().getDate()}/${new Date().getFullYear()}`
       setCurrentDate(moment().format('DD/M/YYYY'))
     },[])
 

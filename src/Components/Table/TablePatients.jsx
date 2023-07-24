@@ -11,6 +11,7 @@ import NotesPatient from '../Modals/notesPatientModal';
 import NotesTable from './NotesTables';
 import DetailsPatients from './DetailsPatients';
 import moment from 'moment';
+import ExportData from '../Modals/exportDatamodal';
 
 const TablePatients = () => {
     const [tableData, setTableData] = useState([])
@@ -20,11 +21,8 @@ const TablePatients = () => {
     },[])
 
     const refresh = () => {
-      console.log("Voy a actualizar")
       BackendAPI.patients.getAll().then(res => {
         let newData = res.map(x => { return {...x, ingress_date: moment(x.ingress_date, 'DD/M/YYYY').format('MM/DD/YYYY')}})
-        console.log(newData)
-        console.log(res)
         setTableData(newData)
       })
       setTimeout(refresh,10000)
@@ -33,7 +31,7 @@ const TablePatients = () => {
     const handleCreatePatients = (data, room) => {
       BackendAPI.patients.create(data).then(res => {
         setTableData([...tableData, res])
-        BackendAPI.rooms.update({...room, patient_id: res.id}).then(rest => console.log(rest))
+        BackendAPI.rooms.update({...room, patient_id: res.id}).then()
       })
     }
 
@@ -124,11 +122,11 @@ const TablePatients = () => {
                 
               )}
             }
-            enableFullScreenToggle
+            enableFullScreenToggle={false}
             positionExpandColumn="last"
             columns={columns}
             data={tableData}
-            initialState={{ pagination: { pageSize: 100 }, density: 'compact', sorting: [{ id: 'ingress_date', desc: true }] }}
+            initialState={{ pagination: { pageSize: 25 }, density: 'compact', sorting: [{ id: 'ingress_date', desc: true }, { id: 'status', desc: false }], isFullScreen: true }}
             editingMode='modal'
             enableSorting
             enableRowActions
@@ -138,6 +136,7 @@ const TablePatients = () => {
             enableHiding={false}
             enableGlobalFilter={false}
             enableColumnResizing
+            enableDensityToggle={false}
             renderRowActions={({ row, table }) => (
               <Stack direction="row" >
                 <EditPatients onSubmit={handleUpdatePatients} row={row.original} />
@@ -151,6 +150,7 @@ const TablePatients = () => {
               return (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <CreatePatients onSubmit={handleCreatePatients} />
+                  <ExportData apiData={tableData} />
                 </div>
               );
             }}

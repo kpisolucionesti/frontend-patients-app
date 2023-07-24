@@ -20,12 +20,16 @@ const ReleasePatient = ({ row }) => {
         setOpen(false)
     }
 
+    const handleValueChange = (target) => {
+        setExtraData({...extraData, [target.name]:target.value})
+    }
+
     const handleReleasePatient = () => {
         let filterRoom = roomsOcupated.find(f => f.patient_id === row.id)
         if(extraData.medical_exit !== "") {
-            let newDate = moment(extraData.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')
-            BackendAPI.patients.update({...extraData, ingress_date: newDate, status: 2}).then(res => console.log(res))
-            BackendAPI.rooms.update({...filterRoom, patient_id: null}).then(res => console.log(res))
+            let newDate = moment(row.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')
+            BackendAPI.patients.update({...row, ...extraData, ingress_date: newDate, status: 2}).then(res => console.log(res))
+            BackendAPI.rooms.update({...filterRoom, patient_id: null}).then()
             setExtraData({})
             setValidation(false)
             handleClose()
@@ -50,14 +54,14 @@ const ReleasePatient = ({ row }) => {
                         <TextField disabled fullWidth label="Paciente" value={row.name} />
                         <FormControl>
                             <InputLabel>Causas</InputLabel>
-                            <Select error={validation}  fullWidth label="Egreso" defaultValue='' required name="medical_exit" value={extraData.medical_exit} onChange={({target}) => setExtraData({...row, [target.name]:target.value})} >
+                            <Select error={validation}  fullWidth label="Egreso" defaultValue='' required name="medical_exit" value={extraData.medical_exit} onChange={({target}) => handleValueChange(target)} >
                                 <MenuItem key="Mejoria Medica" value="Mejoria Medica">Mejoria Medica</MenuItem>
                                 <MenuItem key="Referencia" value="Referencia">Referencia</MenuItem>
                                 <MenuItem key="Contra opinion Medica" value="Contra opinion Medica">Contra opinion Medica</MenuItem>
                                 <MenuItem key="Muerte" value="Muerte">Muerte</MenuItem>
                             </Select>
                         </FormControl>
-                        <TextField multiline rows={4} fullWidth defaultValue="" placeholder="Observaciones..." label='Observaciones' name='observations' value={row.observations} onChange={({target}) => setExtraData({...row, [target.name]:target.value})} />
+                        <TextField multiline rows={4} fullWidth defaultValue="" placeholder="Observaciones..." label='Observaciones' name='observations' value={row.observations} onChange={({target}) => handleValueChange(target)} />
                     </Stack>
                 </form>
             </DialogContent>
