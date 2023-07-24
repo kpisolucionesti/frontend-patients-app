@@ -10,6 +10,7 @@ const ExportData = ({ apiData }) => {
     const [open, setOpen] = useState(false)
     const [newData, setNewData] = useState([])
     const today = moment()
+    const orderData = apiData.map(x => {return ({fecha: x.ingress_date, ci: x.ci, paciente: x.name, edad: x.age, genero: x.gender, medico_tratante: x.current_doctor, diagnostico: x.current_diagnostic, tratamiento: x.treatment, egreso: x.medical_exit, ingreso: x.transfer, observaciones: x.observations })})
 
     const handleOpen = () => setOpen(true)
     const handleClose = () => {
@@ -18,20 +19,21 @@ const ExportData = ({ apiData }) => {
     }
 
     const handleRangeDate = (value) => {
-        const orderData = apiData.map(x => {return ({fecha: x.ingress_date, ci: x.ci, paciente: x.name, edad: x.age, genero: x.gender, medico_tratante: x.current_doctor, diagnostico: x.current_diagnostic, tratamiento: x.treatment, egreso: x.medical_exit, ingreso: x.transfer, observaciones: x.observations })})
         const selectDate = moment(value._d).format('MM/DD/YYYY')
         if(!newData.length){
             const firstFilter = orderData.filter(f => f.fecha >= selectDate)
-            setNewData(firstFilter)
+                setNewData(firstFilter)
         } else {
             const secondFilter = newData.filter(f => f.fecha <= selectDate)
-            setNewData(secondFilter)
+                setNewData(secondFilter)
         }
     }
 
     const exportFile = () => {
+        const data = !newData.length ? orderData.filter(f => f.fecha === moment(today).format('MM/DD/YYYY')) : newData
+
         const wb = XLSX.utils.book_new()
-        const ws = XLSX.utils.json_to_sheet(newData)
+        const ws = XLSX.utils.json_to_sheet(data)
         XLSX.utils.book_append_sheet(wb, ws, "Data")
         XLSX.writeFile(wb, "Data.xlsx")
         setOpen(false)

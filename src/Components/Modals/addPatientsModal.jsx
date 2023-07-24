@@ -72,7 +72,7 @@ export const CreatePatients = ({ onSubmit }) => {
         }
       }
       setRoomSelected({})
-    };
+    }
   
     return (
       <>

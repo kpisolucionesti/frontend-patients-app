@@ -27,7 +27,7 @@ const MovePatient = ({ row }) => {
         if(transfer.transfer) {
             let newDate = moment(row.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')
             console.log(newDate)
-            BackendAPI.patients.update({...row, ...transfer, status: 3, ingress_date: newDate }).then(res => console.log(res))
+            BackendAPI.patients.update({...row, ...transfer, status: 3, ingress_date: newDate }).then()
             BackendAPI.rooms.update({...filterRoom, patient_id: null}).then()
             setTransfer({})
             setValidation(false)

@@ -16,8 +16,8 @@ const AsignRoom = ({ row }) => {
     const handleSubmit = () => {
         let removeRoom = roomsList.find(f => f.patient_id === row.id)
         if(roomSelected) {
-            BackendAPI.rooms.update({...roomSelected, patient_id: row.id}).then(res => console.log(res))
-            BackendAPI.rooms.update({...removeRoom, patient_id: null}).then(res => console.log(res))
+            BackendAPI.rooms.update({...roomSelected, patient_id: row.id}).then()
+            BackendAPI.rooms.update({...removeRoom, patient_id: null}).then()
             setValidation(false)
             setRoomSelected({})
             handleClose()
