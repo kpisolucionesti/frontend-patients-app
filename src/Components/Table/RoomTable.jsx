@@ -26,7 +26,6 @@ const RoomTable = () => {
         }
     })
 
-
     return (
         <Grid container sx={{ minHeight: '100%' }} >
             <Grid lg={12}>
