@@ -41,9 +41,11 @@ const ReleasePatient = ({ row }) => {
 
     return(
     <>  <Tooltip title='Alta Medica' arrow >
-            <IconButton color="error" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size="large">
-                <HealthAndSafetyOutlined />
-            </IconButton>
+            <span>
+                <IconButton color="error" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size="large">
+                    <HealthAndSafetyOutlined />
+                </IconButton>
+            </span>
         </Tooltip>
         <Dialog fullWidth maxWidth='xs' open={open} onClose={handleClose} >
             <DialogTitle textAlign="center" sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 'bold' }} >ALTA PACIENTE</DialogTitle>

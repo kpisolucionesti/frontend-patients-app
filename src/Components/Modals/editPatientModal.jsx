@@ -47,10 +47,12 @@ export const EditPatients = ({ onSubmit, row }) => {
   
     return (
       <>
-      <Tooltip title='Editar' arrow>
-        <IconButton color="success" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size="large"  >
-          <Edit />
-        </IconButton>
+      <Tooltip title='Editar' arrow >
+        <span>
+          <IconButton color="success" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size="large"  >
+            <Edit />
+          </IconButton>
+        </span>
       </Tooltip>
       <Dialog open={openModal} onClose={handleClose} >
         <DialogTitle textAlign="center" sx={{ bgcolor: 'success.main', color: 'text.primary', fontWeight: 'bold' }}>EDITAR PACIENTE</DialogTitle>

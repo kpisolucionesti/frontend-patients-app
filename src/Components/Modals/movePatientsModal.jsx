@@ -40,10 +40,12 @@ const MovePatient = ({ row }) => {
 
     return(
     <> 
-        <Tooltip title='Ingreso' arrow>
-            <IconButton color="info" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size="large">
-                <TransferWithinAStationOutlined />
-            </IconButton>
+        <Tooltip title='Ingreso' arrow >
+            <span>
+                <IconButton color="info" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size="large">
+                    <TransferWithinAStationOutlined />
+                </IconButton>
+            </span>
         </Tooltip>
         <Dialog open={open} onClose={handleClose} >
             <DialogTitle textAlign="center" sx={{ bgcolor: 'info.main', color: 'text.primary', fontWeight: 'bold' }}>INGRESO PACIENTE</DialogTitle>

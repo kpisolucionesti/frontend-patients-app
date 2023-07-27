@@ -21,10 +21,12 @@ const NotesPatient = ({ row }) => {
 
     return (
     <>
-        <Tooltip title='Notas' arrow>
-            <IconButton color="secondary" onClick={handleOpen} disabled={row.status !== 1 ? true : false} >
-                <NoteAdd />
-            </IconButton>
+        <Tooltip title='Notas' arrow >
+            <span>
+                <IconButton color="secondary" onClick={handleOpen} disabled={row.status !== 1 ? true : false} >
+                    <NoteAdd />
+                </IconButton>
+            </span>
         </Tooltip>
         <Dialog fullWidth maxWidth='xs' open={open} onClose={handleClose} >
             <DialogTitle sx={{ bgcolor: 'secondary.main', color: 'white', fontWeight: 'bold' }} textAlign='center'>AGREGAR NOTA PACIENTE</DialogTitle>
