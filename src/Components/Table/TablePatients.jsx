@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { MaterialReactTable } from 'material-react-table';
 import { Chip, Grid, Stack } from '@mui/material';
 import CreatePatients from '../Modals/addPatientsModal';
-import { BackendAPI } from '../../services/BackendApi';
 import AsignRoom from '../Modals/asignRoomModal';
 import ReleasePatient from '../Modals/releasePatientModal';
 import EditPatients from '../Modals/editPatientModal';
@@ -10,38 +9,22 @@ import MovePatient from '../Modals/movePatientsModal';
 import NotesPatient from '../Modals/notesPatientModal';
 import NotesTable from './NotesTables';
 import DetailsPatients from './DetailsPatients';
-import moment from 'moment';
 import ExportData from '../Modals/exportDatamodal';
+import { useCallList } from '../Hooks/useCallsList';
 
 const TablePatients = () => {
-    const [tableData, setTableData] = useState([])
+    const { patients, callPatientsList } = useCallList()
+    const [edit, setEdit] = useState(false)
     
     useEffect(() => {
       refresh()
-    },[])
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[edit])
 
     const refresh = () => {
-      BackendAPI.patients.getAll().then(res => {
-        let newData = res.map(x => { return {...x, ingress_date: moment(x.ingress_date, 'DD/M/YYYY').format('MM/DD/YYYY')}})
-        setTableData(newData)
-      })
+      callPatientsList()
+      console.log('Actualizado')
       setTimeout(refresh,10000)
-    }
-
-    const handleCreatePatients = (data, room) => {
-      BackendAPI.patients.create(data).then(res => {
-        setTableData([...tableData, res])
-        BackendAPI.rooms.update({...room, patient_id: res.id}).then()
-      })
-    }
-
-    const handleUpdatePatients = (patient) => {
-      BackendAPI.patients.update(patient).then(res => {
-        let userIndex = tableData.findIndex(x=>x.id === patient.id)
-        let newState = [...tableData];
-        newState[userIndex]=res;
-        setTableData(newState);
-      })
     }
 
     const columns = useMemo(
@@ -81,8 +64,6 @@ const TablePatients = () => {
                   color={cell.getValue() === 0 ? 'success' : cell.getValue() === 1 ? "warning" : cell.getValue() === 3 ? "info" : "error" } 
                   label={cell.getValue() === 0 ? "ESPERANDO" : cell.getValue() === 1 ? "ATENDIDO" : cell.getValue() === 3 ? 'INGRESADO' : "ALTA" } 
                 />,
-                enableColumnOrdering: false,
-                enableEditing: false,
             }
         ],
         [],
@@ -125,7 +106,7 @@ const TablePatients = () => {
             enableFullScreenToggle={false}
             positionExpandColumn="last"
             columns={columns}
-            data={tableData}
+            data={patients}
             initialState={{ pagination: { pageSize: 25 }, density: 'compact', sorting: [{ id: 'ingress_date', desc: true }, { id: 'status', desc: false }], isFullScreen: true }}
             editingMode='modal'
             enableSorting
@@ -135,22 +116,21 @@ const TablePatients = () => {
             enableStickyHeader
             enableHiding={false}
             enableGlobalFilter={false}
-            enableColumnResizing
             enableDensityToggle={false}
-            renderRowActions={({ row, table }) => (
+            renderRowActions={({ row }) => (
               <Stack direction="row" >
-                <EditPatients onSubmit={handleUpdatePatients} row={row.original} />
-                <NotesPatient row={row.original} />
+                <EditPatients row={row.original} />
+                <NotesPatient row={row.original} onChange={setEdit} />
                 <AsignRoom row={row.original} />
-                <MovePatient row={row.original} />
-                <ReleasePatient row={row.original} />
+                <MovePatient row={row.original} onChange={setEdit} edit={edit} />
+                <ReleasePatient row={row.original} onChange={setEdit} edit={edit} />
               </Stack>
             )}
             renderTopToolbarCustomActions={() => {
               return (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <CreatePatients onSubmit={handleCreatePatients} />
-                  <ExportData apiData={tableData} />
+                  <CreatePatients patientsList={patients} onChange={setEdit} />
+                  <ExportData apiData={patients} />
                 </div>
               );
             }}
