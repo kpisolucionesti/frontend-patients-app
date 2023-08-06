@@ -5,18 +5,13 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import moment from "moment";
 import { FileDownloadOutlined } from "@mui/icons-material";
+import { useOpenModal } from "../Hooks/useOpenModal";
 
 const ExportData = ({ apiData }) => {
-    const [open, setOpen] = useState(false)
     const [newData, setNewData] = useState([])
+    const { open, handleOpen, handleClose } = useOpenModal()
     const today = moment()
     const orderData = apiData.map(x => {return ({fecha: x.ingress_date, ci: x.ci, paciente: x.name, edad: x.age, genero: x.gender, medico_tratante: x.current_doctor, diagnostico: x.current_diagnostic, tratamiento: x.treatment, egreso: x.medical_exit, ingreso: x.transfer, observaciones: x.observations })})
-
-    const handleOpen = () => setOpen(true)
-    const handleClose = () => {
-        setOpen(false)
-        setNewData([])
-    }
 
     const handleRangeDate = (value) => {
         const selectDate = moment(value._d).format('MM/DD/YYYY')
@@ -31,19 +26,19 @@ const ExportData = ({ apiData }) => {
 
     const exportFile = () => {
         const data = !newData.length ? orderData.filter(f => f.fecha === moment(today).format('MM/DD/YYYY')) : newData
-
+    
         const wb = XLSX.utils.book_new()
         const ws = XLSX.utils.json_to_sheet(data)
         XLSX.utils.book_append_sheet(wb, ws, "Data")
         XLSX.writeFile(wb, "Data.xlsx")
-        setOpen(false)
+        handleClose()
     }
 
     return(
         <>
             <Button variant="contained" onClick={handleOpen} startIcon={<FileDownloadOutlined />} >Reporte</Button>
             <Dialog open={open} onClose={handleClose} >
-                <DialogTitle sx={{ bgcolor: 'blue', textAlign: 'center', color: 'white' }} >EXPORTAR DATOS</DialogTitle>
+                <DialogTitle sx={{ bgcolor: 'blue', textAlign: 'center', color: 'white', fontWeight: 'bold' }} >EXPORTAR DATOS</DialogTitle>
                 <DialogContent>
                     <LocalizationProvider dateAdapter={AdapterMoment}>
                         <Stack sx={{ mt: 2 }} direction='row' spacing={2} >

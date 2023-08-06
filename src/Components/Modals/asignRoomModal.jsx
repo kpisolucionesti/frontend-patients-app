@@ -1,36 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { BackendAPI } from "../../services/BackendApi";
+import React, { useEffect, useState } from "react";
 import { KingBed } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField, Tooltip } from "@mui/material";
+import { useOpenModal } from "../Hooks/useOpenModal";
+import { useActions } from "../Hooks/useActions";
+import { useCallList } from "../Hooks/useCallsList";
 
 const AsignRoom = ({ row }) => {
-    const [openModal, setOpenModal] = useState(false)
     const [roomSelected, setRoomSelected] = useState({})
-    const [roomsList, setRoomsList] = useState([])
     const [validation, setValidation] = useState(false)
+    const { rooms, callRoomsList } = useCallList()
+    const { open, handleClose, handleOpen } = useOpenModal()
+    const { handleAssingRoom } = useActions(row, rooms)
 
     useEffect(() => {
-        BackendAPI.rooms.getAll().then(res => setRoomsList(res))
-    },[roomSelected])
+        callRoomsList()
+        setRoomSelected({})
+        setValidation(false)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[open])
 
     const handleSubmit = () => {
-        let removeRoom = roomsList.find(f => f.patient_id === row.id)
-        if(roomSelected) {
-            BackendAPI.rooms.update({...roomSelected, patient_id: row.id}).then()
-            BackendAPI.rooms.update({...removeRoom, patient_id: null}).then()
-            setValidation(false)
+        if(Object.keys(roomSelected).length){
+            handleAssingRoom(roomSelected, row)
             setRoomSelected({})
             handleClose()
+            setValidation(false)
         } else {
-            alert("FALTAN DATOS POR LLENAR")
             setValidation(true)
         }
-    }
-
-    const handleOpen = () => setOpenModal(true)
-    const handleClose = () => {
-        setOpenModal(false)
-        setRoomSelected({})
     }
 
     return (
@@ -42,7 +39,7 @@ const AsignRoom = ({ row }) => {
                     </IconButton>
                 </span>
             </Tooltip>
-            <Dialog open={openModal} onClose={handleClose} >
+            <Dialog open={open} onClose={handleClose} >
                 <DialogTitle textAlign="center" sx={{ bgcolor: 'warning.main', color: 'text.primary', fontWeight: 'bold' }} >CAMBIAR UBICACION</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
@@ -50,8 +47,8 @@ const AsignRoom = ({ row }) => {
                             <TextField disabled fullWidth label="Paciente" value={row.name} />
                             <FormControl>
                                 <InputLabel>Ubicacion</InputLabel>
-                                <Select error={validation} fullWidth label="Ubicacion" defaultValue='' required name="id" value={roomSelected.id} onChange={({target}) => setRoomSelected(roomsList.find(r => r.id === target.value))} >
-                                    {roomsList.filter(f => row.age < 12 ? f.room_type === 'pediatria' : f.room_type === 'adulto' && !f.patient_id ).map(r => (
+                                <Select error={validation} fullWidth label="Ubicación" required name="id" value={roomSelected.id || ''} onChange={({target}) => setRoomSelected(rooms.find(r => r.id === target.value))} >
+                                    {rooms.filter(f => f.room_type === 'adulto' && !f.patient_id ).map(r => (
                                         <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
                                     ))}
                                 </Select>

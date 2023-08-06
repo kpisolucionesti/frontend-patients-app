@@ -2,21 +2,15 @@ import { NoteAdd } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
+import { useOpenModal} from "../Hooks/useOpenModal";
 
 const NotesPatient = ({ row }) => {
     const [values, setValues] = useState({})
-    const [open, setOpen] = useState(false)
+    const { open, handleOpen, handleClose } = useOpenModal()
 
     const handleCreateNote = () => {
         BackendAPI.notes.create({...values, patient_id: row.id}).then()
         handleClose()
-    }
-
-    const handleOpen = () => setOpen(true)
-
-    const handleClose = () => {
-        setValues({})
-        setOpen(false)
     }
 
     return (

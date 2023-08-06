@@ -1,32 +1,28 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Select, MenuItem, FormControl, InputLabel, Button, IconButton, Tooltip, FormHelperText } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { Edit } from '@mui/icons-material';
-import { BackendAPI } from "../../services/BackendApi";
 import moment from "moment";
+import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Select, MenuItem, FormControl, InputLabel, Button, IconButton, Tooltip, FormHelperText } from "@mui/material";
+import { Edit } from '@mui/icons-material';
+import { useOpenModal } from "../Hooks/useOpenModal";
+import { useActions } from "../Hooks/useActions";
+import { useCallList } from "../Hooks/useCallsList";
 
 
-export const EditPatients = ({ onSubmit, row }) => {
+export const EditPatients = ({ row }) => {
 
-    const [values, setValues] = useState(row);
-    const [openModal, setOpenModal] = useState(false)
-    const [doctorsList, setDoctorsList] = useState([])
+    const [values, setValues] = useState(row)
     const [validation, setValidation] = useState(false)
+    const { open, handleClose, handleOpen } = useOpenModal()
+    const { handleEdit } = useActions(row)
+    const { doctors, callDoctorsList } = useCallList()
 
     useEffect(() => {
-      BackendAPI.doctors.getAll().then((res) => setDoctorsList(res) )
-    },[values])
+      callDoctorsList()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[])
 
-  	const handleValueChange = (target)=>{
-      setValues({...values,[target.name]:target.value})
+  	const handleValueChange = (target) => {
+      setValues({...values, id: row.id, [target.name]:target.value})
     }
-
-    const handleOpen = () => {
-      setOpenModal(true)
-    }
-
-    const handleClose = () => {
-      setOpenModal(false)
-    }    
 
     const handleSubmit = (event) => {
       event.preventDefault()
@@ -34,16 +30,16 @@ export const EditPatients = ({ onSubmit, row }) => {
         alert("POR FAVOR LLENAR EL FORMULARIO")
       } else {
         if( !values.ci || !values.name || !values.age || !values.gender) {
-          alert("FALTAN DATOS POR LLENAR")
           setValidation(true)
+          alert("FALTAN DATOS POR LLENAR")
         } else {
           let data = {...values, ingress_date: moment(values.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')}
-          onSubmit(data)
+          handleEdit(data)
+          handleClose()
           setValidation(false)
-          handleClose();
         }
       }
-    };
+    }
   
     return (
       <>
@@ -54,7 +50,7 @@ export const EditPatients = ({ onSubmit, row }) => {
           </IconButton>
         </span>
       </Tooltip>
-      <Dialog open={openModal} onClose={handleClose} >
+      <Dialog open={open} onClose={handleClose} >
         <DialogTitle textAlign="center" sx={{ bgcolor: 'success.main', color: 'text.primary', fontWeight: 'bold' }}>EDITAR PACIENTE</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit}>
@@ -80,7 +76,7 @@ export const EditPatients = ({ onSubmit, row }) => {
               <FormControl fullWidth sx={{ mb: 3}}>
                 <InputLabel>Medico Tratante</InputLabel>
                 <Select label="Medico Tratante" name="current_doctor" value={values.current_doctor} onChange={({target})=> setValues({...values,[target.name]:target.value})}>
-                  {doctorsList.map(doctor=>(
+                  {doctors.map(doctor=>(
                     <MenuItem key={doctor.id} value={doctor.name}>{doctor.name}</MenuItem>
                     ))}
                 </Select>
