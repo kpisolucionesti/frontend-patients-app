@@ -1,30 +1,52 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MaterialReactTable } from 'material-react-table';
-import { Chip, Grid } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
-import NotesTable from './NotesTables';
-import DetailsPatients from './DetailsPatients';
 import moment from 'moment';
-import ExportData from '../Modals/exportDatamodal';
+import { MaterialReactTable } from 'material-react-table';
+import DetailsPatients from './DetailsPatients';
+import { Chip, Grid, Stack } from '@mui/material';
+import NotesTable from './NotesTables';
+import CreatePatients from '../Modals/addPatientsModal';
+import EditPatients from '../Modals/editPatientModal';
+import NotesPatient from '../Modals/notesPatientModal';
+import AsignRoom from '../Modals/asignRoomModal';
+import MovePatient from '../Modals/movePatientsModal';
+import ReleasePatient from '../Modals/releasePatientModal';
 
-const TablePatients = () => {
+const CurrentPatients = () => {
     const [tableData, setTableData] = useState([])
-    
+
     useEffect(() => {
-      BackendAPI.patients.getAll().then(res => {
-        let newData = res.filter(r => r.status !== 1).map(x => { return {...x, ingress_date: moment(x.ingress_date, 'DD/M/YYYY').format('MM/DD/YYYY')}})
-        setTableData(newData)
-    })
+        refresh()
     },[])
+
+    const refresh = () => {
+        BackendAPI.patients.getAll().then(res => {
+            let newData = res.filter(r => r.status === 1).map(x => { return {...x, ingress_date: moment(x.ingress_date, 'DD/M/YYYY').format('MM/DD/YYYY')}})
+            setTableData(newData)
+        })
+        setTimeout(refresh,10000)
+      }
+  
+      const handleCreatePatients = (data, room) => {
+        BackendAPI.patients.create(data).then(res => {
+          setTableData([...tableData, res])
+          BackendAPI.rooms.update({...room, patient_id: res.id}).then()
+        })
+      }
+  
+      const handleUpdatePatients = (patient) => {
+        BackendAPI.patients.update(patient).then(res => {
+          let userIndex = tableData.findIndex(x=>x.id === patient.id)
+          let newState = [...tableData];
+          newState[userIndex]=res;
+          setTableData(newState);
+        })
+      }
+
+    
 
     const columns = useMemo(
         () => [
-            {
-                header: "F. Ingreso",
-                accessorKey: "ingress_date",
-                enableEditing: false,
-                size: 30,
-            },
             {
                 header: "Cedula",
                 accessorKey: 'ci',
@@ -61,7 +83,7 @@ const TablePatients = () => {
         [],
     )
 
-    return(
+    return (
         <MaterialReactTable
             displayColumnDefOptions={{
                 'mrt-row-actions': {
@@ -99,24 +121,35 @@ const TablePatients = () => {
             positionExpandColumn="last"
             columns={columns}
             data={tableData}
-            initialState={{ pagination: { pageSize: 25 }, density: 'compact', sorting: [{ id: 'ingress_date', desc: true }, { id: 'status', desc: false }] }}
+            initialState={{ pagination: { pageSize: 25 }, density: 'compact' }}
             editingMode='modal'
             enableSorting
+            enableRowActions
             enableColumnOrdering={false}
+            enableEditing
             enableStickyHeader
             enableHiding={false}
             enableGlobalFilter={false}
             enableColumnResizing
             enableDensityToggle={false}
+            renderRowActions={({ row, table }) => (
+                <Stack direction="row" >
+                  <EditPatients onSubmit={handleUpdatePatients} row={row.original} />
+                  <NotesPatient row={row.original} />
+                  <AsignRoom row={row.original} />
+                  <MovePatient row={row.original} />
+                  <ReleasePatient row={row.original} />
+                </Stack>
+              )}
             renderTopToolbarCustomActions={() => {
-              return (
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <ExportData apiData={tableData} />
-                </div>
-              );
-            }}
+                return (
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <CreatePatients onSubmit={handleCreatePatients} />
+                  </div>
+                );
+              }}
         />
     )
 }
 
-export default TablePatients
+export default CurrentPatients
