@@ -1,12 +1,12 @@
 import './App.css';
+import PatientsView from './Components/Table/PatientsView';
 import RoomTable from './Components/Table/RoomTable';
-import TablePatients from './Components/Table/TablePatients';
 import { Route, Routes } from 'react-router-dom';
 
 function App() {
   return (
     <Routes >
-      <Route path="/" element={<TablePatients />} exact />
+      <Route path="/" element={<PatientsView />} exact />
       <Route path="/adulto" element={<RoomTable />} exact />
     </Routes >
   );

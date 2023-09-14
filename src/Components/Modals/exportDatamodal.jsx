@@ -31,12 +31,16 @@ const ExportData = ({ apiData }) => {
 
     const exportFile = () => {
         const data = !newData.length ? orderData.filter(f => f.fecha === moment(today).format('MM/DD/YYYY')) : newData
-
-        const wb = XLSX.utils.book_new()
-        const ws = XLSX.utils.json_to_sheet(data)
-        XLSX.utils.book_append_sheet(wb, ws, "Data")
-        XLSX.writeFile(wb, "Data.xlsx")
-        setOpen(false)
+        console.log(data)
+        if(!data.length){
+            alert("NO EXISTEN REGISTROS EN LAS FECHAS SELECCIONADAS")
+        } else {
+            const wb = XLSX.utils.book_new()
+            const ws = XLSX.utils.json_to_sheet(data)
+            XLSX.utils.book_append_sheet(wb, ws, "Data")
+            XLSX.writeFile(wb, "Data.xlsx")
+            setOpen(false)
+        }
     }
 
     return(
