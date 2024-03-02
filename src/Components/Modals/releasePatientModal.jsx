@@ -27,7 +27,7 @@ const ReleasePatient = ({ row }) => {
     const handleReleasePatient = () => {
         let filterRoom = roomsOcupated.find(f => f.patient_id === row.id)
         if(extraData.medical_exit !== "") {
-            let newDate = moment(row.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')
+            let newDate = moment(row.ingress_date).format('DD/M/YYYY')
             BackendAPI.patients.update({...row, ...extraData, ingress_date: newDate, status: 2}).then()
             BackendAPI.rooms.update({...filterRoom, patient_id: null}).then()
             setExtraData({})

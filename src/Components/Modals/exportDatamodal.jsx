@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as XLSX from 'xlsx';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
@@ -10,7 +10,12 @@ const ExportData = ({ apiData }) => {
     const [open, setOpen] = useState(false)
     const [newData, setNewData] = useState([])
     const today = moment()
-    const orderData = apiData.map(x => {return ({fecha: x.ingress_date, ci: x.ci, paciente: x.name, edad: x.age, genero: x.gender, medico_tratante: x.current_doctor, diagnostico: x.current_diagnostic, tratamiento: x.treatment, egreso: x.medical_exit, ingreso: x.transfer, observaciones: x.observations })})
+    const orderData = apiData.map(x => {return ({fecha: moment(x.ingress_date).format("YYYY-MM-DD"), ci: x.ci, paciente: x.name, edad: x.age, genero: x.gender, medico_tratante: x.current_doctor, diagnostico: x.current_diagnostic, tratamiento: x.treatment, egreso: x.medical_exit, ingreso: x.transfer, observaciones: x.observations })})
+
+    useEffect(() => {
+        setNewData([])
+    },[open])
+
 
     const handleOpen = () => setOpen(true)
     const handleClose = () => {
@@ -19,7 +24,7 @@ const ExportData = ({ apiData }) => {
     }
 
     const handleRangeDate = (value) => {
-        const selectDate = moment(value._d).format('MM/DD/YYYY')
+        const selectDate = moment(value._d).format('YYYY-MM-DD')
         if(!newData.length){
             const firstFilter = orderData.filter(f => f.fecha >= selectDate)
                 setNewData(firstFilter)
