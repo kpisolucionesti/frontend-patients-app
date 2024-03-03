@@ -4,7 +4,7 @@ import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select,
 import { HealthAndSafetyOutlined } from "@mui/icons-material";
 import moment from "moment";
 
-const ReleasePatient = ({ row }) => {
+const ReleasePatient = ({ row, status }) => {
     const [open, setOpen] = useState(false)
     const [roomsOcupated, setRoomsOcupated] = useState([])
     const [extraData, setExtraData] = useState({})
@@ -27,11 +27,12 @@ const ReleasePatient = ({ row }) => {
     const handleReleasePatient = () => {
         let filterRoom = roomsOcupated.find(f => f.patient_id === row.id)
         if(extraData.medical_exit !== "") {
-            let newDate = moment(row.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')
+            let newDate = moment(row.ingress_date).format('DD/M/YYYY')
             BackendAPI.patients.update({...row, ...extraData, ingress_date: newDate, status: 2}).then()
             BackendAPI.rooms.update({...filterRoom, patient_id: null}).then()
             setExtraData({})
             setValidation(false)
+            status(true)
             handleClose()
         } else {
             alert("FALTAN DATOS POR LLENAR")
