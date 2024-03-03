@@ -21,7 +21,7 @@ const PatientsView = () => {
                     onChange={handleChange}
                 >
                     <Tab icon={<AddToQueueIcon />} iconPosition="start" label="ACTUALES" />
-                    <Tab icon={<ListIcon />} iconPosition="start"  label='ANTIGUOS' />
+                    <Tab icon={<ListIcon />} iconPosition="start"  label='HISTORIAL' />
                 </Tabs>
             </Box>
             <Box>

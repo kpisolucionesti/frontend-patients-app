@@ -2,8 +2,6 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Se
 import React, { useEffect, useState } from "react";
 import { Edit } from '@mui/icons-material';
 import { BackendAPI } from "../../services/BackendApi";
-import moment from "moment";
-
 
 export const EditPatients = ({ onSubmit, row }) => {
 
@@ -37,7 +35,8 @@ export const EditPatients = ({ onSubmit, row }) => {
           alert("FALTAN DATOS POR LLENAR")
           setValidation(true)
         } else {
-          let data = {...values, ingress_date: moment(values.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')}
+          let data = {...values}
+          console.log(data)
           onSubmit(data)
           setValidation(false)
           handleClose();

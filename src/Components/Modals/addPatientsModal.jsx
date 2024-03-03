@@ -11,17 +11,16 @@ export const CreatePatients = ({ onSubmit }) => {
     const [openModal, setOpenModal] = useState(false)
     const [doctorsList, setDoctorsList] = useState([])
     const [patientsList, setPatientsList] = useState([])
-    const [currentDate, setCurrentDate] = useState("")
     const [roomsList, setRoomsList] = useState([])
     const [roomSelected, setRoomSelected] = useState({})
     const [validation, setValidation] = useState(false)
     const [check, setCheck] = useState(0)
+    const currentDate = moment().format("DD/M/YYYY")
     
     useEffect(() => {
       BackendAPI.doctors.getAll().then((res) => setDoctorsList(res) )
       BackendAPI.patients.getAll().then((res) => setPatientsList(res) )
       BackendAPI.rooms.getAll().then((res) => setRoomsList(res))
-      setCurrentDate(moment().format('DD/M/YYYY'))
     },[])
 
     const validationPatient = () => {
@@ -107,7 +106,7 @@ export const CreatePatients = ({ onSubmit }) => {
               </FormControl>
             </Stack>
             <Stack >
-              <TextField variant="outlined" disabled={ check === 2 ? false : true } defaultValue="" sx={{ mb: 3}} fullWidth placeholder="Diagnostico" 	name="current_diagnostic" value={values.current_diagnostic}		onChange={({target})=>handleValueChange(target)}/>
+              <TextField multiline rows={3} variant="outlined" disabled={ check === 2 ? false : true } defaultValue="" sx={{ mb: 3}} fullWidth placeholder="Diagnostico" 	name="current_diagnostic" value={values.current_diagnostic}		onChange={({target})=>handleValueChange(target)}/>
               <TextField variant="outlined" disabled={ check === 2 ? false : true } defaultValue="" sx={{ mb: 3}} fullWidth placeholder="Plan" name="treatment" value={values.treatment}	onChange={({target})=>handleValueChange(target)}/>
               <FormControl fullWidth sx={{ mb: 3}}>
                 <InputLabel>Medico Tratante</InputLabel>

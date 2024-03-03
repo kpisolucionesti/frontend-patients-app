@@ -1,8 +1,8 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as XLSX from 'xlsx';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment from "moment";
 import { FileDownloadOutlined } from "@mui/icons-material";
 
@@ -10,7 +10,12 @@ const ExportData = ({ apiData }) => {
     const [open, setOpen] = useState(false)
     const [newData, setNewData] = useState([])
     const today = moment()
-    const orderData = apiData.map(x => {return ({fecha: x.ingress_date, ci: x.ci, paciente: x.name, edad: x.age, genero: x.gender, medico_tratante: x.current_doctor, diagnostico: x.current_diagnostic, tratamiento: x.treatment, egreso: x.medical_exit, ingreso: x.transfer, observaciones: x.observations })})
+    const orderData = apiData.map(x => {return ({fecha: moment(x.ingress_date, 'YYYY/MM/DD').format("YYYY-MM-DD"), ci: x.ci, paciente: x.name, edad: x.age, genero: x.gender, medico_tratante: x.current_doctor, diagnostico: x.current_diagnostic, tratamiento: x.treatment, egreso: x.medical_exit, ingreso: x.transfer, observaciones: x.observations })})
+
+    useEffect(() => {
+        setNewData([])
+    },[open])
+
 
     const handleOpen = () => setOpen(true)
     const handleClose = () => {
@@ -19,7 +24,8 @@ const ExportData = ({ apiData }) => {
     }
 
     const handleRangeDate = (value) => {
-        const selectDate = moment(value._d).format('MM/DD/YYYY')
+        console.log(orderData)
+        const selectDate = moment(value._d, 'DD/MM/YYYY').format('YYYY-MM-DD')
         if(!newData.length){
             const firstFilter = orderData.filter(f => f.fecha >= selectDate)
                 setNewData(firstFilter)
@@ -30,7 +36,7 @@ const ExportData = ({ apiData }) => {
     }
 
     const exportFile = () => {
-        const data = !newData.length ? orderData.filter(f => f.fecha === moment(today).format('MM/DD/YYYY')) : newData
+        const data = !newData.length ? orderData.filter(f => f.fecha === moment(today).format('YYYY/MM/DD')) : newData
         console.log(data)
         if(!data.length){
             alert("NO EXISTEN REGISTROS EN LAS FECHAS SELECCIONADAS")
@@ -51,8 +57,8 @@ const ExportData = ({ apiData }) => {
                 <DialogContent>
                     <LocalizationProvider dateAdapter={AdapterMoment}>
                         <Stack sx={{ mt: 2 }} direction='row' spacing={2} >
-                            <DatePicker minDate={moment('06/22/2023')} defaultValue={today} label='Fecha Inicial' onChange={(e) => handleRangeDate(e)} />
-                            <DatePicker label='Fecha Final' defaultValue={today} onChange={(e) => handleRangeDate(e)} />
+                            <DatePicker format="DD/MM/YYYY" minDate='23/06/2023' defaultValue={today} label='Fecha Inicial' onChange={(e) => handleRangeDate(e)} />
+                            <DatePicker format="DD/MM/YYYY" label='Fecha Final' defaultValue={today} onChange={(e) => handleRangeDate(e)} />
                         </Stack>
                     </LocalizationProvider>
                 </DialogContent>
