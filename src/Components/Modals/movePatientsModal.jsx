@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select, InputLabel, MenuItem, DialogActions, TextField, Alert, IconButton, Tooltip, FormHelperText } from "@mui/material";
 import { TransferWithinAStationOutlined } from "@mui/icons-material";
-import moment from "moment";
+// import moment from "moment";
 
-const MovePatient = ({ row }) => {
+const MovePatient = ({ row, status }) => {
     const [open, setOpen] = useState(false)
     const [transfer, setTransfer] = useState({})
     const [roomsOcupated, setRoomsOcupated] = useState([])
@@ -25,12 +25,12 @@ const MovePatient = ({ row }) => {
     const handleReleasePatient = () => {
         let filterRoom = roomsOcupated.find(f => f.patient_id === row.id)
         if(transfer.transfer) {
-            let newDate = moment(row.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')
-            console.log(newDate)
-            BackendAPI.patients.update({...row, ...transfer, status: 3, ingress_date: newDate }).then()
+            // let newDate = moment(row.ingress_date, 'MM/DD/YYYY').format('DD/M/YYYY')
+            BackendAPI.patients.update({...row, ...transfer, status: 3 }).then()
             BackendAPI.rooms.update({...filterRoom, patient_id: null}).then()
             setTransfer({})
             setValidation(false)
+            status(true)
             handleClose()
         } else {
             alert("FALTAN DATOS POR LLENAR")

@@ -23,7 +23,7 @@ const NotesPatient = ({ row }) => {
     <>
         <Tooltip title='Notas' arrow >
             <span>
-                <IconButton color="secondary" onClick={handleOpen} disabled={row.status !== 1 ? true : false} >
+                <IconButton color="secondary" onClick={handleOpen} disabled={row.status !== 1 ? true : false} size='large' >
                     <NoteAdd />
                 </IconButton>
             </span>

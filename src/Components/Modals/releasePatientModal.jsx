@@ -4,7 +4,7 @@ import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select,
 import { HealthAndSafetyOutlined } from "@mui/icons-material";
 import moment from "moment";
 
-const ReleasePatient = ({ row }) => {
+const ReleasePatient = ({ row, status }) => {
     const [open, setOpen] = useState(false)
     const [roomsOcupated, setRoomsOcupated] = useState([])
     const [extraData, setExtraData] = useState({})
@@ -32,6 +32,7 @@ const ReleasePatient = ({ row }) => {
             BackendAPI.rooms.update({...filterRoom, patient_id: null}).then()
             setExtraData({})
             setValidation(false)
+            status(true)
             handleClose()
         } else {
             alert("FALTAN DATOS POR LLENAR")
