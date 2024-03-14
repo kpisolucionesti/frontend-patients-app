@@ -20,6 +20,8 @@ const ReleasePatient = ({ row, status }) => {
         setOpen(false)
     }
 
+    console.log(row)
+
     const handleValueChange = (target) => {
         setExtraData({...extraData, [target.name]:target.value})
     }
@@ -27,8 +29,7 @@ const ReleasePatient = ({ row, status }) => {
     const handleReleasePatient = () => {
         let filterRoom = roomsOcupated.find(f => f.patient_id === row.id)
         if(extraData.medical_exit !== "") {
-            let newDate = moment(row.ingress_date).format('DD/M/YYYY')
-            BackendAPI.patients.update({...row, ...extraData, ingress_date: newDate, status: 2}).then()
+            BackendAPI.patients.update({...row, ...extraData, status: 2}).then((res) => console.log(res))
             BackendAPI.rooms.update({...filterRoom, patient_id: null}).then()
             setExtraData({})
             setValidation(false)
