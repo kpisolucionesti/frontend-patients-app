@@ -31,9 +31,9 @@ const AddEmergencyModal = ({ onEmergencyCreated }) => {
   const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
 
   const availableRooms = useMemo(
-    () => roomsList.filter((r) => {
+    () => (roomsList || []).filter((r) => {
       const age = patientAge;
-      return (age < 12 ? r.room_type === 'pediatria' : r.room_type === 'adulto') && !r.patient_id;
+      return age < 12 ? r.room_type === 'pediatria' : r.room_type === 'adulto';
     }),
     [roomsList, patientAge],
   );
@@ -71,7 +71,7 @@ const AddEmergencyModal = ({ onEmergencyCreated }) => {
 
   const handleCiChange = useCallback(({ target }) => {
     const ci = target.value;
-    setPatientValues({ ci });
+    setPatientValues((prev) => ({ ...prev, ci }));
     setLocked(false);
     setPatientAge(0);
     setPatientValidation(false);
@@ -160,8 +160,7 @@ const AddEmergencyModal = ({ onEmergencyCreated }) => {
         patientId = newPatient.id;
       }
 
-      const primaryDoctor = (doctors || []).find((d) => d.name === emergencyValues.current_doctor);
-      const doctorsPayload = primaryDoctor ? [{ id: primaryDoctor.id }] : [];
+      const doctorsPayload = emergencyValues.current_doctor ? [{ id: emergencyValues.current_doctor }] : [];
 
       const emergency = {
         patient_id: patientId,
@@ -200,7 +199,7 @@ const AddEmergencyModal = ({ onEmergencyCreated }) => {
           AGREGAR EMERGENCIA
         </DialogTitle>
         <DialogContent sx={{
-          overflow: 'hidden',
+          overflow: 'visible',
           '&:first-of-type': { pt: 1.5 },
           '& .MuiInputBase-input': { fontSize: '0.75rem' },
           '& .MuiInputLabel-root': { fontSize: '0.75rem' },
@@ -224,8 +223,8 @@ const AddEmergencyModal = ({ onEmergencyCreated }) => {
               doctors={doctors}
               availableRooms={availableRooms}
               roomSelected={roomSelected}
+              patientReady={patientAge > 0}
               onFieldChange={handleEmergencyFieldChange}
-              onIngressDateChange={handleIngressDateChange}
               onRoomChange={handleRoomChange}
             />
           </Stack>

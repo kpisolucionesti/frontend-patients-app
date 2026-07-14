@@ -37,6 +37,7 @@ const SignIn = () => {
       if (response.status === "success") {
         localStorage.setItem("auth_token", response.token);
         localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("user_permissions", JSON.stringify(response.user.permissions));
         navigate("/patients", { replace: true });
       } else {
         setError(true);
@@ -103,6 +104,9 @@ const SignIn = () => {
               sx={{ bgcolor: "darkblue", "&:hover": { bgcolor: "navy" } }}
             >
               Entrar
+            </Button>
+            <Button fullWidth variant="text" onClick={() => navigate('/forgot-password')} sx={{ mt: 1 }}>
+              Olvidaste tu contrasena?
             </Button>
           </form>
         </CardContent>

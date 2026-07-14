@@ -56,7 +56,7 @@ const MovePatient = ({ row, onStatusChange }) => {
                         SE INFORMA QUE UNA VEZ SE INGRESE AL PACIENTE, ESTOS DATOS NO PUEDEN SER MODIFICADOS
                     </Alert>
                     <Stack spacing={2} sx={{ mb: 2, mt: 3 }}>
-                        <TextField disabled fullWidth label="Paciente" value={row.patient?.name || ''} />
+                        <TextField disabled fullWidth label="Paciente" value={`${row.patient?.name || ''} ${row.patient?.lastname || ''}`.trim()} />
                         <FormControl>
                             <InputLabel>Ubicacion</InputLabel>
                             <Select error={validation} fullWidth label="Ingresado a..." required name="transfer" value={transfer} onChange={({ target }) => setTransfer(target.value)}>

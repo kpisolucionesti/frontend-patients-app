@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import GenderSelect from "../Commons/GenderSelect";
 import moment from 'moment';
@@ -12,8 +12,17 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
         lastname: patient.lastname || '',
         birthday: patient.birthday || '',
         gender: patient.gender || '',
+        representante: patient.representante || '',
+        representante_ci: patient.representante_ci || '',
     });
     const [validation, setValidation] = useState(false);
+
+    const age = useMemo(() => {
+        if (!values.birthday) return null;
+        return moment().diff(moment(values.birthday, 'YYYY-MM-DD'), 'years');
+    }, [values.birthday]);
+
+    const isMinor = age !== null && age < 18;
 
     const handleValueChange = useCallback((target) => {
         setValues((prev) => ({ ...prev, [target.name]: target.value }));
@@ -82,6 +91,21 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
                     onChange={({ target }) => handleValueChange(target)}
                     error={validation && !values.gender}
                 />
+                {isMinor && (
+                    <>
+                        <TextField
+                            fullWidth label="Representante" name="representante"
+                            value={values.representante}
+                            onChange={({ target }) => handleValueChange(target)}
+                            sx={{ mt: 1, mb: 1 }}
+                        />
+                        <TextField
+                            fullWidth label="Cédula del Representante" name="representante_ci"
+                            value={values.representante_ci}
+                            onChange={({ target }) => handleValueChange(target)}
+                        />
+                    </>
+                )}
             </DialogContent>
             <DialogActions sx={{ p: '1.25rem' }}>
                 <Button onClick={onClose} variant="contained" color='error'>Cancelar</Button>

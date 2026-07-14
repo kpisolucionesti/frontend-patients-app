@@ -73,11 +73,12 @@ const CurrentPatients = () => {
     <>
       <MaterialReactTable table={table} />
       {detailEmergencyId && (
-        <CaseDetailModal
-          open={!!detailEmergencyId}
-          emergencyId={detailEmergencyId}
-          onClose={handleCloseDetail}
-        />
+          <CaseDetailModal
+            open={!!detailEmergencyId}
+            emergencyId={detailEmergencyId}
+            onClose={handleCloseDetail}
+            onDataChange={refetch}
+          />
       )}
     </>
   );

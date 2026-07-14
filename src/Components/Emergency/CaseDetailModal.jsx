@@ -9,7 +9,7 @@ import MovePatient from "../Board/movePatientsModal";
 import ReleasePatient from "../Board/releasePatientModal";
 import moment from 'moment';
 
-const CaseDetailModal = ({ open, emergencyId, onClose }) => {
+const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange }) => {
     const { data: emergency, refetch } = useFetch(
         () => BackendAPI.emergencies.getById(emergencyId),
         [emergencyId],
@@ -18,6 +18,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose }) => {
     const [interconsultaInput, setInterconsultaInput] = useState('');
     const { data: allNotes, refetch: refetchNotes } = useFetch(() => BackendAPI.notes.getAll(), []);
     const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
+    const { data: rooms } = useFetch(() => BackendAPI.rooms.getAll(), []);
 
     const row = useMemo(() => emergency || {}, [emergency]);
     const patient = useMemo(() => row.patient || {}, [row.patient]);
@@ -33,6 +34,11 @@ const CaseDetailModal = ({ open, emergencyId, onClose }) => {
         [row.doctors, row.primary_doctor],
     );
 
+    const patientRoom = useMemo(
+        () => (rooms || []).find((r) => r.patient_id === patientId),
+        [rooms, patientId],
+    );
+
     const availableConsultingDoctors = useMemo(
         () => (doctors || []).filter((d) =>
             d.id !== row.primary_doctor?.id && !consultingDoctors.find((c) => c.id === d.id)
@@ -42,16 +48,19 @@ const CaseDetailModal = ({ open, emergencyId, onClose }) => {
 
     const handleSubActionClose = useCallback(() => {
         refetch();
+        if (onDataChange) onDataChange();
         onClose();
-    }, [refetch, onClose]);
+    }, [refetch, onDataChange, onClose]);
 
     const handleSubActionRefresh = useCallback(() => {
         refetch();
-    }, [refetch]);
+        if (onDataChange) onDataChange();
+    }, [refetch, onDataChange]);
 
     const handlePatientSaved = useCallback(() => {
         refetch();
-    }, [refetch]);
+        if (onDataChange) onDataChange();
+    }, [refetch, onDataChange]);
 
     const handleAddInterconsulta = useCallback(async () => {
         if (!interconsultaInput) return;
@@ -63,10 +72,11 @@ const CaseDetailModal = ({ open, emergencyId, onClose }) => {
             });
             setInterconsultaInput('');
             refetch();
+            if (onDataChange) onDataChange();
         } catch {
             alert("Error al agregar interconsulta");
         }
-    }, [interconsultaInput, row, consultingDoctors, refetch]);
+    }, [interconsultaInput, row, consultingDoctors, refetch, onDataChange]);
 
     const handleRemoveInterconsulta = useCallback(async (doctorId) => {
         const remainingIds = [row.primary_doctor?.id, ...consultingDoctors.filter((d) => d.id !== doctorId).map((d) => d.id)].filter(Boolean);
@@ -76,10 +86,11 @@ const CaseDetailModal = ({ open, emergencyId, onClose }) => {
                 doctors: remainingIds.map((id) => ({ id })),
             });
             refetch();
+            if (onDataChange) onDataChange();
         } catch {
             alert("Error al eliminar interconsulta");
         }
-    }, [row, consultingDoctors, refetch]);
+    }, [row, consultingDoctors, refetch, onDataChange]);
 
     if (!emergency) return null;
 
@@ -145,6 +156,10 @@ const CaseDetailModal = ({ open, emergencyId, onClose }) => {
                                     <Stack direction="row" spacing={1}>
                                         <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>F. Ingreso:</Typography>
                                         <Typography variant="body2">{row.ingress_date}</Typography>
+                                    </Stack>
+                                    <Stack direction="row" spacing={1}>
+                                        <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Ubicacion:</Typography>
+                                        <Typography variant="body2">{patientRoom ? patientRoom.name : 'No asignada'}</Typography>
                                     </Stack>
                                     {row.observations && (
                                         <Stack direction="row" spacing={1}>
@@ -358,16 +373,19 @@ const EmergencyEditButton = ({ row, onRefresh, onClose }) => {
                 </IconButton>
             </Tooltip>
             <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogContent>
-                    <Stack spacing={2} sx={{ mt: 1 }}>
+                <DialogTitle textAlign="center" sx={{ bgcolor: 'warning.main', color: 'white', fontWeight: 'bold', py: 0.75, fontSize: '0.9rem' }}>
+                    EDITAR EMERGENCIA
+                </DialogTitle>
+                <DialogContent sx={{ pt: 2, '&:first-of-type': { pt: 2 } }}>
+                    <Stack spacing={1.5}>
                         <TextField size="small" fullWidth required label="Diagnostico" name="diagnostic" value={values.diagnostic || ''} onChange={({ target }) => handleValueChange(target)} error={validation && !values.diagnostic} helperText={validation && !values.diagnostic ? 'Requerido' : ''} />
                         <TextField size="small" fullWidth required label="Plan" name="treatment" value={values.treatment || ''} onChange={({ target }) => handleValueChange(target)} error={validation && !values.treatment} helperText={validation && !values.treatment ? 'Requerido' : ''} />
                         <DoctorSelect value={values.current_doctor} onChange={({ target }) => handleValueChange(target)} />
                         <TextField size="small" multiline rows={2} fullWidth label="Observaciones" name="observations" value={values.observations || ''} onChange={({ target }) => handleValueChange(target)} />
                     </Stack>
                 </DialogContent>
-                <DialogActions sx={{ p: '1.25rem' }}>
-                    <Button onClick={() => setOpen(false)} color="error">Cancelar</Button>
+                <DialogActions sx={{ px: '1.25rem', py: 0.75 }}>
+                    <Button onClick={() => setOpen(false)} variant="outlined" color="error">Cancelar</Button>
                     <Button onClick={handleSubmit} variant="contained" color="success">Guardar</Button>
                 </DialogActions>
             </Dialog>

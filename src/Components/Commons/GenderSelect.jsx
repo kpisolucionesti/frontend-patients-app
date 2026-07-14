@@ -6,7 +6,7 @@ const GenderSelect = ({ value, onChange, disabled = false, error = false }) => (
   <FormControl fullWidth>
     <InputLabel>Genero</InputLabel>
     <Select
-      variant="outlined"
+      size="small"
       disabled={disabled}
       error={error}
       required

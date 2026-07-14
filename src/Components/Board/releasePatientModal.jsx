@@ -60,7 +60,7 @@ const ReleasePatient = ({ row, onStatusChange }) => {
                         SE INFORMA QUE UNA VEZ SE DE EL ALTA AL PACIENTE, ESTOS DATOS NO PUEDEN SER MODIFICADOS
                     </Alert>
                     <Stack spacing={2} sx={{ mb: 2, mt: 3 }}>
-                        <TextField disabled fullWidth label="Paciente" value={row.patient?.name || ''} />
+                        <TextField disabled fullWidth label="Paciente" value={`${row.patient?.name || ''} ${row.patient?.lastname || ''}`.trim()} />
                         <FormControl>
                             <InputLabel>Causas</InputLabel>
                             <Select error={validation} fullWidth label="Egreso" required name="medical_exit" value={extraData.medical_exit} onChange={({ target }) => handleValueChange(target)}>

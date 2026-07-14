@@ -57,7 +57,7 @@ const AsignRoom = ({ row, onStatusChange }) => {
                 </DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ mb: 2, mt: 3 }}>
-                        <TextField disabled fullWidth label="Paciente" value={row.patient?.name || ''} />
+                        <TextField disabled fullWidth label="Paciente" value={`${row.patient?.name || ''} ${row.patient?.lastname || ''}`.trim()} />
                         <FormControl>
                             <InputLabel>Ubicacion</InputLabel>
                             <Select error={validation} fullWidth label="Ubicacion" required name="id" value={roomSelected?.id || ''} onChange={({ target }) => setRoomSelected(availableRooms.find((r) => r.id === target.value) || null)}>

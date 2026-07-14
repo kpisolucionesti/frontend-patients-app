@@ -1,26 +1,89 @@
-import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import moment from 'moment';
+import { Autocomplete, Box, Stack, TextField, Typography } from "@mui/material";
+import React, { useState, useEffect } from "react";
+
+const DoctorAutocomplete = ({ doctors, value, validation, onChange }) => {
+  const [localValue, setLocalValue] = useState(null);
+
+  useEffect(() => {
+    if (value !== undefined && value !== null) {
+      const found = (doctors || []).find((d) => d.id === value);
+      if (found) setLocalValue(found);
+    } else {
+      setLocalValue(null);
+    }
+  }, [value, doctors]);
+
+  return (
+    <Autocomplete
+      size="small"
+      fullWidth
+      options={doctors || []}
+      getOptionLabel={(option) => option.name}
+      value={localValue}
+      isOptionEqualToValue={(option, val) => option.id === val.id}
+      onChange={(_e, newValue) => {
+        setLocalValue(newValue);
+        onChange(newValue ? newValue.id : null);
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Medico Principal"
+          required
+          error={validation && !value}
+          helperText={validation && !value ? 'Requerido' : ''}
+        />
+      )}
+    />
+  );
+};
 
 const EmergencySection = ({
-  values, validation, doctors, availableRooms, roomSelected,
-  onFieldChange, onIngressDateChange, onRoomChange,
+  values, validation, doctors, availableRooms, roomSelected, patientReady,
+  onFieldChange, onRoomChange,
 }) => (
   <Box sx={{ bgcolor: '#fff3e0', p: 1.5, borderRadius: 2 }}>
     <Typography variant="subtitle2" fontWeight="bold" color="warning.dark" sx={{ mb: 1 }}>
       DATOS DE LA EMERGENCIA
     </Typography>
     <Stack spacing={1}>
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <DatePicker
-          format="DD/MM/YYYY"
+      <Stack direction="row" spacing={1}>
+        <TextField
+          size="small"
+          fullWidth
           label="Fecha de Ingreso"
-          value={moment(values.ingress_date, 'DD/M/YYYY')}
-          onChange={onIngressDateChange}
-          slotProps={{ textField: { size: 'small', fullWidth: true } }}
+          value={values.ingress_date || ''}
+          InputProps={{ readOnly: true }}
+          disabled
         />
-      </LocalizationProvider>
+
+        <DoctorAutocomplete
+          doctors={doctors}
+          value={values.current_doctor}
+          validation={validation}
+          onChange={(id) => onFieldChange({ name: 'current_doctor', value: id })}
+        />
+
+        <Autocomplete
+          size="small"
+          fullWidth
+          options={availableRooms || []}
+          getOptionLabel={(option) => option.name}
+          value={roomSelected || null}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(_e, newValue) => onRoomChange(newValue)}
+          disabled={!patientReady}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Ubicacion"
+              required
+              error={validation && !roomSelected?.id}
+              helperText={validation && !roomSelected?.id ? 'Requerido' : ''}
+            />
+          )}
+        />
+      </Stack>
 
       <TextField
         size="small"
@@ -41,26 +104,6 @@ const EmergencySection = ({
         error={validation && !values.treatment}
         helperText={validation && !values.treatment ? 'Requerido' : ''}
       />
-
-      <FormControl size="small" fullWidth required error={validation && !values.current_doctor}>
-        <InputLabel>Medico Principal</InputLabel>
-        <Select label="Medico Principal" name="current_doctor" value={values.current_doctor || ''} onChange={({ target }) => onFieldChange(target)}>
-          {(doctors || []).map((d) => (
-            <MenuItem key={d.id} value={d.name}>{d.name} -- {d.speciality}</MenuItem>
-          ))}
-        </Select>
-        <FormHelperText>{validation && !values.current_doctor ? 'Requerido' : ''}</FormHelperText>
-      </FormControl>
-
-      <FormControl size="small" fullWidth required error={validation && !roomSelected?.id}>
-        <InputLabel>Ubicacion</InputLabel>
-        <Select label="Ubicacion" value={roomSelected?.id || ''} onChange={({ target }) => onRoomChange(availableRooms.find((r) => r.id === target.value) || null)}>
-          {availableRooms.map((r) => (
-            <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
-          ))}
-        </Select>
-        <FormHelperText>{validation && !roomSelected?.id ? 'Requerido' : ''}</FormHelperText>
-      </FormControl>
     </Stack>
   </Box>
 );
