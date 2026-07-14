@@ -2,7 +2,29 @@ import axios from 'axios';
 const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
 const axiosInstance = axios.create({ baseURL: `${API_ENDPOINT}` })
 
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 export const BackendAPI = {
+    auth: {
+        signIn: async (email, password) => {
+            const res = await axiosInstance.post('/api/v1/auth/sign_in', { email, password })
+            return res.data
+        },
+        signUp: async (user) => {
+            const res = await axiosInstance.post('/api/v1/auth/sign_up', { user })
+            return res.data
+        },
+        signOut: async () => {
+            const res = await axiosInstance.delete('/api/v1/auth/sign_out')
+            return res.data
+        },
+    },
     patients: {
         getAll: async () => {
             try {

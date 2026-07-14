@@ -12,7 +12,7 @@ export const EditPatients = ({ onSubmit, row }) => {
 
     useEffect(() => {
       BackendAPI.doctors.getAll().then((res) => setDoctorsList(res) )
-    },[values])
+    },[])
 
   	const handleValueChange = (target)=>{
       setValues({...values,[target.name]:target.value})
@@ -36,7 +36,6 @@ export const EditPatients = ({ onSubmit, row }) => {
           setValidation(true)
         } else {
           let data = {...values}
-          console.log(data)
           onSubmit(data)
           setValidation(false)
           handleClose();
