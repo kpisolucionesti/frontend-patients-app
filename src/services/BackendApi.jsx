@@ -70,6 +70,15 @@ export const BackendAPI = {
             catch (e) {
                 console.log(e)
             }
+        },
+        findByCi: async (ci) => {
+            try {
+                const res = await axiosInstance.get('/patients/find_by_ci', { params: { ci } })
+                return res.data
+            }
+            catch (e) {
+                return null
+            }
         }
     },
     doctors: {
@@ -139,6 +148,44 @@ export const BackendAPI = {
             }
         },
     },
+    emergencies: {
+        getAll: async () => {
+            try {
+                const res = await axiosInstance.get("/emergencies")
+                return res.data
+            }
+            catch (e) {
+                console.log(e)
+            }
+        },
+        create: async (emergency) => {
+            try {
+                const res = await axiosInstance.post('/emergencies', emergency)
+                return res.data
+            }
+            catch (e) {
+                console.log(e)
+            }
+        },
+        update: async (emergency) => {
+            try {
+                const res = await axiosInstance.put('/emergencies/' + emergency.id, emergency)
+                return res.data
+            }
+            catch (e) {
+                console.log(e)
+            }
+        },
+        getById: async (id) => {
+            try {
+                const res = await axiosInstance.get('/emergencies/' + id)
+                return res.data
+            }
+            catch (e) {
+                console.log(e)
+            }
+        },
+    },
     notes: {
         getAll: async () => {
             try {
@@ -153,6 +200,23 @@ export const BackendAPI = {
             try {
                 const res = await axiosInstance.post('/notes', note)
                 return res.data
+            }
+            catch (e) {
+                console.log(e)
+            }
+        },
+        update: async (note) => {
+            try {
+                const res = await axiosInstance.put('/notes/' + note.id, note)
+                return res.data
+            }
+            catch (e) {
+                console.log(e)
+            }
+        },
+        delete: async (id) => {
+            try {
+                await axiosInstance.delete('/notes/' + id)
             }
             catch (e) {
                 console.log(e)

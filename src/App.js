@@ -1,11 +1,14 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import './App.css';
 import NavBar from './Components/Navbar/NavBar';
-import PatientsView from './Components/Table/PatientsView';
-import RoomTable from './Components/Table/RoomTable';
+import CurrentPatients from './Components/Emergency/CurrentPatients';
+import TablePatients from './Components/History/TablePatients';
+import PatientsList from './Components/Patients/PatientsList';
+import DoctorsList from './Components/Doctors/DoctorsList';
+import RoomTable from './Components/Board/RoomTable';
 import SignIn from './Components/Login/sign-in';
 
-function ProtectedRoute({ children }) {
+function ProtectedLayout() {
   const token = localStorage.getItem('auth_token');
   if (!token) {
     return <Navigate to="/" replace />;
@@ -13,7 +16,7 @@ function ProtectedRoute({ children }) {
   return (
     <>
       <NavBar />
-      {children}
+      <Outlet />
     </>
   );
 }
@@ -30,8 +33,14 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<PublicRoute><SignIn /></PublicRoute>} />
-      <Route path="/patients" element={<ProtectedRoute><PatientsView /></ProtectedRoute>} />
-      <Route path="/adulto" element={<ProtectedRoute><RoomTable /></ProtectedRoute>} />
+      <Route path="/patients" element={<ProtectedLayout />}>
+        <Route index element={<Navigate to="emergencia" replace />} />
+        <Route path="emergencia" element={<CurrentPatients />} />
+        <Route path="historial" element={<TablePatients />} />
+        <Route path="pacientes" element={<PatientsList />} />
+        <Route path="medicos" element={<DoctorsList />} />
+      </Route>
+      <Route path="/adulto" element={<RoomTable />} />
     </Routes>
   );
 }
