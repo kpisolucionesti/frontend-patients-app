@@ -9,7 +9,14 @@ import MovePatient from "../Board/movePatientsModal";
 import ReleasePatient from "../Board/releasePatientModal";
 import moment from 'moment';
 
+const perms = () => {
+    try { return JSON.parse(localStorage.getItem('user_permissions') || '[]'); }
+    catch { return []; }
+};
+
 const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange }) => {
+    const permissions = useMemo(perms, []);
+    const hasPerm = useCallback((p) => permissions.includes(p), [permissions]);
     const { data: emergency, refetch } = useFetch(
         () => BackendAPI.emergencies.getById(emergencyId),
         [emergencyId],
@@ -116,14 +123,16 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange }) => {
                                     DATOS DEL PACIENTE
                                 </Typography>
                                 <Stack direction="row" spacing={0.5}>
-                                    <Tooltip title="Editar datos del paciente" arrow>
-                                        <IconButton size="small" color="warning" onClick={() => setShowEditPatient(true)}>
-                                            <Edit fontSize="small" />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <AsignRoom row={row} onStatusChange={handleSubActionRefresh} />
-                                    <MovePatient row={row} onStatusChange={handleSubActionClose} />
-                                    <ReleasePatient row={row} onStatusChange={handleSubActionClose} />
+                                    {hasPerm('pacientes.edit') && (
+                                        <Tooltip title="Editar datos del paciente" arrow>
+                                            <IconButton size="small" color="warning" onClick={() => setShowEditPatient(true)}>
+                                                <Edit fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    )}
+                                    {hasPerm('emergencia.assign_room') && <AsignRoom row={row} onStatusChange={handleSubActionRefresh} />}
+                                    {hasPerm('emergencia.edit') && <MovePatient row={row} onStatusChange={handleSubActionClose} />}
+                                    {hasPerm('emergencia.discharge') && <ReleasePatient row={row} onStatusChange={handleSubActionClose} />}
                                 </Stack>
                             </Stack>
                             <Typography variant="body2" fontWeight="bold">
@@ -142,7 +151,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange }) => {
                                     <Typography variant="subtitle2" fontWeight="bold" color="warning.dark">
                                         DATOS DE LA EMERGENCIA
                                     </Typography>
-                                    <EmergencyEditButton row={row} onRefresh={refetch} onClose={onClose} />
+                                    {hasPerm('emergencia.edit') && <EmergencyEditButton row={row} onRefresh={refetch} onClose={onClose} />}
                                 </Stack>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                     <Stack direction="row" spacing={1}>
@@ -194,12 +203,12 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange }) => {
                                         <Typography variant="body2"><strong>Interconsultas:</strong></Typography>
                                         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
                                             {consultingDoctors.map((d) => (
-                                                <Chip key={d.id} label={d.name} size="small" color="info" onDelete={() => handleRemoveInterconsulta(d.id)} />
+                                                <Chip key={d.id} label={d.name} size="small" color="info" onDelete={hasPerm('emergencia.edit') ? () => handleRemoveInterconsulta(d.id) : undefined} />
                                             ))}
                                         </Box>
                                     </Box>
                                 )}
-                                {availableConsultingDoctors.length > 0 && (
+                                {hasPerm('emergencia.edit') && availableConsultingDoctors.length > 0 && (
                                     <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
                                         <Autocomplete
                                             size="small"
@@ -229,16 +238,18 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange }) => {
                             <Typography variant="subtitle2" fontWeight="bold" color="secondary.dark" sx={{ mb: 1 }}>
                                 NOTAS
                             </Typography>
-                            {patientNotes.length === 0 ? (
-                                <Typography variant="body2" color="text.secondary">Sin notas</Typography>
-                            ) : (
-                                patientNotes.map((note) => (
-                                    <NoteItem key={note.id} note={note} onRefresh={refetchNotes} />
-                                ))
-                            )}
-                            <Box sx={{ mt: 1 }}>
-                                <AddNoteInline patientId={patientId} onAdded={refetchNotes} />
-                            </Box>
+                                {patientNotes.length === 0 ? (
+                                    <Typography variant="body2" color="text.secondary">Sin notas</Typography>
+                                ) : (
+                                    patientNotes.map((note) => (
+                                        <NoteItem key={note.id} note={note} onRefresh={refetchNotes} canEdit={hasPerm('notes.edit')} canDelete={hasPerm('notes.delete')} />
+                                    ))
+                                )}
+                                {hasPerm('notes.create') && (
+                                    <Box sx={{ mt: 1 }}>
+                                        <AddNoteInline patientId={patientId} onAdded={refetchNotes} />
+                                    </Box>
+                                )}
                         </Box>
                     </Stack>
                 </DialogContent>
@@ -259,7 +270,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange }) => {
     );
 };
 
-const NoteItem = ({ note, onRefresh }) => {
+const NoteItem = ({ note, onRefresh, canEdit, canDelete }) => {
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(note.note);
 
@@ -297,12 +308,16 @@ const NoteItem = ({ note, onRefresh }) => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5, p: 0.75, bgcolor: 'rgba(255,255,255,0.6)', borderRadius: 1 }}>
             <Typography variant="body2" sx={{ flexGrow: 1 }}>{note.note}</Typography>
             <Box>
-                <IconButton size="small" color="primary" onClick={() => { setText(note.note); setEditing(true); }}>
-                    <Edit fontSize="small" />
-                </IconButton>
-                <IconButton size="small" color="error" onClick={handleDelete}>
-                    <Delete fontSize="small" />
-                </IconButton>
+                {canEdit && (
+                    <IconButton size="small" color="primary" onClick={() => { setText(note.note); setEditing(true); }}>
+                        <Edit fontSize="small" />
+                    </IconButton>
+                )}
+                {canDelete && (
+                    <IconButton size="small" color="error" onClick={handleDelete}>
+                        <Delete fontSize="small" />
+                    </IconButton>
+                )}
             </Box>
         </Box>
     );

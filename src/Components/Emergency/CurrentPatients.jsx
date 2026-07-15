@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { Alert, Box } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { useFetch } from '../../hooks/useFetch';
@@ -7,9 +8,16 @@ import AddEmergencyModal from './AddEmergencyModal';
 
 const CurrentPatients = () => {
   const [detailEmergencyId, setDetailEmergencyId] = useState(null);
-  const { data: emergencies, loading, refetch } = useFetch(
+  const { data: emergencies, loading, error, refetch } = useFetch(
     () => BackendAPI.emergencies.getAll(), [],
   );
+
+  const permissions = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('user_permissions') || '[]'); }
+    catch { return []; }
+  }, []);
+
+  const canCreateEmergency = useMemo(() => permissions.includes('emergencia.create'), [permissions]);
 
   const tableData = useMemo(
     () => (emergencies || []).filter((e) => e.status === 1),
@@ -60,10 +68,10 @@ const CurrentPatients = () => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <AddEmergencyModal onEmergencyCreated={refetch} />
+          <AddEmergencyModal onEmergencyCreated={refetch} disabled={!canCreateEmergency} />
         </div>
       ),
-      [refetch],
+      [refetch, canCreateEmergency],
     ),
     initialState: { pagination: { pageSize: 25 }, density: 'compact' },
     state: { isLoading: loading },
@@ -71,6 +79,13 @@ const CurrentPatients = () => {
 
   return (
     <>
+      {error && (
+        <Box sx={{ p: 1 }}>
+          <Alert severity="error" onClose={refetch}>
+            Error al cargar emergencias. <strong>Haz clic aqui para reintentar.</strong>
+          </Alert>
+        </Box>
+      )}
       <MaterialReactTable table={table} />
       {detailEmergencyId && (
           <CaseDetailModal

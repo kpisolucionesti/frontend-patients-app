@@ -52,7 +52,7 @@ const ProfilesList = () => {
     enableDensityToggle: false,
     enableRowActions: true,
     renderRowActions: ({ row }) => {
-      const isAdminProfile = row.original.name === 'Administrador';
+      const isProtectedProfile = ['Administrador', 'User'].includes(row.original.name);
       return (
         <>
           <Tooltip title="Ver usuarios" arrow>
@@ -67,7 +67,7 @@ const ProfilesList = () => {
               </IconButton>
             </Tooltip>
           )}
-          {permissions.includes('perfiles.delete') && !isAdminProfile && (
+          {permissions.includes('perfiles.delete') && !isProtectedProfile && (
             <Tooltip title="Eliminar perfil" arrow>
               <IconButton color="error" size="small" onClick={() => handleDelete(row.original)}>
                 <Delete fontSize="small" />

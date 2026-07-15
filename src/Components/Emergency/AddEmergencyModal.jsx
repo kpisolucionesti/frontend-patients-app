@@ -13,7 +13,7 @@ const calculateAge = (birthday) => {
   return moment().diff(moment(birthday, 'YYYY-MM-DD'), 'years');
 };
 
-const AddEmergencyModal = ({ onEmergencyCreated }) => {
+const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
   const [open, setOpen] = useState(false);
   const [patientValues, setPatientValues] = useState({});
   const [locked, setLocked] = useState(false);
@@ -189,6 +189,7 @@ const AddEmergencyModal = ({ onEmergencyCreated }) => {
         color="success"
         onClick={handleOpen}
         variant="contained"
+        disabled={disabled}
         startIcon={<AddCircleOutlineRounded />}
       >
         EMERGENCIA

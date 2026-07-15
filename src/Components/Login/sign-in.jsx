@@ -7,10 +7,8 @@ import {
   CardContent,
   TextField,
   Typography,
-  Avatar,
   Alert,
 } from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { BackendAPI } from "../../services/BackendApi";
 
 const SignIn = () => {
@@ -62,10 +60,10 @@ const SignIn = () => {
       <Card sx={{ maxWidth: 400, width: "100%", mx: 2 }}>
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
-            <Avatar sx={{ m: 1, bgcolor: "darkblue", width: 56, height: 56 }}>
-              <LockOutlinedIcon fontSize="large" />
-            </Avatar>
-            <Typography variant="h5" fontWeight="bold">
+            <Typography variant="h4" fontWeight="bold" color="darkblue">
+              EMERBOARD
+            </Typography>
+            <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
               INICIAR SESION
             </Typography>
           </Box>
