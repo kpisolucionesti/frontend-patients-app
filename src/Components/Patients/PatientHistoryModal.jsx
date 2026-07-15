@@ -51,12 +51,13 @@ const PatientHistoryModal = ({ open, patient, onClose }) => {
   const [notesCase, setNotesCase] = useState(null);
 
   const { data: emergencies } = useFetch(
-    () => BackendAPI.emergencies.getAll(), [],
+    () => BackendAPI.emergencies.getAll({ patient_id: patient.id, per_page: 10000 }),
+    [patient.id],
   );
 
   const patientEmergencies = useMemo(
-    () => (emergencies || []).filter((e) => e.patient_id === patient.id),
-    [emergencies, patient.id],
+    () => emergencies?.data || [],
+    [emergencies],
   );
 
   return (
@@ -96,7 +97,7 @@ const PatientHistoryModal = ({ open, patient, onClose }) => {
                   {patientEmergencies.map((e) => (
                     <TableRow key={e.id} hover>
                       <TableCell>
-                        {moment(e.ingress_date, ['DD/M/YYYY', 'YYYY/MM/DD']).format('DD/MM/YYYY')}
+                        {moment(e.ingress_date).format('DD/MM/YYYY')}
                       </TableCell>
                       <TableCell>{e.primary_doctor?.name || ''}</TableCell>
                       <TableCell>{e.diagnostic}</TableCell>

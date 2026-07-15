@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { IconButton, Tooltip } from '@mui/material';
+import { Box, IconButton, Tooltip } from '@mui/material';
 import { Edit, History } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -7,6 +7,7 @@ import { useFetch } from '../../hooks/useFetch';
 import moment from 'moment';
 import EditPatientData from './editPatientDataModal';
 import PatientHistoryModal from './PatientHistoryModal';
+import ExportButton from '../Commons/ExportButton';
 
 const PatientsList = () => {
   const { data: patients, loading, refetch } = useFetch(
@@ -30,7 +31,6 @@ const PatientsList = () => {
       { header: 'Genero', accessorKey: 'gender', size: 50 },
       { header: 'F. Nacimiento', accessorKey: 'birthday', size: 80, Cell: ({ cell }) => cell.getValue() ? moment(cell.getValue(), 'YYYY-MM-DD').format('DD-MM-YYYY') : '' },
       { header: 'Representante', accessorKey: 'representante', size: 120 },
-      { header: 'Cedula Rep.', accessorKey: 'representante_ci', size: 80 },
     ],
     [],
   );
@@ -49,6 +49,14 @@ const PatientsList = () => {
     enableGlobalFilter: true,
     enableDensityToggle: false,
     enableRowActions: true,
+    renderTopToolbarCustomActions: useCallback(
+      () => (
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <ExportButton data={patients || []} columns={columns} filename="Pacientes" />
+        </Box>
+      ),
+      [patients, columns],
+    ),
     renderRowActions: ({ row }) => (
       <>
         {permissions.includes('pacientes.edit') && (

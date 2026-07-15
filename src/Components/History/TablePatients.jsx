@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { Box, Button, Chip, Collapse, Divider, FormControl, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
@@ -31,46 +31,51 @@ const TablePatients = () => {
     estatus: '',
   });
 
-  const { data: emergencies, loading } = useFetch(
-    () => BackendAPI.emergencies.getAll(), [],
-  );
-
   const [detailEmergencyId, setDetailEmergencyId] = useState(null);
+  const [tableData, setTableData] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 25 });
+  const [loading, setLoading] = useState(false);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
 
-  const tableData = useMemo(() => {
-    if (!applied) return [];
-    let data = (emergencies || []).filter((r) => r.status !== 1);
+  const fetchData = useCallback(async (page = 1, pageSize = 25) => {
+    setLoading(true);
+    const params = {
+      page,
+      per_page: pageSize,
+    };
+    if (startDate) params.from = moment(startDate).format('YYYY-MM-DD');
+    if (endDate) params.to = moment(endDate).format('YYYY-MM-DD');
+    if (filters.cedula || filters.medico) params.q = filters.cedula || filters.medico;
+    if (filters.cedula && filters.medico) params.q = filters.cedula;
+    if (filters.estatus !== '') params.status = filters.estatus;
 
-    if (startDate) {
-      const start = moment(startDate).format('DD/M/YYYY');
-      data = data.filter((r) => moment(r.ingress_date, 'DD/M/YYYY').isSameOrAfter(moment(start, 'DD/M/YYYY')));
+    try {
+      const res = await BackendAPI.emergencies.getAll(params);
+      setTableData((res.data || []).map((x) => ({
+        ...x,
+        ingress_date: x.ingress_date,
+      })));
+      setTotal(res.total || 0);
+    } catch {
+      setTableData([]);
+      setTotal(0);
     }
-    if (endDate) {
-      const end = moment(endDate).format('DD/M/YYYY');
-      data = data.filter((r) => moment(r.ingress_date, 'DD/M/YYYY').isSameOrBefore(moment(end, 'DD/M/YYYY')));
-    }
-    if (filters.cedula) {
-      data = data.filter((r) => (r.patient?.ci || '').includes(filters.cedula));
-    }
-    if (filters.edad) {
-      data = data.filter((r) => String(r.patient?.age || '') === filters.edad);
-    }
-    if (filters.medico) {
-      data = data.filter((r) => (r.primary_doctor?.name || '').toLowerCase().includes(filters.medico.toLowerCase()));
-    }
-    if (filters.estatus !== '' && filters.estatus !== undefined) {
-      data = data.filter((r) => r.status === filters.estatus);
-    }
+    setLoading(false);
+  }, [startDate, endDate, filters]);
 
-    return data.map((x) => ({
-      ...x,
-      ingress_date: moment(x.ingress_date, 'DD/M/YYYY').format('YYYY/MM/DD'),
-    }));
-  }, [emergencies, startDate, endDate, filters, applied]);
+  useEffect(() => {
+    if (!applied) {
+      setTableData([]);
+      setTotal(0);
+      return;
+    }
+    fetchData(pagination.pageIndex + 1, pagination.pageSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [applied, pagination.pageIndex, pagination.pageSize, fetchTrigger]);
 
   const handleFilterChange = useCallback((name, value) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
-    setApplied(false);
   }, []);
 
   const handleApplyFilters = useCallback(() => {
@@ -79,6 +84,8 @@ const TablePatients = () => {
       return;
     }
     setApplied(true);
+    setFetchTrigger((t) => t + 1);
+    setPagination({ pageIndex: 0, pageSize: 25 });
   }, [startDate, endDate]);
 
   const handleClearFilters = useCallback(() => {
@@ -123,6 +130,7 @@ const TablePatients = () => {
   const table = useMaterialReactTable({
     columns,
     data: tableData,
+    rowCount: total,
     enableRowPinning: true,
     enableExpandAll: false,
     enableFullScreenToggle: false,
@@ -133,6 +141,7 @@ const TablePatients = () => {
     enableHiding: false,
     enableGlobalFilter: false,
     enableDensityToggle: false,
+    manualPagination: true,
     getRowId: (row) => row.id?.toString(),
     muiTableBodyRowProps: ({ row }) => ({
       onClick: () => setDetailEmergencyId(row.original.id),
@@ -164,12 +173,13 @@ const TablePatients = () => {
       ),
       [],
     ),
+    onPaginationChange: setPagination,
     initialState: {
       pagination: { pageSize: 25 },
       density: 'compact',
       sorting: [{ id: 'ingress_date', desc: true }, { id: 'status', desc: false }],
     },
-    state: { isLoading: loading && applied },
+    state: { isLoading: loading && applied, pagination },
   });
 
   return (
@@ -192,14 +202,14 @@ const TablePatients = () => {
                   format="DD/MM/YYYY"
                   label="Fecha Inicio"
                   value={startDate}
-                  onChange={(v) => { setStartDate(v); setApplied(false); }}
+                  onChange={(v) => setStartDate(v)}
                   slotProps={{ textField: { size: 'small', sx: { width: 145 } } }}
                 />
                 <DatePicker
                   format="DD/MM/YYYY"
                   label="Fecha Fin"
                   value={endDate}
-                  onChange={(v) => { setEndDate(v); setApplied(false); }}
+                  onChange={(v) => setEndDate(v)}
                   slotProps={{ textField: { size: 'small', sx: { width: 145 } } }}
                 />
               </LocalizationProvider>
