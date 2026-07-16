@@ -12,6 +12,7 @@ const HEADERS = [
     'Fecha', 'Cedula', 'Paciente', 'Edad', 'Genero',
     'Medico Tratante', 'Interconsultas', 'Diagnostico',
     'Tratamiento', 'Egreso', 'Ingreso', 'Observaciones',
+    'Creado por',
 ];
 
 const KEY_MAP = {
@@ -27,6 +28,7 @@ const KEY_MAP = {
     'Egreso': 'egreso',
     'Ingreso': 'ingreso',
     'Observaciones': 'observaciones',
+    'Creado por': 'creado_por',
 };
 
 const ExportData = ({ apiData }) => {
@@ -37,7 +39,7 @@ const ExportData = ({ apiData }) => {
 
     const orderData = useMemo(
       () => (apiData || []).map((x) => ({
-        fecha: moment(x.ingress_date, 'YYYY/MM/DD').format("YYYY-MM-DD"),
+        fecha: moment(x.ingress_date).format("YYYY-MM-DD"),
         ci: x.patient?.ci || '',
         paciente: x.patient?.name || '',
         edad: x.patient?.age || '',
@@ -49,6 +51,7 @@ const ExportData = ({ apiData }) => {
         egreso: x.medical_exit,
         ingreso: x.transfer,
         observaciones: x.observations,
+        creado_por: x.created_by?.name || '',
       })),
       [apiData],
     );

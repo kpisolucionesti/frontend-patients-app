@@ -5,7 +5,9 @@ import { BackendAPI } from "../../services/BackendApi";
 const UserFormModal = ({ open, onClose, user, onSaved }) => {
   const isEdit = !!user;
   const [values, setValues] = useState({
+    username: user?.username || '',
     name: user?.name || '',
+    lastname: user?.lastname || '',
     email: user?.email || '',
     password: '',
     password_confirmation: '',
@@ -17,7 +19,7 @@ const UserFormModal = ({ open, onClose, user, onSaved }) => {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (!values.name || !values.email) {
+    if (!values.username || !values.name || !values.email) {
       alert("FALTAN DATOS POR LLENAR");
       setValidation(true);
       return;
@@ -33,7 +35,7 @@ const UserFormModal = ({ open, onClose, user, onSaved }) => {
     }
     try {
       if (isEdit) {
-        await BackendAPI.users.update({ id: user.id, name: values.name, email: values.email });
+        await BackendAPI.users.update({ id: user.id, username: values.username, name: values.name, lastname: values.lastname, email: values.email });
       } else {
         await BackendAPI.users.create(values);
       }
@@ -51,10 +53,22 @@ const UserFormModal = ({ open, onClose, user, onSaved }) => {
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
         <TextField
+          fullWidth required label="Usuario" name="username" value={values.username}
+          onChange={({ target }) => handleChange(target)}
+          error={validation && !values.username}
+          helperText={validation && !values.username ? 'Requerido' : ''}
+          sx={{ mb: 2 }}
+        />
+        <TextField
           fullWidth required label="Nombre" name="name" value={values.name}
           onChange={({ target }) => handleChange(target)}
           error={validation && !values.name}
           helperText={validation && !values.name ? 'Requerido' : ''}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          fullWidth label="Apellido" name="lastname" value={values.lastname}
+          onChange={({ target }) => handleChange(target)}
           sx={{ mb: 2 }}
         />
         <TextField

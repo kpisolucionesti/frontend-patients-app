@@ -1,4 +1,5 @@
 import { Autocomplete, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import MedicalPlanSection from "./MedicalPlanSection";
 import { Delete, Edit, MedicalServices, NoteAdd } from "@mui/icons-material";
 import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
@@ -164,7 +165,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange }) => {
                                     </Stack>
                                     <Stack direction="row" spacing={1}>
                                         <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>F. Ingreso:</Typography>
-                                        <Typography variant="body2">{row.ingress_date}</Typography>
+                                        <Typography variant="body2">{moment(row.ingress_date).format('DD/MM/YYYY')}</Typography>
                                     </Stack>
                                     <Stack direction="row" spacing={1}>
                                         <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Ubicacion:</Typography>
@@ -233,6 +234,13 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange }) => {
                                 )}
                             </Box>
                         </Stack>
+
+                        <Box sx={{ bgcolor: '#fff8e1', p: 1.5, borderRadius: 2 }}>
+                            <Typography variant="subtitle2" fontWeight="bold" color="warning.dark" sx={{ mb: 1 }}>
+                                INDICACIONES MÉDICAS
+                            </Typography>
+                            <MedicalPlanSection emergencyId={emergencyId} />
+                        </Box>
 
                         <Box sx={{ bgcolor: '#f3e5f5', p: 1.5, borderRadius: 2 }}>
                             <Typography variant="subtitle2" fontWeight="bold" color="secondary.dark" sx={{ mb: 1 }}>

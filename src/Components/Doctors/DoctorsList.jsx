@@ -7,6 +7,7 @@ import { useFetch } from '../../hooks/useFetch';
 import DoctorFormModal from './DoctorFormModal';
 import DoctorConfirmModal from './DoctorConfirmModal';
 import DoctorHistoryModal from './DoctorHistoryModal';
+import ExportButton from '../Commons/ExportButton';
 
 const DoctorsList = () => {
   const { data: doctors, loading, refetch } = useFetch(
@@ -95,6 +96,7 @@ const DoctorsList = () => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <ExportButton data={currentData} columns={columns} filename="Medicos" />
           {tab === 'activos' && permissions.includes('medicos.create') && (
             <Tooltip title="Agregar medico" arrow>
               <IconButton color="primary" onClick={() => setFormModal({})}>
@@ -104,7 +106,7 @@ const DoctorsList = () => {
           )}
         </Box>
       ),
-      [tab, permissions],
+      [tab, permissions, currentData, columns],
     ),
     getRowId: (row) => row.id?.toString(),
     initialState: { pagination: { pageSize: 25 }, density: 'compact' },

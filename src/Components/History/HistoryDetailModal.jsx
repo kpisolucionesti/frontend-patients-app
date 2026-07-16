@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { useFetch } from "../../hooks/useFetch";
 import { BackendAPI } from "../../services/BackendApi";
 import StatusChip from "../Commons/StatusChip";
+import MedicalPlanSection from "../Emergency/MedicalPlanSection";
 import moment from 'moment';
 
 const HistoryDetailModal = ({ open, emergencyId, onClose }) => {
@@ -83,7 +84,7 @@ const HistoryDetailModal = ({ open, emergencyId, onClose }) => {
                                 </Stack>
                                 <Stack direction="row" spacing={1}>
                                     <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>F. Ingreso:</Typography>
-                                    <Typography variant="body2">{row.ingress_date}</Typography>
+                                    <Typography variant="body2">{moment(row.ingress_date).format('DD/MM/YYYY')}</Typography>
                                 </Stack>
                                 <Stack direction="row" spacing={1}>
                                     <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Ubicacion:</Typography>
@@ -105,6 +106,24 @@ const HistoryDetailModal = ({ open, emergencyId, onClose }) => {
                                     <Stack direction="row" spacing={1}>
                                         <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Area Ingreso:</Typography>
                                         <Typography variant="body2">{row.transfer}</Typography>
+                                    </Stack>
+                                )}
+                                {row.created_at && (
+                                    <Stack direction="row" spacing={1}>
+                                        <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Hora Ingreso:</Typography>
+                                        <Typography variant="body2">{moment(row.created_at).format('DD/MM/YYYY HH:mm')}</Typography>
+                                    </Stack>
+                                )}
+                                {row.egress_at && (
+                                    <Stack direction="row" spacing={1}>
+                                        <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Hora Egreso:</Typography>
+                                        <Typography variant="body2">{moment(row.egress_at).format('DD/MM/YYYY HH:mm')}</Typography>
+                                    </Stack>
+                                )}
+                                {row.created_by?.name && (
+                                    <Stack direction="row" spacing={1}>
+                                        <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Creado por:</Typography>
+                                        <Typography variant="body2">{row.created_by.name}</Typography>
                                     </Stack>
                                 )}
                             </Box>
@@ -129,6 +148,13 @@ const HistoryDetailModal = ({ open, emergencyId, onClose }) => {
                             )}
                         </Box>
                     </Stack>
+
+                    <Box sx={{ bgcolor: '#fff8e1', p: 1.5, borderRadius: 2 }}>
+                        <Typography variant="subtitle2" fontWeight="bold" color="warning.dark" sx={{ mb: 1 }}>
+                            INDICACIONES MÉDICAS
+                        </Typography>
+                        <MedicalPlanSection emergencyId={emergencyId} readOnly />
+                    </Box>
 
                     <Box sx={{ bgcolor: '#f3e5f5', p: 1.5, borderRadius: 2 }}>
                         <Typography variant="subtitle2" fontWeight="bold" color="secondary.dark" sx={{ mb: 1 }}>

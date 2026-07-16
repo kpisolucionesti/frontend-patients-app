@@ -1,38 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup, FormLabel, InputLabel, MenuItem, Select, Switch, Typography, Alert, Box } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Typography, Alert, Stack } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
-
-const ALL_PERMISSIONS = [
-  { key: 'emergencia.view', label: 'Ver Emergencia' },
-  { key: 'emergencia.create', label: 'Crear Emergencia' },
-  { key: 'emergencia.edit', label: 'Editar Emergencia' },
-  { key: 'emergencia.triage', label: 'Asignar Triage' },
-  { key: 'emergencia.discharge', label: 'Dar de Alta' },
-  { key: 'emergencia.assign_room', label: 'Asignar Sala' },
-  { key: 'historial.view', label: 'Ver Historial' },
-  { key: 'configuraciones.view', label: 'Ver Configuraciones' },
-  { key: 'pacientes.view', label: 'Ver Pacientes' },
-  { key: 'pacientes.edit', label: 'Editar Pacientes' },
-  { key: 'medicos.view', label: 'Ver Medicos' },
-  { key: 'medicos.create', label: 'Crear Medicos' },
-  { key: 'medicos.edit', label: 'Editar Medicos' },
-  { key: 'medicos.suspend', label: 'Suspender Medicos' },
-  { key: 'usuarios.view', label: 'Ver Usuarios' },
-  { key: 'usuarios.create', label: 'Crear Usuarios' },
-  { key: 'usuarios.edit', label: 'Editar Usuarios' },
-  { key: 'usuarios.suspend', label: 'Suspender Usuarios' },
-  { key: 'usuarios.manage_permissions', label: 'Gestionar Permisos' },
-  { key: 'usuarios.change_password', label: 'Cambiar Contrasena' },
-  { key: 'perfiles.view', label: 'Ver Perfiles' },
-  { key: 'perfiles.create', label: 'Crear Perfiles' },
-  { key: 'perfiles.edit', label: 'Editar Perfiles' },
-  { key: 'perfiles.delete', label: 'Eliminar Perfiles' },
-  { key: 'rooms.view', label: 'Ver Salas' },
-  { key: 'notes.view', label: 'Ver Notas' },
-  { key: 'notes.create', label: 'Crear Notas' },
-  { key: 'notes.edit', label: 'Editar Notas' },
-  { key: 'notes.delete', label: 'Eliminar Notas' },
-];
+import { useFetch } from '../../hooks/useFetch';
 
 const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
   const [profiles, setProfiles] = useState([]);
@@ -40,6 +9,13 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
   const [extraPermissions, setExtraPermissions] = useState([]);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const { data: permissionData } = useFetch(
+    () => BackendAPI.permissions.getAll(),
+    [open],
+  );
+
+  const groups = useMemo(() => permissionData?.groups || [], [permissionData]);
 
   useEffect(() => {
     if (!open) return;
@@ -97,22 +73,34 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
           </Box>
         )}
         {!isAdminProfile && (
-          <FormControl component="fieldset" variant="standard" fullWidth>
-            <FormLabel component="legend" sx={{ mb: 1 }}>Permisos adicionales</FormLabel>
-            <FormGroup>
-              {ALL_PERMISSIONS.map((perm) => (
-                <FormControlLabel
-                  key={perm.key}
-                  control={<Switch checked={extraPermissions.includes(perm.key)} onChange={() => togglePermission(perm.key)} />}
-                  label={perm.label}
-                />
-              ))}
-            </FormGroup>
-          </FormControl>
+          <Stack spacing={1.5}>
+            {groups.map((group) => (
+              <Box key={group.section} sx={{ bgcolor: group.color, p: 1.5, borderRadius: 2 }}>
+                <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
+                  {group.section}
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {group.permissions.map((perm) => {
+                    const active = extraPermissions.includes(perm.key);
+                    return (
+                      <Chip
+                        key={perm.key}
+                        label={perm.label}
+                        color={active ? 'primary' : 'default'}
+                        variant={active ? 'filled' : 'outlined'}
+                        onClick={() => togglePermission(perm.key)}
+                        size="small"
+                      />
+                    );
+                  })}
+                </Box>
+              </Box>
+            ))}
+          </Stack>
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
-        <Button onClick={() => { if (success) onClose(); else onClose(); }} variant="contained" color="error">
+        <Button onClick={onClose} variant="contained" color="error">
           {success ? 'Cerrar' : 'Cancelar'}
         </Button>
         {!success && (

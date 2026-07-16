@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Alert, Box } from '@mui/material';
+import { Alert, Box, Typography } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { useFetch } from '../../hooks/useFetch';
@@ -8,9 +8,11 @@ import AddEmergencyModal from './AddEmergencyModal';
 
 const CurrentPatients = () => {
   const [detailEmergencyId, setDetailEmergencyId] = useState(null);
-  const { data: emergencies, loading, error, refetch } = useFetch(
-    () => BackendAPI.emergencies.getAll(), [],
+  const { data, loading, error, refetch } = useFetch(
+    () => BackendAPI.emergencies.getAll({ status: 1, per_page: 200 }), [],
   );
+
+  const emergencies = useMemo(() => data?.data || [], [data]);
 
   const permissions = useMemo(() => {
     try { return JSON.parse(localStorage.getItem('user_permissions') || '[]'); }
@@ -18,11 +20,6 @@ const CurrentPatients = () => {
   }, []);
 
   const canCreateEmergency = useMemo(() => permissions.includes('emergencia.create'), [permissions]);
-
-  const tableData = useMemo(
-    () => (emergencies || []).filter((e) => e.status === 1),
-    [emergencies],
-  );
 
   const handleRowClick = useCallback((row) => {
     setDetailEmergencyId(row.original.id);
@@ -50,7 +47,7 @@ const CurrentPatients = () => {
 
   const table = useMaterialReactTable({
     columns,
-    data: tableData,
+    data: emergencies,
     layoutMode: 'grid',
     enableEditing: false,
     enableFullScreenToggle: false,
@@ -71,7 +68,7 @@ const CurrentPatients = () => {
           <AddEmergencyModal onEmergencyCreated={refetch} disabled={!canCreateEmergency} />
         </div>
       ),
-      [refetch, canCreateEmergency],
+      [refetch, canCreateEmergency, emergencies, columns],
     ),
     initialState: { pagination: { pageSize: 25 }, density: 'compact' },
     state: { isLoading: loading },

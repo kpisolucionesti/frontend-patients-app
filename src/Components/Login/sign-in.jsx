@@ -13,7 +13,7 @@ import { BackendAPI } from "../../services/BackendApi";
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const [values, setValues] = useState({ email: "", password: "" });
+  const [values, setValues] = useState({ username: "", password: "" });
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -25,13 +25,13 @@ const SignIn = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!values.email || !values.password) {
+    if (!values.username || !values.password) {
       setError(true);
       setErrorMessage("Por favor llenar todos los campos");
       return;
     }
     try {
-      const response = await BackendAPI.auth.signIn(values.email, values.password);
+      const response = await BackendAPI.auth.signIn(values.username, values.password);
       if (response.status === "success") {
         localStorage.setItem("auth_token", response.token);
         localStorage.setItem("user", JSON.stringify(response.user));
@@ -77,10 +77,9 @@ const SignIn = () => {
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Correo Electronico"
-              name="email"
-              type="email"
-              value={values.email}
+              label="Usuario"
+              name="username"
+              value={values.username}
               onChange={({ target }) => handleValueChange(target)}
               sx={{ mb: 2 }}
               required

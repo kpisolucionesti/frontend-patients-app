@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Box, IconButton, Tab, Tabs, Tooltip } from '@mui/material';
-import { Add, Block, CheckCircle, Edit, Lock, AdminPanelSettings } from '@mui/icons-material';
+import { Add, Block, CheckCircle, Edit, Lock, AdminPanelSettings, History } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
@@ -8,6 +8,7 @@ import UserFormModal from './UserFormModal';
 import UserPasswordModal from './UserPasswordModal';
 import UserPermissionModal from './UserPermissionModal';
 import UserConfirmModal from './UserConfirmModal';
+import UserCasesModal from './UserCasesModal';
 
 const UsersList = () => {
   const { data: users, loading, refetch } = useFetch(
@@ -20,6 +21,7 @@ const UsersList = () => {
   const [passwordModal, setPasswordModal] = useState(null);
   const [permissionModal, setPermissionModal] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null);
+  const [casesModal, setCasesModal] = useState(null);
 
   const activeUsers = useMemo(
     () => (users || []).filter((u) => u.status !== 'suspended'),
@@ -49,7 +51,8 @@ const UsersList = () => {
 
   const columns = useMemo(
     () => [
-      { header: 'Nombre', accessorKey: 'name', grow: true },
+      { header: 'Usuario', accessorKey: 'username', size: 120 },
+      { header: 'Nombre', accessorFn: (row) => `${row.name || ''} ${row.lastname || ''}`.trim(), grow: true },
       { header: 'Correo', accessorKey: 'email', size: 250 },
       { header: 'Perfil', accessorKey: 'profile_name', size: 150 },
     ],
@@ -69,7 +72,7 @@ const UsersList = () => {
     enableDensityToggle: false,
     enableRowActions: true,
     renderRowActions: ({ row }) => {
-      const isAdmin = row.original.email === 'admin@emerboard.com';
+      const isAdmin = row.original.username === 'admin';
       return (
         <>
           {permissions.includes('usuarios.edit') && (
@@ -90,6 +93,13 @@ const UsersList = () => {
             <Tooltip title="Permisos" arrow>
               <IconButton color="primary" size="small" onClick={() => setPermissionModal(row.original)}>
                 <AdminPanelSettings fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+          {permissions.includes('historial.view') && (
+            <Tooltip title="Ver casos creados" arrow>
+              <IconButton color="info" size="small" onClick={() => setCasesModal(row.original)}>
+                <History fontSize="small" />
               </IconButton>
             </Tooltip>
           )}
@@ -156,6 +166,13 @@ const UsersList = () => {
           open={!!permissionModal}
           onClose={() => setPermissionModal(null)}
           user={permissionModal}
+        />
+      )}
+      {casesModal && (
+        <UserCasesModal
+          open={!!casesModal}
+          onClose={() => setCasesModal(null)}
+          user={casesModal}
         />
       )}
       {confirmModal && (

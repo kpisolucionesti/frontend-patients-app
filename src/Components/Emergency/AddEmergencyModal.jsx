@@ -21,7 +21,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
   const [patientValidation, setPatientValidation] = useState(false);
   const [editPatientModalOpen, setEditPatientModalOpen] = useState(false);
 
-  const [emergencyValues, setEmergencyValues] = useState({ ingress_date: moment().format("DD/M/YYYY") });
+  const [emergencyValues, setEmergencyValues] = useState({ ingress_date: moment().format("YYYY-MM-DD") });
   const [roomSelected, setRoomSelected] = useState(null);
   const [emergencyValidation, setEmergencyValidation] = useState(false);
   const [roomsList, setRoomsList] = useState([]);
@@ -43,7 +43,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
     setLocked(false);
     setPatientAge(0);
     setPatientValidation(false);
-    setEmergencyValues({ ingress_date: moment().format("DD/M/YYYY") });
+    setEmergencyValues({ ingress_date: moment().format("YYYY-MM-DD") });
     setRoomSelected(null);
     setEmergencyValidation(false);
     setRoomsList([]);
@@ -70,7 +70,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
   }, []);
 
   const handleCiChange = useCallback(({ target }) => {
-    const ci = target.value;
+    const ci = target.value.replace(/\D/g, '');
     setPatientValues((prev) => ({ ...prev, ci }));
     setLocked(false);
     setPatientAge(0);
@@ -118,7 +118,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
   }, []);
 
   const handleIngressDateChange = useCallback((date) => {
-    setEmergencyValues((prev) => ({ ...prev, ingress_date: date ? moment(date).format('DD/M/YYYY') : '' }));
+    setEmergencyValues((prev) => ({ ...prev, ingress_date: date ? moment(date).format('YYYY-MM-DD') : '' }));
   }, []);
 
   const handleRoomChange = useCallback((room) => {

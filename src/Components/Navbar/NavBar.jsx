@@ -16,6 +16,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import LockIcon from '@mui/icons-material/Lock';
 import UserSelfPasswordModal from './UserSelfPasswordModal';
 import { BackendAPI } from '../../services/BackendApi';
+import { APP_VERSION } from '../../version';
 
 const MENUS = [
   { label: 'Emergencia', path: '/patients/emergencia', icon: <EmergencyIcon />, perm: 'emergencia.view' },
@@ -47,6 +48,12 @@ const NavBar = () => {
     <>
       <AppBar position="static" sx={{ bgcolor: 'darkblue', width: '100%', mx: 0 }}>
         <Toolbar sx={{ px: { xs: 2, sm: 3 } }}>
+          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', mr: 1 }}>
+            Emerboard
+          </Typography>
+          <Typography variant="caption" color="rgba(255,255,255,0.5)" sx={{ mr: 2 }}>
+            v{APP_VERSION}
+          </Typography>
           {visibleMenus.map((m) => (
             <Button
               key={m.path}
@@ -60,7 +67,7 @@ const NavBar = () => {
           ))}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} />
           <Typography variant="h6" component="div" sx={{ mr: 2 }}>
-            {user.name || 'Usuario'}
+            {(user.name || '') + (user.lastname ? ' ' + user.lastname : '') || 'Usuario'}
           </Typography>
           <IconButton color="inherit" onClick={(e) => setAnchorEl(e.currentTarget)}>
             <AccountCircle />

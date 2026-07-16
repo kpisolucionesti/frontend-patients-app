@@ -63,7 +63,7 @@ const RoomTable = () => {
   usePolling(refetch, 5000);
 
   const activeEmergencies = useMemo(
-    () => (emergencies || []).filter((e) => e.status === 1),
+    () => (emergencies?.data || []).filter((e) => e.status === 1),
     [emergencies],
   );
 

@@ -12,8 +12,8 @@ axiosInstance.interceptors.request.use((config) => {
 
 export const BackendAPI = {
     auth: {
-        signIn: async (email, password) => {
-            const res = await axiosInstance.post('/api/v1/auth/sign_in', { email, password })
+        signIn: async (username, password) => {
+            const res = await axiosInstance.post('/api/v1/auth/sign_in', { username, password })
             return res.data
         },
         signUp: async (user) => {
@@ -34,8 +34,9 @@ export const BackendAPI = {
         },
     },
     patients: {
-        getAll: async () => {
-            const res = await axiosInstance.get("/patients")
+        getAll: async (params = {}) => {
+            const query = new URLSearchParams(params).toString();
+            const res = await axiosInstance.get(`/patients?${query}`)
             return res.data
         },
         create: async (patient) => {
@@ -97,8 +98,9 @@ export const BackendAPI = {
         },
     },
     emergencies: {
-        getAll: async () => {
-            const res = await axiosInstance.get("/emergencies")
+        getAll: async (params = {}) => {
+            const query = new URLSearchParams(params).toString();
+            const res = await axiosInstance.get(`/emergencies?${query}`)
             return res.data
         },
         create: async (emergency) => {
@@ -112,6 +114,23 @@ export const BackendAPI = {
         getById: async (id) => {
             const res = await axiosInstance.get('/emergencies/' + id)
             return res.data
+        },
+    },
+    medicalPlans: {
+        getAll: async (emergencyId) => {
+            const res = await axiosInstance.get(`/emergencies/${emergencyId}/medical_plans`)
+            return res.data
+        },
+        create: async (emergencyId, plan) => {
+            const res = await axiosInstance.post(`/emergencies/${emergencyId}/medical_plans`, plan)
+            return res.data
+        },
+        update: async (plan) => {
+            const res = await axiosInstance.put(`/emergencies/${plan.emergency_id}/medical_plans/${plan.id}`, plan)
+            return res.data
+        },
+        delete: async (emergencyId, planId) => {
+            await axiosInstance.delete(`/emergencies/${emergencyId}/medical_plans/${planId}`)
         },
     },
     notes: {
@@ -159,6 +178,10 @@ export const BackendAPI = {
             const res = await axiosInstance.get('/users/profiles')
             return res.data
         },
+        getEmergencies: async (userId) => {
+            const res = await axiosInstance.get('/users/' + userId + '/emergencies')
+            return res.data
+        },
     },
     profiles: {
         getAll: async () => {
@@ -178,6 +201,12 @@ export const BackendAPI = {
         },
         getUsers: async (profileId) => {
             const res = await axiosInstance.get('/profiles/' + profileId + '/users')
+            return res.data
+        },
+    },
+    permissions: {
+        getAll: async () => {
+            const res = await axiosInstance.get('/permissions')
             return res.data
         },
     },
