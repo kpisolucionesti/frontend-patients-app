@@ -25,6 +25,10 @@ const usePatientLookup = () => {
     if (ci.length < 4) return;
     ciTimer.current = setTimeout(async () => {
       const found = await BackendAPI.patients.findByCi(ci);
+      if (found && found._error) {
+        alert(found._error);
+        return;
+      }
       if (found) {
         setPatientValues({
           ci: found.ci,

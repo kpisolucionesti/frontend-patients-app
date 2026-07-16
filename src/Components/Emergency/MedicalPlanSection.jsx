@@ -1,213 +1,163 @@
-import { Autocomplete, Box, Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
-import { Add, Check, Delete, Edit } from "@mui/icons-material";
-import React, { useCallback, useMemo, useState } from "react";
-import { BackendAPI } from "../../services/BackendApi";
-import { useFetch } from "../../hooks/useFetch";
-import usePermissions from "../../hooks/usePermissions";
+import { useState } from 'react';
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, TextField, Tooltip, Typography } from "@mui/material";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { BackendAPI } from '../../services/BackendApi';
+import { useFetch } from '../../hooks/useFetch';
+import usePermissions from '../../hooks/usePermissions';
 
-const TYPE_COLORS = {
-  medication: { bg: '#e3f2fd', chip: 'info' },
-  procedure: { bg: '#e8f5e9', chip: 'success' },
-  image: { bg: '#fff3e0', chip: 'warning' },
-  lab: { bg: '#fce4ec', chip: 'error' },
-  general: { bg: '#f3e5f5', chip: 'secondary' },
-};
+const INDICATION_TYPES = [
+  { key: 'lab', label: 'Laboratorio', color: '#1565c0' },
+  { key: 'image', label: 'Imagenologia', color: '#6a1b9a' },
+  { key: 'medication', label: 'Tratamiento', color: '#2e7d32' },
+  { key: 'procedure', label: 'Procedimiento', color: '#e65100' },
+  { key: 'general', label: 'Estudios Extras', color: '#546e7a' },
+];
 
-const TYPE_LABELS = {
-  medication: 'Medicamento',
-  procedure: 'Procedimiento',
-  image: 'Imagen',
-  lab: 'Laboratorio',
-  general: 'General',
-};
+const getTypeLabel = (key) => INDICATION_TYPES.find((t) => t.key === key)?.label || key;
+const getTypeColor = (key) => INDICATION_TYPES.find((t) => t.key === key)?.color || '#999';
 
 const MedicalPlanSection = ({ emergencyId, readOnly }) => {
-  const { data: plans, refetch } = useFetch(
+  const permissions = usePermissions();
+  const canEdit = permissions.includes('emergencia.edit');
+  const { data: plans, loading, refetch } = useFetch(
     () => BackendAPI.medicalPlans.getAll(emergencyId),
     [emergencyId],
   );
-  const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ description: '', indication_type: '', doctor_id: null });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ indication_type: 'general', description: '' });
+  const [saving, setSaving] = useState(false);
 
-  const permissions = usePermissions();
-  const hasPerm = useCallback((p) => permissions.includes(p), [permissions]);
-  const canEdit = !readOnly && hasPerm('emergencia.edit');
+  const activePlans = (plans || []).filter((p) => p.status !== 'completed');
+  const completedPlans = (plans || []).filter((p) => p.status === 'completed');
 
-  const activePlans = useMemo(() => (plans || []).filter((p) => p.status === 'active'), [plans]);
-  const completedPlans = useMemo(() => (plans || []).filter((p) => p.status === 'completed'), [plans]);
+  const handleOpenAdd = () => {
+    setEditing(null);
+    setForm({ indication_type: 'general', description: '' });
+    setDialogOpen(true);
+  };
 
-  const resetForm = useCallback(() => {
-    setForm({ description: '', indication_type: '', doctor_id: null });
-    setEditingId(null);
-    setShowForm(false);
-  }, []);
+  const handleOpenEdit = (p) => {
+    setEditing(p);
+    setForm({ indication_type: p.indication_type, description: p.description });
+    setDialogOpen(true);
+  };
 
-  const handleSave = useCallback(async () => {
-    if (!form.description.trim() || !form.indication_type) return;
-    const payload = {
-      description: form.description,
-      indication_type: form.indication_type,
-      doctor_id: form.doctor_id || undefined,
-    };
+  const handleSave = async () => {
+    if (!form.description || !form.indication_type) return;
+    setSaving(true);
     try {
-      if (editingId) {
-        await BackendAPI.medicalPlans.update({ id: editingId, emergency_id: emergencyId, ...payload });
+      if (editing) {
+        await BackendAPI.medicalPlans.update({ ...editing, ...form });
       } else {
-        await BackendAPI.medicalPlans.create(emergencyId, payload);
+        await BackendAPI.medicalPlans.create(emergencyId, form);
       }
-      resetForm();
+      setDialogOpen(false);
       refetch();
-    } catch {
-      alert('Error al guardar la indicación');
-    }
-  }, [form, editingId, emergencyId, resetForm, refetch]);
+    } catch { /* ignore */ }
+    setSaving(false);
+  };
 
-  const handleEdit = useCallback((plan) => {
-    setForm({
-      description: plan.description,
-      indication_type: plan.indication_type,
-      doctor_id: plan.doctor?.id || null,
-    });
-    setEditingId(plan.id);
-    setShowForm(true);
-  }, []);
-
-  const handleDelete = useCallback(async (plan) => {
-    if (!window.confirm('¿Eliminar esta indicación?')) return;
+  const handleDelete = async (plan) => {
     try {
       await BackendAPI.medicalPlans.delete(emergencyId, plan.id);
       refetch();
-    } catch {
-      alert('Error al eliminar la indicación');
-    }
-  }, [emergencyId, refetch]);
+    } catch { /* ignore */ }
+  };
 
-  const handleComplete = useCallback(async (plan) => {
+  const handleToggleStatus = async (plan) => {
     try {
       await BackendAPI.medicalPlans.update({
-        id: plan.id,
-        emergency_id: emergencyId,
-        status: 'completed',
-        completed_at: new Date().toISOString(),
+        ...plan,
+        status: plan.status === 'completed' ? 'active' : 'completed',
       });
       refetch();
-    } catch {
-      alert('Error al completar la indicación');
-    }
-  }, [emergencyId, refetch]);
-
-  const renderPlanItem = (plan) => {
-    const colors = TYPE_COLORS[plan.indication_type] || TYPE_COLORS.general;
-    return (
-      <Box key={plan.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5, p: 0.75, bgcolor: colors.bg, borderRadius: 1 }}>
-        <Stack sx={{ flexGrow: 1, minWidth: 0 }}>
-          <Stack direction="row" spacing={0.5} alignItems="center">
-            <Chip label={TYPE_LABELS[plan.indication_type] || plan.indication_type} size="small" color={colors.chip} />
-            {plan.status === 'completed' && <Chip label="Completado" size="small" color="default" sx={{ opacity: 0.7 }} />}
-          </Stack>
-          <Typography variant="body2" sx={{ mt: 0.25, textDecoration: plan.status === 'completed' ? 'line-through' : 'none', opacity: plan.status === 'completed' ? 0.6 : 1 }}>
-            {plan.description}
-          </Typography>
-          {plan.doctor && (
-            <Typography variant="caption" color="text.secondary">
-              Dr. {plan.doctor.name}
-            </Typography>
-          )}
-        </Stack>
-        {canEdit && plan.status === 'active' && (
-          <Box sx={{ display: 'flex', gap: 0.25, flexShrink: 0 }}>
-            <Tooltip title="Marcar completada" arrow>
-              <IconButton size="small" color="success" onClick={() => handleComplete(plan)}>
-                <Check fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Editar" arrow>
-              <IconButton size="small" color="primary" onClick={() => handleEdit(plan)}>
-                <Edit fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Eliminar" arrow>
-              <IconButton size="small" color="error" onClick={() => handleDelete(plan)}>
-                <Delete fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )}
-      </Box>
-    );
+    } catch { /* ignore */ }
   };
+
+  if (!emergencyId) return null;
 
   return (
     <Box>
-      {activePlans.length === 0 && completedPlans.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">Sin indicaciones médicas</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+        <Typography variant="subtitle2" fontWeight="bold" color="warning.dark">
+          INDICACIONES MÉDICAS
+        </Typography>
+        {!readOnly && canEdit && (
+          <Button size="small" startIcon={<AddCircleOutlineIcon />} onClick={handleOpenAdd}
+            sx={{ textTransform: 'none', fontSize: '0.7rem', minWidth: 0 }}>
+            Agregar Indicación
+          </Button>
+        )}
+      </Box>
+
+      {loading ? (
+        <Typography variant="caption" color="text.secondary">Cargando...</Typography>
+      ) : activePlans.length === 0 && completedPlans.length === 0 ? (
+        <Typography variant="caption" color="text.secondary">Sin indicaciones registradas</Typography>
       ) : (
         <>
-          {activePlans.map(renderPlanItem)}
+          {activePlans.map((p) => (
+            <Box key={p.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, p: 0.5, bgcolor: '#fafafa', borderRadius: 1 }}>
+              <Chip label={getTypeLabel(p.indication_type)} size="small" sx={{ height: 18, fontSize: '0.6rem', bgcolor: getTypeColor(p.indication_type), color: 'white' }} />
+              <Typography variant="caption" sx={{ flex: 1, fontSize: '0.7rem' }}>{p.description}</Typography>
+              {!readOnly && canEdit && (
+                <>
+                  <Tooltip title="Completar" arrow>
+                    <IconButton size="small" onClick={() => handleToggleStatus(p)} sx={{ p: 0.15 }}>
+                      <EditIcon sx={{ fontSize: 12 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Eliminar" arrow>
+                    <IconButton size="small" onClick={() => handleDelete(p)} sx={{ p: 0.15 }}>
+                      <DeleteIcon sx={{ fontSize: 12, color: '#e53935' }} />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
+            </Box>
+          ))}
+
           {completedPlans.length > 0 && (
             <>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1, mb: 0.5 }}>
+              <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ mt: 1, mb: 0.5, display: 'block' }}>
                 Completadas ({completedPlans.length})
               </Typography>
-              {completedPlans.map(renderPlanItem)}
+              {completedPlans.map((p) => (
+                <Box key={p.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, p: 0.5, bgcolor: '#f5f5f5', borderRadius: 1, opacity: 0.7 }}>
+                  <Chip label={getTypeLabel(p.indication_type)} size="small" sx={{ height: 18, fontSize: '0.6rem', bgcolor: getTypeColor(p.indication_type), color: 'white' }} />
+                  <Typography variant="caption" sx={{ flex: 1, fontSize: '0.7rem', textDecoration: 'line-through' }}>{p.description}</Typography>
+                </Box>
+              ))}
             </>
           )}
         </>
       )}
 
-      {canEdit && !showForm && (
-        <Button size="small" startIcon={<Add />} onClick={() => setShowForm(true)} sx={{ mt: 0.5 }}>
-          Agregar Indicación
-        </Button>
-      )}
-
-      {canEdit && showForm && (
-        <Box sx={{ mt: 1, p: 1, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid', borderColor: 'grey.200' }}>
-          <Stack spacing={1}>
-            <Stack direction="row" spacing={1}>
-              <FormControl size="small" sx={{ width: 160 }}>
-                <InputLabel>Tipo</InputLabel>
-                <Select
-                  label="Tipo"
-                  value={form.indication_type}
-                  onChange={({ target }) => setForm((f) => ({ ...f, indication_type: target.value }))}
-                >
-                  {Object.entries(TYPE_LABELS).map(([key, label]) => (
-                    <MenuItem key={key} value={key}>{label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Autocomplete
-                size="small"
-                fullWidth
-                options={doctors || []}
-                getOptionLabel={(opt) => opt.name}
-                value={(doctors || []).find((d) => d.id === form.doctor_id) || null}
-                onChange={(_e, v) => setForm((f) => ({ ...f, doctor_id: v?.id || null }))}
-                renderInput={(params) => <TextField {...params} label="Doctor (opcional)" />}
-                sx={{ '& .MuiAutocomplete-option': { fontSize: '0.75rem' } }}
-              />
-            </Stack>
-            <TextField
-              size="small"
-              fullWidth
-              multiline
-              rows={2}
-              label="Descripción"
-              value={form.description}
-              onChange={({ target }) => setForm((f) => ({ ...f, description: target.value }))}
-            />
-            <Stack direction="row" spacing={1} justifyContent="flex-end">
-              <Button size="small" color="error" variant="outlined" onClick={resetForm}>Cancelar</Button>
-              <Button size="small" variant="contained" color="success" onClick={handleSave} disabled={!form.description.trim() || !form.indication_type}>
-                {editingId ? 'Actualizar' : 'Guardar'}
-              </Button>
-            </Stack>
-          </Stack>
-        </Box>
-      )}
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#2e7d32', color: 'white' }}>
+          {editing ? 'Editar Indicación' : 'Agregar Indicación'}
+        </DialogTitle>
+        <DialogContent style={{ paddingTop: 24 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <TextField select variant="standard" size="small" label="Tipo" value={form.indication_type}
+              onChange={(e) => setForm((prev) => ({ ...prev, indication_type: e.target.value }))} fullWidth>
+              {INDICATION_TYPES.map((t) => <MenuItem key={t.key} value={t.key}>{t.label}</MenuItem>)}
+            </TextField>
+            <TextField variant="standard" size="small" label="Descripción" value={form.description}
+              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))} required multiline rows={2} fullWidth />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button size="small" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+          <Button size="small" variant="contained" onClick={handleSave}
+            disabled={saving || !form.description || !form.indication_type}>
+            {saving ? 'Guardando...' : 'Guardar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

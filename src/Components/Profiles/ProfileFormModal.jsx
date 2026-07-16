@@ -66,8 +66,8 @@ const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          <TextField fullWidth label="Nombre" value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }} required />
-          <TextField fullWidth label="Descripcion" value={description} onChange={(e) => setDescription(e.target.value)} sx={{ mb: 2 }} multiline rows={2} />
+          <TextField variant="standard" fullWidth label="Nombre" value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }} required />
+          <TextField variant="standard" fullWidth label="Descripcion" value={description} onChange={(e) => setDescription(e.target.value)} sx={{ mb: 2 }} multiline rows={2} />
 
           <FormControl component="fieldset" variant="standard" fullWidth>
             <FormLabel component="legend" sx={{ mb: 1, fontWeight: 'bold' }}>Permisos</FormLabel>

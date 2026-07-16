@@ -83,6 +83,7 @@ const SignIn = () => {
 
           <form onSubmit={handleSubmit}>
             <TextField
+              variant="standard"
               fullWidth
               label="Usuario"
               name="username"
@@ -92,6 +93,7 @@ const SignIn = () => {
               required
             />
             <TextField
+              variant="standard"
               fullWidth
               label="Contrasena"
               name="password"

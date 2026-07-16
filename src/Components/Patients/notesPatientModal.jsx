@@ -37,8 +37,8 @@ const NotesPatient = ({ row, onNoteAdded }) => {
                 </DialogTitle>
                 <DialogContent dividers>
                     <Stack spacing={2} sx={{ mt: 2 }}>
-                        <TextField disabled fullWidth label='Paciente' value={row.patient?.name || row.name || ''} />
-                        <TextField multiline rows={4} fullWidth placeholder="Notas" label='Notas' value={note} onChange={({ target }) => setNote(target.value)} />
+                        <TextField variant="standard" disabled fullWidth label='Paciente' value={row.patient?.name || row.name || ''} />
+                        <TextField variant="standard" multiline rows={4} fullWidth placeholder="Notas" label='Notas' value={note} onChange={({ target }) => setNote(target.value)} />
                     </Stack>
                 </DialogContent>
                 <DialogActions>

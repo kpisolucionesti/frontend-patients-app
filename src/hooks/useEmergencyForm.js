@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import moment from 'moment';
 
 const useEmergencyForm = () => {
-  const [emergencyValues, setEmergencyValues] = useState({ ingress_date: moment().format("YYYY-MM-DD") });
+  const [emergencyValues, setEmergencyValues] = useState({ ingress_date: moment().format("YYYY-MM-DD"), observations: '', classification: '' });
   const [roomSelected, setRoomSelected] = useState(null);
   const [emergencyValidation, setEmergencyValidation] = useState(false);
 
@@ -19,7 +19,7 @@ const useEmergencyForm = () => {
   }, []);
 
   const clearEmergencyFields = useCallback(() => {
-    setEmergencyValues({ ingress_date: moment().format("YYYY-MM-DD") });
+    setEmergencyValues({ ingress_date: moment().format("YYYY-MM-DD"), observations: '', classification: '' });
     setRoomSelected(null);
     setEmergencyValidation(false);
   }, []);

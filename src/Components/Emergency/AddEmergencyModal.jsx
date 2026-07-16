@@ -1,23 +1,36 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid } from "@mui/material";
 import { AddCircleOutlineRounded } from '@mui/icons-material';
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { useFetch } from "../../hooks/useFetch";
 import usePatientLookup from "../../hooks/usePatientLookup";
 import useEmergencyForm from "../../hooks/useEmergencyForm";
+import useAntecedentForm from "../../hooks/useAntecedentForm";
 import PatientSection from "./PatientSection";
+import AntecedentSection from "./AntecedentSection";
 import EmergencySection from "./EmergencySection";
 import EditPatientData from "../Patients/editPatientDataModal";
 import { PEDIATRIC_AGE_THRESHOLD } from "../../constants";
 
-const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
-  const [open, setOpen] = useState(false);
+const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externalOpen, onClose: externalOnClose }) => {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [roomsList, setRoomsList] = useState([]);
+
+  const isControlled = externalOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
 
   const patient = usePatientLookup();
   const emergency = useEmergencyForm();
+  const antecedents = useAntecedentForm();
 
   const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
+
+  useEffect(() => {
+    if (open && roomsList.length === 0) {
+      BackendAPI.rooms.getAll().then(setRoomsList);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const availableRooms = useMemo(
     () => (roomsList || []).filter((r) =>
@@ -29,18 +42,23 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
   const clearFields = useCallback(() => {
     patient.clearPatientFields();
     emergency.clearEmergencyFields();
+    antecedents.clearAntecedents();
     setRoomsList([]);
-  }, [patient, emergency]);
+  }, [patient, emergency, antecedents]);
 
   const handleOpen = useCallback(() => {
     BackendAPI.rooms.getAll().then(setRoomsList);
-    setOpen(true);
-  }, []);
+    if (!isControlled) setInternalOpen(true);
+  }, [isControlled]);
 
   const handleClose = useCallback(() => {
     clearFields();
-    setOpen(false);
-  }, [clearFields]);
+    if (isControlled) {
+      if (externalOnClose) externalOnClose();
+    } else {
+      setInternalOpen(false);
+    }
+  }, [clearFields, isControlled, externalOnClose]);
 
   const handleSubmit = useCallback(async () => {
     let valid = true;
@@ -70,11 +88,27 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
         patientId = patient.patientValues.id;
         if (!patientId) {
           const existing = await BackendAPI.patients.findByCi(patient.patientValues.ci);
+          if (existing && existing._error) {
+            alert(existing._error);
+            return;
+          }
           patientId = existing.id;
         }
       } else {
         const newPatient = await BackendAPI.patients.create(patient.patientValues);
         patientId = newPatient.id;
+      }
+
+      for (const a of antecedents.antecedents) {
+        if (a.condition_type) {
+          await BackendAPI.antecedents.create(patientId, {
+            condition_type: a.condition_type,
+            description: a.description,
+            diagnosed_at: a.diagnosed_at,
+            medication: a.medication,
+            notes: a.notes,
+          });
+        }
       }
 
       const doctorsPayload = emergency.emergencyValues.current_doctor ? [{ id: emergency.emergencyValues.current_doctor }] : [];
@@ -84,40 +118,45 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
         ingress_date: emergency.emergencyValues.ingress_date,
         diagnostic: emergency.emergencyValues.diagnostic,
         treatment: emergency.emergencyValues.treatment,
-        observations: '',
+        observations: emergency.emergencyValues.observations,
+        classification: emergency.emergencyValues.classification,
         status: 1,
         doctors: doctorsPayload,
       };
 
-      await BackendAPI.emergencies.create(emergencyPayload);
+      const created = await BackendAPI.emergencies.create(emergencyPayload);
+      const emergencyId = created.id;
+
       await BackendAPI.rooms.update({ ...emergency.roomSelected, patient_id: patientId });
 
       if (onEmergencyCreated) onEmergencyCreated();
-      clearFields();
-      setOpen(false);
-    } catch {
-      alert("Error al crear la emergencia");
+      handleClose();
+    } catch (err) {
+      const msg = err?.response?.data?.error || 'Error al crear la emergencia';
+      alert(msg);
     }
-  }, [patient, emergency, onEmergencyCreated, clearFields]);
+  }, [patient, emergency, antecedents, onEmergencyCreated, handleClose]);
 
   return (
     <>
-      <Button
-        color="success"
-        onClick={handleOpen}
-        variant="contained"
-        disabled={disabled}
-        startIcon={<AddCircleOutlineRounded />}
-      >
-        EMERGENCIA
-      </Button>
+      {!isControlled && (
+        <Button
+          color="success"
+          onClick={handleOpen}
+          variant="contained"
+          disabled={disabled}
+          startIcon={<AddCircleOutlineRounded />}
+        >
+          EMERGENCIA
+        </Button>
+      )}
 
-      <Dialog fullWidth maxWidth='md' open={open} onClose={handleClose}>
+      <Dialog fullWidth maxWidth='lg' open={open} onClose={handleClose}>
         <DialogTitle textAlign="center" sx={{ bgcolor: 'warning.main', color: 'white', fontWeight: 'bold', py: 0.75, fontSize: '0.9rem' }}>
           AGREGAR EMERGENCIA
         </DialogTitle>
         <DialogContent sx={{
-          overflow: 'visible',
+          bgcolor: '#f0f4ff',
           '&:first-of-type': { pt: 1.5 },
           '& .MuiInputBase-input': { fontSize: '0.75rem' },
           '& .MuiInputLabel-root': { fontSize: '0.75rem' },
@@ -125,27 +164,39 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
           '& .MuiTypography-root': { fontSize: '0.75rem' },
           '& .MuiChip-label': { fontSize: '0.7rem' },
         }}>
-          <Stack spacing={2}>
-            <PatientSection
-              values={patient.patientValues}
-              locked={patient.locked}
-              validation={patient.patientValidation}
-              onCiChange={patient.handleCiChange}
-              onFieldChange={patient.handlePatientFieldChange}
-              onBirthdayChange={patient.handleBirthdayChange}
-              onEditClick={patient.handleEditClick}
-            />
-            <EmergencySection
-              values={emergency.emergencyValues}
-              validation={emergency.emergencyValidation}
-              doctors={doctors}
-              availableRooms={availableRooms}
-              roomSelected={emergency.roomSelected}
-              patientReady={patient.patientAge > 0}
-              onFieldChange={emergency.handleEmergencyFieldChange}
-              onRoomChange={emergency.handleRoomChange}
-            />
-          </Stack>
+          <Grid container spacing={1.5}>
+            <Grid item xs={4}>
+              <PatientSection
+                values={patient.patientValues}
+                locked={patient.locked}
+                validation={patient.patientValidation}
+                onCiChange={patient.handleCiChange}
+                onFieldChange={patient.handlePatientFieldChange}
+                onBirthdayChange={patient.handleBirthdayChange}
+                onEditClick={patient.handleEditClick}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <AntecedentSection
+                antecedents={antecedents.antecedents}
+                onAdd={antecedents.addAntecedent}
+                onUpdate={antecedents.updateAntecedent}
+                onRemove={antecedents.removeAntecedent}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <EmergencySection
+                values={emergency.emergencyValues}
+                validation={emergency.emergencyValidation}
+                doctors={doctors}
+                availableRooms={availableRooms}
+                roomSelected={emergency.roomSelected}
+                patientReady={patient.patientAge > 0}
+                onFieldChange={emergency.handleEmergencyFieldChange}
+                onRoomChange={emergency.handleRoomChange}
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions sx={{ p: '0.75rem 1.25rem' }}>
           <Button onClick={handleClose} variant="contained" color="error">Cancelar</Button>

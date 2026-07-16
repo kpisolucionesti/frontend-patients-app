@@ -1,0 +1,130 @@
+import { useState } from 'react';
+import { Box, Paper, Typography, Grid, TextField, Button, IconButton, Collapse } from '@mui/material';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import { BackendAPI } from '../../services/BackendApi';
+import { useSnackbar } from '../../hooks/useSnackbar';
+
+const VitalSignsPanel = ({ emergencyId, vitalSigns, onCreated, readOnly }) => {
+  const [open, setOpen] = useState(vitalSigns.length === 0);
+  const [form, setForm] = useState({
+    systolic_bp: '', diastolic_bp: '', heart_rate: '',
+    respiratory_rate: '', temperature: '', oxygen_saturation: '',
+  });
+  const [saving, setSaving] = useState(false);
+  const { show: showSnackbar } = useSnackbar();
+
+  const latest = vitalSigns?.[0];
+
+  const handleSubmit = async () => {
+    const allEmpty = Object.values(form).every(v => v === '');
+    if (allEmpty) {
+      showSnackbar('Debe ingresar al menos un signo vital', 'warning');
+      return;
+    }
+    setSaving(true);
+    try {
+      const data = {};
+      Object.entries(form).forEach(([k, v]) => {
+        if (v !== '') data[k] = Number(v);
+      });
+      await BackendAPI.vitalSigns.create(emergencyId, data);
+      showSnackbar('Signos vitales registrados', 'success');
+      setForm({ systolic_bp: '', diastolic_bp: '', heart_rate: '', respiratory_rate: '', temperature: '', oxygen_saturation: '' });
+      if (onCreated) onCreated();
+    } catch {
+      showSnackbar('Error al guardar signos vitales', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Paper sx={{ p: 1.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <MonitorHeartIcon color="error" sx={{ fontSize: 18 }} />
+          <Typography variant="caption" fontWeight={600} sx={{ color: '#c62828' }}>
+            SIGNOS VITALES
+          </Typography>
+          {latest && (
+            <Typography variant="caption" color="text.secondary">
+              ({new Date(latest.recorded_at).toLocaleTimeString()})
+            </Typography>
+          )}
+        </Box>
+        <IconButton size="small" onClick={() => setOpen(!open)}>
+          <ExpandMoreIcon sx={{ fontSize: 18, transform: open ? 'rotate(180deg)' : 'none' }} />
+        </IconButton>
+      </Box>
+
+      {latest && !open && (
+        <Grid container spacing={1} sx={{ mt: 1 }}>
+          {latest.systolic_bp && (
+            <Grid item xs={4}>
+              <Typography variant="caption" color="text.secondary">PA</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.systolic_bp}/{latest.diastolic_bp}</Typography>
+            </Grid>
+          )}
+          {latest.heart_rate && (
+            <Grid item xs={4}>
+              <Typography variant="caption" color="text.secondary">FC</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.heart_rate} lpm</Typography>
+            </Grid>
+          )}
+          {latest.temperature && (
+            <Grid item xs={4}>
+              <Typography variant="caption" color="text.secondary">Temp</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.temperature} °C</Typography>
+            </Grid>
+          )}
+          {latest.oxygen_saturation && (
+            <Grid item xs={4}>
+              <Typography variant="caption" color="text.secondary">SpO2</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.oxygen_saturation}%</Typography>
+            </Grid>
+          )}
+          {latest.respiratory_rate && (
+            <Grid item xs={4}>
+              <Typography variant="caption" color="text.secondary">FR</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.respiratory_rate} rpm</Typography>
+            </Grid>
+          )}
+        </Grid>
+      )}
+
+      {!readOnly && (
+        <Collapse in={open}>
+          <Grid container spacing={1} sx={{ mt: 1 }}>
+            <Grid item xs={4}>
+              <TextField variant="standard" size="small" label="PA Sist" value={form.systolic_bp} onChange={(e) => setForm({ ...form, systolic_bp: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField variant="standard" size="small" label="PA Diast" value={form.diastolic_bp} onChange={(e) => setForm({ ...form, diastolic_bp: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField variant="standard" size="small" label="FC (lpm)" value={form.heart_rate} onChange={(e) => setForm({ ...form, heart_rate: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField variant="standard" size="small" label="FR (rpm)" value={form.respiratory_rate} onChange={(e) => setForm({ ...form, respiratory_rate: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField variant="standard" size="small" label="Temp (°C)" value={form.temperature} onChange={(e) => setForm({ ...form, temperature: e.target.value })} type="number" fullWidth inputProps={{ step: 0.1, style: { fontSize: '0.75rem' } }} />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField variant="standard" size="small" label="SpO2 (%)" value={form.oxygen_saturation} onChange={(e) => setForm({ ...form, oxygen_saturation: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+            </Grid>
+            <Grid item xs={12}>
+              <Button variant="outlined" size="small" startIcon={<AddCircleIcon />} onClick={handleSubmit} disabled={saving} sx={{ fontSize: '0.75rem' }}>
+                {saving ? 'Guardando...' : 'Registrar'}
+              </Button>
+            </Grid>
+          </Grid>
+        </Collapse>
+      )}
+    </Paper>
+  );
+};
+
+export default VitalSignsPanel;

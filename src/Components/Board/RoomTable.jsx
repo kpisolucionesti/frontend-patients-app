@@ -51,7 +51,7 @@ const EmergencyRow = React.memo(({ emergency, patientRoom }) => {
   );
 });
 
-const RoomTable = () => {
+const RoomTable = ({ screenRoute }) => {
   const { data: emergencies, refetch } = useFetch(
     () => BackendAPI.emergencies.getAll(), [],
   );
@@ -77,10 +77,21 @@ const RoomTable = () => {
     return map;
   }, [rooms]);
 
+  const filteredEmergencies = useMemo(() => {
+    return activeEmergencies.filter((e) => {
+      const room = roomByPatientId[e.patient_id];
+      if (screenRoute === 'adulto') return room?.room_type === 'adulto';
+      if (screenRoute === 'pediatria') return room?.room_type === 'pediatria';
+      return true;
+    });
+  }, [activeEmergencies, roomByPatientId, screenRoute]);
+
+  const title = screenRoute === 'pediatria' ? 'EMERGENCIA PEDIATRICA' : 'EMERGENCIA ADULTOS';
+
   return (
     <>
       <Typography textAlign="center" sx={{ p: '0.8vh 1vw', bgcolor: 'darkblue', color: 'white', fontSize: 'clamp(20px, 4vh, 72px)', fontWeight: 'bold' }}>
-        EMERGENCIA ADULTOS
+        {title}
       </Typography>
       <TableContainer>
         <Table size="small" sx={{ tableLayout: 'fixed' }}>
@@ -94,14 +105,14 @@ const RoomTable = () => {
             </TableRow>
           </TableHead>
           <TableBody sx={{ textTransform: 'uppercase' }}>
-            {activeEmergencies.length === 0 ? (
+            {filteredEmergencies.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} sx={{ textAlign: 'center', fontSize: 'clamp(14px, 2.8vh, 48px)', py: '3vh' }}>
                   Sin emergencias activas
                 </TableCell>
               </TableRow>
             ) : (
-              activeEmergencies.map((emergency) => (
+              filteredEmergencies.map((emergency) => (
                 <EmergencyRow
                   key={emergency.id}
                   emergency={emergency}

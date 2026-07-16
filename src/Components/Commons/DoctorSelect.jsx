@@ -34,7 +34,7 @@ const DoctorSelect = ({ value, onChange, disabled = false, error = false }) => {
     <FormControl fullWidth sx={{ mb: 3 }}>
       <InputLabel>Medico Tratante</InputLabel>
       <Select
-        variant="outlined"
+        variant="standard"
         disabled={disabled}
         label="Medico Tratante"
         name="current_doctor"

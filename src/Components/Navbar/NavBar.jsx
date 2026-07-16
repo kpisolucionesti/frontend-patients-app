@@ -9,8 +9,8 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import LogoutIcon from '@mui/icons-material/Logout';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import EmergencyIcon from '@mui/icons-material/LocalHospital';
-import HistoryIcon from '@mui/icons-material/History';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import LockIcon from '@mui/icons-material/Lock';
@@ -20,8 +20,8 @@ import { APP_VERSION } from '../../version';
 import usePermissions from '../../hooks/usePermissions';
 
 const MENUS = [
-  { label: 'Emergencia', path: '/patients/emergencia', icon: <EmergencyIcon />, perm: 'emergencia.view' },
-  { label: 'Historial', path: '/patients/historial', icon: <HistoryIcon />, perm: 'historial.view' },
+  { label: 'Dashboard', path: '/patients/dashboard', icon: <DashboardIcon />, perm: 'emergencia.view' },
+  { label: 'Emergencia', path: '/patients/portal', icon: <EmergencyIcon />, perm: 'emergencia.view' },
   { label: 'Configuraciones', path: '/patients/configuraciones', icon: <SettingsIcon />, perm: 'configuraciones.view' },
 ];
 

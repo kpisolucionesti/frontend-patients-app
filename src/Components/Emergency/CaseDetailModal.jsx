@@ -1,5 +1,6 @@
 import { Autocomplete, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from "@mui/material";
-import { ArrowBack, Edit, MedicalServices } from "@mui/icons-material";
+import { ArrowBack, Cancel, Edit, MedicalServices } from "@mui/icons-material";
+import WarningIcon from '@mui/icons-material/Warning';
 import MedicalPlanSection from "./MedicalPlanSection";
 import NoteItem from "./NoteItem";
 import AddNoteInline from "./AddNoteInline";
@@ -15,12 +16,14 @@ import StatusChip from "../Commons/StatusChip";
 import usePermissions from "../../hooks/usePermissions";
 import moment from 'moment';
 
-const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly }) => {
+const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, hideHistory }) => {
     const permissions = usePermissions();
     const hasPerm = useCallback((p) => permissions.includes(p), [permissions]);
     const [historyEmergencyId, setHistoryEmergencyId] = useState(null);
     const [showEditPatient, setShowEditPatient] = useState(false);
     const [interconsultaInput, setInterconsultaInput] = useState('');
+    const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+    const [cancelReason, setCancelReason] = useState('');
 
     const activeEmergencyId = historyEmergencyId || emergencyId;
     const isViewingHistory = !!historyEmergencyId;
@@ -111,6 +114,22 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly })
         }
     }, [row, consultingDoctors, refetch, onDataChange]);
 
+    const handleCancelEmergency = useCallback(async () => {
+        if (!cancelReason) return;
+        try {
+            await BackendAPI.emergencies.update({
+                id: row.id,
+                status: 4,
+                medical_exit: cancelReason,
+            });
+            setCancelDialogOpen(false);
+            setCancelReason('');
+            handleSubActionClose();
+        } catch {
+            alert("Error al anular emergencia");
+        }
+    }, [row.id, cancelReason, handleSubActionClose]);
+
     const handleBackToCurrent = useCallback(() => {
         setHistoryEmergencyId(null);
     }, []);
@@ -120,7 +139,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly })
         setHistoryEmergencyId(eid);
     }, [activeEmergencyId]);
 
-    const effectiveReadOnly = readOnly || isViewingHistory;
+    const effectiveReadOnly = readOnly || isViewingHistory || patient?.disabled;
 
     if (!emergency) return null;
 
@@ -147,6 +166,12 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly })
                         )}
 
                         <Box sx={{ bgcolor: '#e3f2fd', p: 1.5, borderRadius: 2 }}>
+                            {patient?.disabled && (
+                                <Box sx={{ bgcolor: '#212121', color: 'white', p: 0.5, borderRadius: 1, mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    <WarningIcon sx={{ fontSize: 16 }} />
+                                    <Typography variant="caption" fontWeight={700}>FALLECIDO — Solo lectura</Typography>
+                                </Box>
+                            )}
                             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
                                 <Typography variant="subtitle2" fontWeight="bold" color="primary.dark">
                                     DATOS DEL PACIENTE
@@ -165,6 +190,13 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly })
                                         {hasPerm('emergencia.assign_room') && <AsignRoom row={row} onStatusChange={handleSubActionRefresh} />}
                                         {hasPerm('emergencia.edit') && <IngressPatientModal row={row} onStatusChange={handleSubActionClose} />}
                                         {hasPerm('emergencia.discharge') && <ReleasePatient row={row} onStatusChange={handleSubActionClose} />}
+                                        {hasPerm('emergencia.edit') && row.status === 1 && (
+                                            <Tooltip title="Anular Emergencia" arrow>
+                                                <IconButton size="small" color="error" onClick={() => setCancelDialogOpen(true)}>
+                                                    <Cancel fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
                                     </Stack>
                                 )}
                             </Stack>
@@ -225,6 +257,12 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly })
                                             <Typography variant="body2">{row.transfer}</Typography>
                                         </Stack>
                                     )}
+                                    {row.cause_of_death && (
+                                        <Stack direction="row" spacing={1}>
+                                            <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Causa Muerte:</Typography>
+                                            <Typography variant="body2">{row.cause_of_death}</Typography>
+                                        </Stack>
+                                    )}
                                     {effectiveReadOnly && row.created_at && (
                                         <Stack direction="row" spacing={1}>
                                             <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Hora Ingreso:</Typography>
@@ -279,7 +317,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly })
                                             value={availableConsultingDoctors.find((d) => d.id === interconsultaInput) || null}
                                             onChange={(_event, newValue) => setInterconsultaInput(newValue?.id || '')}
                                             renderInput={(params) => (
-                                                <TextField {...params} label="Agregar Interconsulta" />
+                                                <TextField variant="standard" {...params} label="Agregar Interconsulta" />
                                             )}
                                             sx={{ '& .MuiAutocomplete-option': { fontSize: '0.75rem' } }}
                                         />
@@ -296,9 +334,6 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly })
                         </Stack>
 
                         <Box sx={{ bgcolor: '#fff8e1', p: 1.5, borderRadius: 2 }}>
-                            <Typography variant="subtitle2" fontWeight="bold" color="warning.dark" sx={{ mb: 1 }}>
-                                INDICACIONES MÉDICAS
-                            </Typography>
                             <MedicalPlanSection emergencyId={activeEmergencyId} readOnly={effectiveReadOnly} />
                         </Box>
 
@@ -326,7 +361,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly })
                             )}
                         </Box>
 
-                        {allEmergencies.length > 1 && (
+                        {!hideHistory && allEmergencies.length > 1 && (
                             <Box sx={{ bgcolor: '#f5f5f5', p: 1.5, borderRadius: 2 }}>
                                 <Typography variant="subtitle2" fontWeight="bold" color="text.secondary" sx={{ mb: 1 }}>
                                     HISTORIAL DE CASOS
@@ -379,6 +414,27 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly })
                 </DialogContent>
                 <DialogActions sx={{ p: '0.75rem 1.25rem' }}>
                     <Button onClick={onClose} variant="contained" color="error">Cerrar</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={cancelDialogOpen} onClose={() => { setCancelDialogOpen(false); setCancelReason(''); }} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ bgcolor: '#616161', color: 'white', fontSize: '0.85rem' }}>
+                    ANULAR EMERGENCIA
+                </DialogTitle>
+                <DialogContent style={{ paddingTop: 24 }}>
+                    <TextField variant="standard" fullWidth size="small" required multiline rows={3}
+                        label="Motivo de anulación" value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                        error={!cancelReason}
+                        helperText={!cancelReason ? 'Requerido' : ''}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button size="small" onClick={() => { setCancelDialogOpen(false); setCancelReason(''); }}>Cancelar</Button>
+                    <Button size="small" variant="contained" color="error" onClick={handleCancelEmergency}
+                        disabled={!cancelReason}>
+                        Anular Emergencia
+                    </Button>
                 </DialogActions>
             </Dialog>
 

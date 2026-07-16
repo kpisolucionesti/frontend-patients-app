@@ -40,6 +40,7 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
         <TextField
+          variant="standard"
           fullWidth required label="Nombre" name="name" value={values.name}
           onChange={({ target }) => handleChange(target)}
           error={validation && !values.name}
@@ -47,6 +48,7 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
           sx={{ mb: 2 }}
         />
         <TextField
+          variant="standard"
           fullWidth required label="Especialidad" name="speciality" value={values.speciality}
           onChange={({ target }) => handleChange(target)}
           error={validation && !values.speciality}

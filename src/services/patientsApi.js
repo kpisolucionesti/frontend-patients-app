@@ -6,6 +6,11 @@ export const patientsApi = {
     const res = await axiosInstance.get(`/patients?${query}`);
     return res.data;
   },
+  getAllPaginated: async (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    const res = await axiosInstance.get(`/patients?${query}`);
+    return res.data;
+  },
   create: async (patient) => {
     const res = await axiosInstance.post('/patients', patient);
     return res.data;
@@ -26,8 +31,13 @@ export const patientsApi = {
     try {
       const res = await axiosInstance.get('/patients/find_by_ci', { params: { ci } });
       return res.data;
-    } catch {
+    } catch (err) {
+      if (err.response?.data?.error) return { _error: err.response.data.error };
       return null;
     }
+  },
+  getStats: async (id) => {
+    const res = await axiosInstance.get(`/patients/${id}/stats`);
+    return res.data;
   },
 };

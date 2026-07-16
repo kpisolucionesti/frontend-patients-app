@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Box, List, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material';
 import usePermissions from '../../hooks/usePermissions';
-import PeopleIcon from '@mui/icons-material/People';
 import MedicalIcon from '@mui/icons-material/MedicalServices';
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import EmailIcon from '@mui/icons-material/Email';
 import TvIcon from '@mui/icons-material/Tv';
-import PatientsList from '../Patients/PatientsList';
 import DoctorsList from '../Doctors/DoctorsList';
 import UsersList from '../Users/UsersList';
 import ProfilesList from '../Profiles/ProfilesList';
@@ -15,7 +13,6 @@ import EmailSettingsForm from '../Settings/EmailSettingsForm';
 import TvScreensManager from './TvScreensManager';
 
 const ALL_SECTIONS = [
-  { key: 'pacientes', label: 'Pacientes', icon: <PeopleIcon />, perm: 'pacientes.view' },
   { key: 'medicos', label: 'Medicos', icon: <MedicalIcon />, perm: 'medicos.view' },
   { key: 'usuarios', label: 'Usuarios', icon: <PersonIcon />, perm: 'usuarios.view' },
   { key: 'perfiles', label: 'Perfiles', icon: <AdminPanelSettingsIcon />, perm: 'perfiles.view' },
@@ -23,7 +20,6 @@ const ALL_SECTIONS = [
 ];
 
 const SECTION_MAP = {
-  pacientes: <PatientsList />,
   medicos: <DoctorsList />,
   usuarios: <UsersList />,
   perfiles: <ProfilesList />,

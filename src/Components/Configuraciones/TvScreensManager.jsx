@@ -67,6 +67,11 @@ const TvScreensManager = () => {
       size: 150,
     },
     {
+      header: 'Ruta',
+      accessorKey: 'route',
+      size: 120,
+    },
+    {
       header: 'Estado',
       accessorKey: 'is_connected',
       size: 120,

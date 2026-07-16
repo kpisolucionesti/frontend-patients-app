@@ -2,10 +2,11 @@ import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/
 
 const GENDERS = ['Masculino', 'Femenino', 'Otros'];
 
-const GenderSelect = ({ value, onChange, disabled = false, error = false }) => (
-  <FormControl fullWidth>
+const GenderSelect = ({ value, onChange, disabled = false, error = false, variant }) => (
+  <FormControl fullWidth variant={variant}>
     <InputLabel>Genero</InputLabel>
     <Select
+      variant={variant}
       size="small"
       disabled={disabled}
       error={error}

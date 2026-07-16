@@ -1,5 +1,6 @@
-import { Autocomplete, Box, Stack, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, MenuItem, Paper, Stack, TextField, Typography } from "@mui/material";
 import React, { useState, useEffect } from "react";
+import { CLASSIFICATION_OPTIONS } from "../../constants";
 
 const DoctorAutocomplete = ({ doctors, value, validation, onChange }) => {
   const [localValue, setLocalValue] = useState(null);
@@ -15,8 +16,7 @@ const DoctorAutocomplete = ({ doctors, value, validation, onChange }) => {
 
   return (
     <Autocomplete
-      size="small"
-      fullWidth
+      size="small" fullWidth
       options={doctors || []}
       getOptionLabel={(option) => option.name}
       value={localValue}
@@ -27,9 +27,9 @@ const DoctorAutocomplete = ({ doctors, value, validation, onChange }) => {
       }}
       renderInput={(params) => (
         <TextField
-          {...params}
-          label="Medico Principal"
-          required
+          variant="standard"
+          {...params} size="small"
+          label="Medico Principal" required
           error={validation && !value}
           helperText={validation && !value ? 'Requerido' : ''}
         />
@@ -42,70 +42,97 @@ const EmergencySection = ({
   values, validation, doctors, availableRooms, roomSelected, patientReady,
   onFieldChange, onRoomChange,
 }) => (
-  <Box sx={{ bgcolor: '#fff3e0', p: 1.5, borderRadius: 2 }}>
-    <Typography variant="subtitle2" fontWeight="bold" color="warning.dark" sx={{ mb: 1 }}>
-      DATOS DE LA EMERGENCIA
+  <Paper sx={{ boxShadow: 3, borderRadius: 1, p: 2 }}>
+    <Typography variant="caption" fontWeight={600} color="warning.dark" sx={{ mb: 1, display: 'block' }}>
+      EMERGENCIA ACTUAL
     </Typography>
-    <Stack spacing={1}>
+    <Stack spacing={1.5}>
       <Stack direction="row" spacing={1}>
         <TextField
-          size="small"
-          fullWidth
+          variant="standard"
+          size="small" fullWidth
           label="Fecha de Ingreso"
           value={values.ingress_date || ''}
           InputProps={{ readOnly: true }}
           disabled
+          sx={{ '& .MuiInputBase-input': { fontSize: '0.7rem' } }}
         />
-
         <DoctorAutocomplete
           doctors={doctors}
           value={values.current_doctor}
           validation={validation}
           onChange={(id) => onFieldChange({ name: 'current_doctor', value: id })}
         />
-
-        <Autocomplete
-          size="small"
-          fullWidth
-          options={availableRooms || []}
-          getOptionLabel={(option) => option.name}
-          value={roomSelected || null}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(_e, newValue) => onRoomChange(newValue)}
-          disabled={!patientReady}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Ubicacion"
-              required
-              error={validation && !roomSelected?.id}
-              helperText={validation && !roomSelected?.id ? 'Requerido' : ''}
-            />
-          )}
-        />
       </Stack>
 
+      <TextField select variant="standard" size="small" fullWidth required
+        label="Clasificación" name="classification"
+        value={values.classification || ''}
+        onChange={({ target }) => onFieldChange(target)}
+        error={validation && !values.classification}
+        helperText={validation && !values.classification ? 'Requerido' : ''}
+      >
+        {CLASSIFICATION_OPTIONS.map((opt) => (
+          <MenuItem key={opt.key} value={opt.key}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: opt.color }} />
+              {opt.label}
+            </Box>
+          </MenuItem>
+        ))}
+      </TextField>
+
+      <Autocomplete
+        size="small" fullWidth
+        options={availableRooms || []}
+        getOptionLabel={(option) => option.name}
+        value={roomSelected || null}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
+        onChange={(_e, newValue) => onRoomChange(newValue)}
+        disabled={!patientReady}
+        renderInput={(params) => (
+          <TextField
+            variant="standard"
+            {...params} size="small"
+            label="Ubicacion" required
+            error={validation && !roomSelected?.id}
+            helperText={validation && !roomSelected?.id ? 'Requerido' : ''}
+          />
+        )}
+      />
+
       <TextField
-        size="small"
-        multiline minRows={1}
-        fullWidth required
+        variant="standard"
+        size="small" multiline minRows={1} fullWidth required
         label="Diagnostico" name="diagnostic"
         value={values.diagnostic || ''}
         onChange={({ target }) => onFieldChange(target)}
         error={validation && !values.diagnostic}
         helperText={validation && !values.diagnostic ? 'Requerido' : ''}
+        sx={{ '& .MuiInputBase-input': { fontSize: '0.7rem' } }}
       />
 
       <TextField
+        variant="standard"
         size="small" fullWidth required
         label="Plan" name="treatment"
         value={values.treatment || ''}
         onChange={({ target }) => onFieldChange(target)}
         error={validation && !values.treatment}
         helperText={validation && !values.treatment ? 'Requerido' : ''}
+        sx={{ '& .MuiInputBase-input': { fontSize: '0.7rem' } }}
+      />
+
+      <TextField
+        variant="standard"
+        size="small" fullWidth multiline rows={2}
+        label="Observaciones" name="observations"
+        value={values.observations || ''}
+        onChange={({ target }) => onFieldChange(target)}
+        sx={{ '& .MuiInputBase-input': { fontSize: '0.7rem' } }}
       />
     </Stack>
-  </Box>
+  </Paper>
 );
 
 export default EmergencySection;

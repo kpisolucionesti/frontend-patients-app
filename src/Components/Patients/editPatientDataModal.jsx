@@ -55,10 +55,12 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
             </DialogTitle>
             <DialogContent>
                 <TextField
+                  variant="standard"
                     disabled fullWidth label="Cédula" value={patient.ci || ''}
                     sx={{ mt: 2, mb: 1 }}
                 />
                 <TextField
+                  variant="standard"
                     error={validation && !values.name} fullWidth required
                     helperText={validation && !values.name ? 'Requerido' : ''}
                     label="Nombre" name="name" value={values.name}
@@ -66,6 +68,7 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
                     sx={{ mb: 1 }}
                 />
                 <TextField
+                  variant="standard"
                     fullWidth label="Apellido" name="lastname" value={values.lastname}
                     onChange={({ target }) => handleValueChange(target)}
                     sx={{ mb: 1 }}
@@ -78,6 +81,7 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
                         onChange={handleBirthdayChange}
                         slotProps={{
                             textField: {
+                                variant: "standard",
                                 fullWidth: true, required: true,
                                 error: validation && !values.birthday,
                                 helperText: validation && !values.birthday ? 'Requerido' : '',
@@ -87,6 +91,7 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
                     />
                 </LocalizationProvider>
                 <GenderSelect
+                    variant="standard"
                     value={values.gender}
                     onChange={({ target }) => handleValueChange(target)}
                     error={validation && !values.gender}
@@ -94,12 +99,14 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
                 {isMinor && (
                     <>
                         <TextField
+                          variant="standard"
                             fullWidth label="Representante" name="representante"
                             value={values.representante}
                             onChange={({ target }) => handleValueChange(target)}
                             sx={{ mt: 1, mb: 1 }}
                         />
                         <TextField
+                          variant="standard"
                             fullWidth label="Cédula del Representante" name="representante_ci"
                             value={values.representante_ci}
                             onChange={({ target }) => handleValueChange(target)}

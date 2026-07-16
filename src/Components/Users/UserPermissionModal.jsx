@@ -59,7 +59,7 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
         {success && <Alert severity="success" sx={{ mb: 2 }}>Permisos actualizados exitosamente</Alert>}
         <FormControl fullWidth sx={{ mb: 3 }}>
           <InputLabel>Perfil</InputLabel>
-          <Select value={selectedProfileId} label="Perfil" onChange={(e) => setSelectedProfileId(e.target.value)}>
+          <Select variant="standard" value={selectedProfileId} label="Perfil" onChange={(e) => setSelectedProfileId(e.target.value)}>
             {profiles.map((p) => (
               <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
             ))}

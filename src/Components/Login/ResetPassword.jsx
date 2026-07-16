@@ -65,8 +65,8 @@ const ResetPassword = () => {
           ) : (
             <form onSubmit={handleSubmit}>
               {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-              <TextField fullWidth label="Nueva contrasena" name="password" type="password" value={values.password} onChange={handleChange} sx={{ mb: 2 }} required />
-              <TextField fullWidth label="Confirmar contrasena" name="password_confirmation" type="password" value={values.password_confirmation} onChange={handleChange} sx={{ mb: 3 }} required />
+              <TextField variant="standard" fullWidth label="Nueva contrasena" name="password" type="password" value={values.password} onChange={handleChange} sx={{ mb: 2 }} required />
+              <TextField variant="standard" fullWidth label="Confirmar contrasena" name="password_confirmation" type="password" value={values.password_confirmation} onChange={handleChange} sx={{ mb: 3 }} required />
               <Button fullWidth variant="contained" type="submit" sx={{ bgcolor: 'darkblue', '&:hover': { bgcolor: 'navy' } }}>
                 Restablecer
               </Button>

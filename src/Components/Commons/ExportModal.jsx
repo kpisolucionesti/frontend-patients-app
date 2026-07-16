@@ -143,8 +143,8 @@ const ExportModal = ({ data, columns, filename = 'Reporte', showDateFilter = fal
             {showDateFilter && (
               <LocalizationProvider dateAdapter={AdapterMoment}>
                 <Stack direction="row" spacing={1}>
-                  <DatePicker format="DD/MM/YYYY" label='Fecha Inicial' onChange={(e) => setStartDate(e)} />
-                  <DatePicker format="DD/MM/YYYY" label='Fecha Final' onChange={(e) => setEndDate(e)} />
+                  <DatePicker format="DD/MM/YYYY" label='Fecha Inicial' onChange={(e) => setStartDate(e)} slotProps={{ textField: { variant: 'standard' } }} />
+                  <DatePicker format="DD/MM/YYYY" label='Fecha Final' onChange={(e) => setEndDate(e)} slotProps={{ textField: { variant: 'standard' } }} />
                 </Stack>
               </LocalizationProvider>
             )}

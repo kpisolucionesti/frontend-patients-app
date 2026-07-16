@@ -7,10 +7,10 @@ import { useFetch } from '../../hooks/useFetch';
 import UserFormModal from './UserFormModal';
 import UserPasswordModal from './UserPasswordModal';
 import UserPermissionModal from './UserPermissionModal';
+import UserActivityLogModal from './UserActivityLogModal';
 import ConfirmActionModal from '../Commons/ConfirmActionModal';
 import usePermissions from '../../hooks/usePermissions';
 import { MRT_DEFAULTS } from '../Commons/mrtConfig';
-import UserCasesModal from './UserCasesModal';
 
 const UsersList = () => {
   const { data: users, loading, refetch } = useFetch(
@@ -23,7 +23,7 @@ const UsersList = () => {
   const [passwordModal, setPasswordModal] = useState(null);
   const [permissionModal, setPermissionModal] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null);
-  const [casesModal, setCasesModal] = useState(null);
+  const [activityLogModal, setActivityLogModal] = useState(null);
 
   const activeUsers = useMemo(
     () => (users || []).filter((u) => u.status !== 'suspended'),
@@ -92,8 +92,8 @@ const UsersList = () => {
             </Tooltip>
           )}
           {permissions.includes('historial.view') && (
-            <Tooltip title="Ver casos creados" arrow>
-              <IconButton color="info" size="small" onClick={() => setCasesModal(row.original)}>
+            <Tooltip title="Ver actividad" arrow>
+              <IconButton color="info" size="small" onClick={() => setActivityLogModal(row.original)}>
                 <History fontSize="small" />
               </IconButton>
             </Tooltip>
@@ -163,11 +163,11 @@ const UsersList = () => {
           user={permissionModal}
         />
       )}
-      {casesModal && (
-        <UserCasesModal
-          open={!!casesModal}
-          onClose={() => setCasesModal(null)}
-          user={casesModal}
+      {activityLogModal && (
+        <UserActivityLogModal
+          open={!!activityLogModal}
+          onClose={() => setActivityLogModal(null)}
+          user={activityLogModal}
         />
       )}
       {confirmModal && (

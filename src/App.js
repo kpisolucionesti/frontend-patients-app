@@ -1,11 +1,12 @@
+import { useEffect, useState } from 'react';
 import { Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import NavBar from './Components/Navbar/NavBar';
-import CurrentPatients from './Components/Emergency/CurrentPatients';
-import TablePatients from './Components/History/TablePatients';
-import PatientsList from './Components/Patients/PatientsList';
+import { BackendAPI } from './services/BackendApi';
+import EmergencyPortal from './Components/Portal/EmergencyPortal';
 import DoctorsList from './Components/Doctors/DoctorsList';
 import Configuraciones from './Components/Configuraciones/Configuraciones';
+import Dashboard from './Components/Dashboard/Dashboard';
 import RoomTable from './Components/Board/RoomTable';
 import TvPinGuard from './Components/Commons/TvPinGuard';
 import ErrorBoundary from './Components/Commons/ErrorBoundary';
@@ -53,20 +54,36 @@ function PublicRoute({ children }) {
 }
 
 function App() {
+  const [tvScreens, setTvScreens] = useState([]);
+  const [routesLoaded, setRoutesLoaded] = useState(false);
+
+  useEffect(() => {
+    BackendAPI.tvScreens.listActive()
+      .then((screens) => setTvScreens(screens.filter((s) => s.route)))
+      .catch(() => {})
+      .finally(() => setRoutesLoaded(true));
+  }, []);
+
   return (
     <Routes>
       <Route path="/" element={<PublicRoute><SignIn /></PublicRoute>} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/patients" element={<ProtectedLayout />}>
-        <Route index element={<Navigate to="emergencia" replace />} />
-        <Route path="emergencia" element={<CurrentPatients />} />
-        <Route path="historial" element={<TablePatients />} />
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="portal" element={<EmergencyPortal />} />
         <Route path="configuraciones" element={<Configuraciones />} />
-        <Route path="pacientes" element={<PatientsList />} />
         <Route path="medicos" element={<DoctorsList />} />
       </Route>
-      <Route path="/adulto" element={<TvPinGuard><RoomTable /></TvPinGuard>} />
+      {tvScreens.map((s) => (
+        <Route
+          key={s.id}
+          path={`/${s.route}`}
+          element={<TvPinGuard screen={s}><RoomTable screenRoute={s.route} /></TvPinGuard>}
+        />
+      ))}
+      {routesLoaded && <Route path="*" element={<Navigate to="/" replace />} />}
     </Routes>
   );
 }

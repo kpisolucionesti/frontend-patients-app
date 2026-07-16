@@ -82,21 +82,21 @@ const EmailSettingsForm = () => {
         {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField fullWidth size="small" label="Direccion SMTP" name="smtp_address" value={values.smtp_address} onChange={handleChange} placeholder="smtp.ejemplo.com" />
+          <TextField variant="standard" fullWidth size="small" label="Direccion SMTP" name="smtp_address" value={values.smtp_address} onChange={handleChange} placeholder="smtp.ejemplo.com" />
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <TextField size="small" label="Puerto" name="smtp_port" type="number" value={values.smtp_port} onChange={handleChange} sx={{ width: 120 }} />
+            <TextField variant="standard" size="small" label="Puerto" name="smtp_port" type="number" value={values.smtp_port} onChange={handleChange} sx={{ width: 120 }} />
             <FormControl size="small" sx={{ minWidth: 150 }}>
               <InputLabel>Autenticacion</InputLabel>
-              <Select name="authentication" value={values.authentication} label="Autenticacion" onChange={handleChange}>
+              <Select variant="standard" name="authentication" value={values.authentication} label="Autenticacion" onChange={handleChange}>
                 <MenuItem value="login">login</MenuItem>
                 <MenuItem value="plain">plain</MenuItem>
                 <MenuItem value="cram_md5">cram_md5</MenuItem>
               </Select>
             </FormControl>
           </Box>
-          <TextField fullWidth size="small" label="Usuario" name="smtp_username" value={values.smtp_username} onChange={handleChange} />
-          <TextField fullWidth size="small" label="Contrasena" name="smtp_password" type="password" value={values.smtp_password} onChange={handleChange} placeholder={values.smtp_password === '' ? 'Sin cambios' : ''} />
-          <TextField fullWidth size="small" label="Correo Remitente" name="sender_email" value={values.sender_email} onChange={handleChange} placeholder="noreply@ejemplo.com" />
+          <TextField variant="standard" fullWidth size="small" label="Usuario" name="smtp_username" value={values.smtp_username} onChange={handleChange} />
+          <TextField variant="standard" fullWidth size="small" label="Contrasena" name="smtp_password" type="password" value={values.smtp_password} onChange={handleChange} placeholder={values.smtp_password === '' ? 'Sin cambios' : ''} />
+          <TextField variant="standard" fullWidth size="small" label="Correo Remitente" name="sender_email" value={values.sender_email} onChange={handleChange} placeholder="noreply@ejemplo.com" />
           <FormControlLabel control={<Switch name="enable_starttls_auto" checked={values.enable_starttls_auto} onChange={handleChange} />} label="Habilitar STARTTLS" />
           <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
             <Button variant="contained" color="primary" onClick={handleSave} disabled={saving}>

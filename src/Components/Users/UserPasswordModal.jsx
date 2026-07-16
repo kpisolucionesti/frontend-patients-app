@@ -39,6 +39,7 @@ const UserPasswordModal = ({ open, onClose, user }) => {
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
         <TextField
+          variant="standard"
           fullWidth required label="Nueva Contrasena" name="password" type="password" value={values.password}
           onChange={({ target }) => handleChange(target)}
           error={validation && !values.password}
@@ -46,6 +47,7 @@ const UserPasswordModal = ({ open, onClose, user }) => {
           sx={{ mb: 2 }}
         />
         <TextField
+          variant="standard"
           fullWidth required label="Confirmar Contrasena" name="password_confirmation" type="password" value={values.password_confirmation}
           onChange={({ target }) => handleChange(target)}
           error={validation && !values.password_confirmation}

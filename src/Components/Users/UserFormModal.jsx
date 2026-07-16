@@ -53,6 +53,7 @@ const UserFormModal = ({ open, onClose, user, onSaved }) => {
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
         <TextField
+          variant="standard"
           fullWidth required label="Usuario" name="username" value={values.username}
           onChange={({ target }) => handleChange(target)}
           error={validation && !values.username}
@@ -60,6 +61,7 @@ const UserFormModal = ({ open, onClose, user, onSaved }) => {
           sx={{ mb: 2 }}
         />
         <TextField
+          variant="standard"
           fullWidth required label="Nombre" name="name" value={values.name}
           onChange={({ target }) => handleChange(target)}
           error={validation && !values.name}
@@ -67,11 +69,13 @@ const UserFormModal = ({ open, onClose, user, onSaved }) => {
           sx={{ mb: 2 }}
         />
         <TextField
+          variant="standard"
           fullWidth label="Apellido" name="lastname" value={values.lastname}
           onChange={({ target }) => handleChange(target)}
           sx={{ mb: 2 }}
         />
         <TextField
+          variant="standard"
           fullWidth required label="Correo" name="email" type="email" value={values.email}
           onChange={({ target }) => handleChange(target)}
           error={validation && !values.email}
@@ -81,6 +85,7 @@ const UserFormModal = ({ open, onClose, user, onSaved }) => {
         {!isEdit && (
           <>
             <TextField
+              variant="standard"
               fullWidth required label="Contrasena" name="password" type="password" value={values.password}
               onChange={({ target }) => handleChange(target)}
               error={validation && !values.password}
@@ -88,6 +93,7 @@ const UserFormModal = ({ open, onClose, user, onSaved }) => {
               sx={{ mb: 2 }}
             />
             <TextField
+              variant="standard"
               fullWidth required label="Confirmar Contrasena" name="password_confirmation" type="password" value={values.password_confirmation}
               onChange={({ target }) => handleChange(target)}
               error={validation && !values.password_confirmation}

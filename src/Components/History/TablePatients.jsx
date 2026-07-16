@@ -6,10 +6,10 @@ import { useFetch } from '../../hooks/useFetch';
 import NotesTable from './NotesTable';
 import DetailsPatients from './DetailsPatients';
 import StatusChip from '../Commons/StatusChip';
+import ExportModal from '../Commons/ExportModal';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment from 'moment';
-import ExportModal from '../Commons/ExportModal';
 import HistoryDetailModal from './HistoryDetailModal';
 
 const STATUS_OPTIONS = [
@@ -18,7 +18,7 @@ const STATUS_OPTIONS = [
   { value: 3, label: 'Ingresado' },
 ];
 
-const TablePatients = () => {
+const TablePatients = ({ onSelectEmergency, embedded }) => {
   const [showFilters, setShowFilters] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [applied, setApplied] = useState(false);
@@ -146,16 +146,21 @@ const TablePatients = () => {
     enableHiding: false,
     enableGlobalFilter: false,
     enableDensityToggle: false,
+    positionPagination: 'top',
+    muiTableContainerProps: { sx: { flex: 1, overflow: 'auto' } },
     manualPagination: true,
     getRowId: (row) => row.id?.toString(),
-    muiTableBodyRowProps: ({ row }) => ({
+    muiTableBodyRowProps: embedded && onSelectEmergency ? ({ row }) => ({
+      onClick: () => onSelectEmergency(row.original),
+      sx: { cursor: 'pointer' },
+    }) : ({ row }) => ({
       onClick: () => setDetailEmergencyId(row.original.id),
       sx: { cursor: 'pointer' },
     }),
     renderTopToolbarCustomActions: useCallback(
       () => applied && (
         <Box sx={{ display: 'flex', gap: '1rem', p: '4px', alignItems: 'center' }}>
-          <ExportModal data={tableData} showDateFilter />
+          <ExportModal data={tableData} filename="Historial_Clinico" />
         </Box>
       ),
       [applied, tableData],
@@ -188,8 +193,8 @@ const TablePatients = () => {
   });
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2 }}>
-      <Paper sx={{ p: 1.5, bgcolor: '#f0f4ff' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', p: 2, flex: 1, minHeight: 0 }}>
+      <Paper sx={{ p: 1.5, bgcolor: 'white' }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
           <Typography variant="subtitle1" fontWeight="bold" color="primary.dark">
             FILTROS DE HISTORIAL
@@ -208,14 +213,14 @@ const TablePatients = () => {
                   label="Fecha Inicio"
                   value={startDate}
                   onChange={(v) => setStartDate(v)}
-                  slotProps={{ textField: { size: 'small', sx: { width: 145 } } }}
+                  slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 145 } } }}
                 />
                 <DatePicker
                   format="DD/MM/YYYY"
                   label="Fecha Fin"
                   value={endDate}
                   onChange={(v) => setEndDate(v)}
-                  slotProps={{ textField: { size: 'small', sx: { width: 145 } } }}
+                  slotProps={{ textField: { variant: 'standard', size: 'small', sx: { width: 145 } } }}
                 />
               </LocalizationProvider>
               <Button
@@ -231,20 +236,23 @@ const TablePatients = () => {
             <Collapse in={showAdvanced}>
               <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap">
                 <TextField
+                  variant="standard"
                   size="small" label="Cedula" value={filters.cedula} sx={{ width: 140 }}
                   onChange={({ target }) => handleFilterChange('cedula', target.value)}
                 />
                 <TextField
+                  variant="standard"
                   size="small" label="Edad" type="number" value={filters.edad} sx={{ width: 80 }}
                   onChange={({ target }) => handleFilterChange('edad', target.value)}
                 />
                 <TextField
+                  variant="standard"
                   size="small" label="Medico" value={filters.medico} sx={{ width: 170 }}
                   onChange={({ target }) => handleFilterChange('medico', target.value)}
                 />
                 <FormControl size="small" sx={{ width: 130 }}>
                   <InputLabel>Estatus</InputLabel>
-                  <Select label="Estatus" value={filters.estatus} onChange={({ target }) => handleFilterChange('estatus', target.value)}>
+                  <Select variant="standard" label="Estatus" value={filters.estatus} onChange={({ target }) => handleFilterChange('estatus', target.value)}>
                     {STATUS_OPTIONS.map((opt) => (
                       <MenuItem key={opt.label} value={opt.value}>{opt.label}</MenuItem>
                     ))}
@@ -268,7 +276,9 @@ const TablePatients = () => {
           </Typography>
         </Paper>
       ) : (
-        <MaterialReactTable table={table} />
+        <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <MaterialReactTable table={table} />
+        </Paper>
       )}
       {detailEmergencyId && (
         <HistoryDetailModal

@@ -19,7 +19,7 @@ const AddNoteInline = ({ emergencyId, patientId, onAdded }) => {
 
     return (
         <Stack direction="row" spacing={1} alignItems="center">
-            <TextField size="small" fullWidth label="Agregar nota" value={text} onChange={({ target }) => setText(target.value)} />
+            <TextField variant="standard" size="small" fullWidth label="Agregar nota" value={text} onChange={({ target }) => setText(target.value)} />
             <Tooltip title="Agregar" arrow>
                 <span>
                     <IconButton color="primary" onClick={handleAdd} disabled={!text.trim()}>

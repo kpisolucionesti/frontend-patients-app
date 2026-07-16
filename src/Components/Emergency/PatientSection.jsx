@@ -1,4 +1,4 @@
-import { Box, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { Edit } from '@mui/icons-material';
@@ -11,9 +11,9 @@ const PatientSection = ({ values, locked, validation, onCiChange, onFieldChange,
   const isMinor = age !== null && age < 18;
 
   return (
-    <Box sx={{ bgcolor: '#e3f2fd', p: 1.5, borderRadius: 2 }}>
+    <Paper sx={{ boxShadow: 3, borderRadius: 1, p: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-        <Typography variant="subtitle2" fontWeight="bold" color="primary.dark">
+        <Typography variant="caption" fontWeight={600} color="primary.dark">
           DATOS DEL PACIENTE
         </Typography>
         {locked && (
@@ -24,25 +24,26 @@ const PatientSection = ({ values, locked, validation, onCiChange, onFieldChange,
           </Tooltip>
         )}
       </Stack>
-      <Stack spacing={1}>
+      <Stack spacing={1.5}>
+        <TextField
+          variant="standard"
+          size="small"
+          error={validation && !values.ci}
+          fullWidth
+          helperText={
+            validation && !values.ci
+              ? 'Requerido'
+              : isMinor
+                ? 'Ingrese cédula del representante + número (ej: 12345678-1)'
+                : 'Ingrese la cédula para buscar'
+          }
+          required
+          label="Cédula"
+          name="ci"
+          value={values.ci || ''}
+          onChange={onCiChange}
+        />
         <Stack direction="row" spacing={1}>
-          <TextField
-            size="small"
-            error={validation && !values.ci}
-            fullWidth
-            helperText={
-              validation && !values.ci
-                ? 'Requerido'
-                : isMinor
-                  ? 'Ingrese cédula del representante + número (ej: 12345678-1)'
-                  : 'Ingrese la cédula para buscar'
-            }
-            required
-            label="Cédula"
-            name="ci"
-            value={values.ci || ''}
-            onChange={onCiChange}
-          />
           <LocalizationProvider dateAdapter={AdapterMoment}>
             <DatePicker
               format="DD/MM/YYYY"
@@ -51,47 +52,61 @@ const PatientSection = ({ values, locked, validation, onCiChange, onFieldChange,
               onChange={onBirthdayChange}
               slotProps={{
                 textField: {
+                  variant: 'standard',
                   size: 'small', fullWidth: true, required: true,
                   disabled: locked,
                   error: validation && !values.birthday,
                   helperText: validation && !values.birthday ? 'Requerido' : '',
+                  sx: { flex: 1 },
                 },
               }}
+              sx={{ flex: 1 }}
             />
           </LocalizationProvider>
-        </Stack>
-        <Stack direction="row" spacing={1}>
           <TextField
+            variant="standard"
             size="small"
-            disabled={locked}
-            error={validation && !values.name}
-            fullWidth
-            helperText={validation && !values.name ? 'Requerido' : ''}
-            required
-            label="Nombre"
-            name="name"
-            value={values.name || ''}
-            onChange={({ target }) => onFieldChange(target)}
-          />
-          <TextField
-            size="small"
-            disabled={locked}
-            fullWidth
-            label="Apellido"
-            name="lastname"
-            value={values.lastname || ''}
-            onChange={({ target }) => onFieldChange(target)}
-          />
-          <GenderSelect
-            value={values.gender}
-            onChange={({ target }) => onFieldChange(target)}
-            error={validation && !values.gender}
-            disabled={locked}
+            disabled
+            label="Edad"
+            value={age !== null ? `${age} años` : ''}
+            InputProps={{ readOnly: true }}
+            sx={{ width: 120 }}
           />
         </Stack>
+        <TextField
+          variant="standard"
+          size="small"
+          disabled={locked}
+          error={validation && !values.name}
+          fullWidth
+          helperText={validation && !values.name ? 'Requerido' : ''}
+          required
+          label="Nombre"
+          name="name"
+          value={values.name || ''}
+          onChange={({ target }) => onFieldChange(target)}
+        />
+        <TextField
+          variant="standard"
+          size="small"
+          disabled={locked}
+          fullWidth
+          label="Apellido"
+          name="lastname"
+          value={values.lastname || ''}
+          onChange={({ target }) => onFieldChange(target)}
+        />
+        <GenderSelect
+          variant="standard"
+          value={values.gender}
+          onChange={({ target }) => onFieldChange(target)}
+          error={validation && !values.gender}
+          disabled={locked}
+        />
         {isMinor && (
-          <Stack direction="row" spacing={1} sx={{ pt: 0.5 }}>
+          <Stack direction="row" spacing={1}>
             <TextField
+              variant="standard"
               size="small"
               disabled={locked}
               fullWidth
@@ -101,6 +116,7 @@ const PatientSection = ({ values, locked, validation, onCiChange, onFieldChange,
               onChange={({ target }) => onFieldChange(target)}
             />
             <TextField
+              variant="standard"
               size="small"
               disabled={locked}
               fullWidth
@@ -112,7 +128,7 @@ const PatientSection = ({ values, locked, validation, onCiChange, onFieldChange,
           </Stack>
         )}
       </Stack>
-    </Box>
+    </Paper>
   );
 };
 

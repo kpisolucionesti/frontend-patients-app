@@ -9,6 +9,7 @@ const TvScreenFormModal = ({ open, onClose, screen, onSaved }) => {
   const [values, setValues] = useState({
     name: screen?.name || '',
     location: screen?.location || '',
+    route: screen?.route || '',
     pin: '',
     pinConfirm: '',
   });
@@ -22,6 +23,7 @@ const TvScreenFormModal = ({ open, onClose, screen, onSaved }) => {
     const errors = {};
     if (!values.name) errors.name = true;
     if (!values.location) errors.location = true;
+    if (!values.route) errors.route = true;
     if (!isEdit && !values.pin) errors.pin = true;
     if (values.pin && values.pin !== values.pinConfirm) errors.pinConfirm = true;
     if (values.pin && values.pin.length < 4) errors.pin = true;
@@ -33,12 +35,12 @@ const TvScreenFormModal = ({ open, onClose, screen, onSaved }) => {
 
     try {
       if (isEdit) {
-        const payload = { name: values.name, location: values.location };
+        const payload = { name: values.name, location: values.location, route: values.route };
         if (values.pin) payload.pin = values.pin;
         await BackendAPI.tvScreens.update(screen.id, payload);
         show('Pantalla actualizada exitosamente', 'success');
       } else {
-        await BackendAPI.tvScreens.create({ name: values.name, location: values.location, pin: values.pin });
+        await BackendAPI.tvScreens.create({ name: values.name, location: values.location, route: values.route, pin: values.pin });
         show('Pantalla creada exitosamente', 'success');
       }
       if (onSaved) onSaved();
@@ -57,6 +59,7 @@ const TvScreenFormModal = ({ open, onClose, screen, onSaved }) => {
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
         <TextField
+          variant="standard"
           fullWidth required label="Nombre" name="name" value={values.name}
           onChange={({ target }) => handleChange(target)}
           error={!!getError('name')}
@@ -64,6 +67,7 @@ const TvScreenFormModal = ({ open, onClose, screen, onSaved }) => {
           sx={{ mb: 2 }}
         />
         <TextField
+          variant="standard"
           fullWidth required label="Ubicación" name="location" value={values.location}
           onChange={({ target }) => handleChange(target)}
           error={!!getError('location')}
@@ -71,6 +75,16 @@ const TvScreenFormModal = ({ open, onClose, screen, onSaved }) => {
           sx={{ mb: 2 }}
         />
         <TextField
+          variant="standard"
+          fullWidth required label="Ruta URL" name="route" value={values.route}
+          onChange={({ target }) => handleChange(target)}
+          error={!!getError('route')}
+          helperText={getError('route') ? 'Requerido' : values.route ? `/${values.route}` : 'ej. adulto, pediatria'}
+          inputProps={{ maxLength: 30, style: { textTransform: 'lowercase' } }}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          variant="standard"
           fullWidth type="password" label={isEdit ? 'Nuevo PIN (dejar vacío para mantener)' : 'PIN'}
           name="pin" value={values.pin}
           onChange={({ target }) => handleChange(target)}
@@ -81,6 +95,7 @@ const TvScreenFormModal = ({ open, onClose, screen, onSaved }) => {
         />
         {values.pin && (
           <TextField
+            variant="standard"
             fullWidth type="password" label="Confirmar PIN" name="pinConfirm"
             value={values.pinConfirm}
             onChange={({ target }) => handleChange(target)}

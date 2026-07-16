@@ -5,6 +5,8 @@ const STATUS_MAP = {
   1: { color: 'warning', label: 'ATENDIDO' },
   2: { color: 'error', label: 'ALTA' },
   3: { color: 'info', label: 'INGRESADO' },
+  4: { color: 'default', label: 'ANULADA' },
+  5: { color: 'default', label: 'FALLECIDO' },
 };
 
 const StatusChip = ({ status }) => {

@@ -42,9 +42,9 @@ const UserSelfPasswordModal = ({ open, onClose }) => {
           {success && <Alert severity="success" sx={{ mb: 2 }}>Contrasena actualizada exitosamente</Alert>}
           {!success && (
             <>
-              <TextField fullWidth label="Contrasena actual" name="current_password" type="password" value={values.current_password} onChange={handleChange} sx={{ mb: 2 }} required />
-              <TextField fullWidth label="Nueva contrasena" name="password" type="password" value={values.password} onChange={handleChange} sx={{ mb: 2 }} required />
-              <TextField fullWidth label="Confirmar contrasena" name="password_confirmation" type="password" value={values.password_confirmation} onChange={handleChange} sx={{ mb: 2 }} required />
+              <TextField variant="standard" fullWidth label="Contrasena actual" name="current_password" type="password" value={values.current_password} onChange={handleChange} sx={{ mb: 2 }} required />
+              <TextField variant="standard" fullWidth label="Nueva contrasena" name="password" type="password" value={values.password} onChange={handleChange} sx={{ mb: 2 }} required />
+              <TextField variant="standard" fullWidth label="Confirmar contrasena" name="password_confirmation" type="password" value={values.password_confirmation} onChange={handleChange} sx={{ mb: 2 }} required />
             </>
           )}
         </DialogContent>
