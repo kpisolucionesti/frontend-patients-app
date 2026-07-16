@@ -1,39 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, FormControl, FormControlLabel, FormGroup, FormLabel, Switch, Alert } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormLabel, Paper, Switch, TextField, Typography, Alert } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
-
-const ALL_PERMISSIONS = [
-  { key: 'emergencia.view', label: 'Ver Emergencia' },
-  { key: 'emergencia.create', label: 'Crear Emergencia' },
-  { key: 'emergencia.edit', label: 'Editar Emergencia' },
-  { key: 'emergencia.triage', label: 'Asignar Triage' },
-  { key: 'emergencia.discharge', label: 'Dar de Alta' },
-  { key: 'emergencia.assign_room', label: 'Asignar Sala' },
-  { key: 'historial.view', label: 'Ver Historial' },
-  { key: 'historial.export', label: 'Exportar Historial' },
-  { key: 'configuraciones.view', label: 'Ver Configuraciones' },
-  { key: 'pacientes.view', label: 'Ver Pacientes' },
-  { key: 'pacientes.edit', label: 'Editar Pacientes' },
-  { key: 'medicos.view', label: 'Ver Medicos' },
-  { key: 'medicos.create', label: 'Crear Medicos' },
-  { key: 'medicos.edit', label: 'Editar Medicos' },
-  { key: 'medicos.suspend', label: 'Suspender Medicos' },
-  { key: 'usuarios.view', label: 'Ver Usuarios' },
-  { key: 'usuarios.create', label: 'Crear Usuarios' },
-  { key: 'usuarios.edit', label: 'Editar Usuarios' },
-  { key: 'usuarios.suspend', label: 'Suspender Usuarios' },
-  { key: 'usuarios.manage_permissions', label: 'Gestionar Permisos' },
-  { key: 'usuarios.change_password', label: 'Cambiar Contrasena' },
-  { key: 'perfiles.view', label: 'Ver Perfiles' },
-  { key: 'perfiles.create', label: 'Crear Perfiles' },
-  { key: 'perfiles.edit', label: 'Editar Perfiles' },
-  { key: 'perfiles.delete', label: 'Eliminar Perfiles' },
-  { key: 'rooms.view', label: 'Ver Salas' },
-  { key: 'notes.view', label: 'Ver Notas' },
-  { key: 'notes.create', label: 'Crear Notas' },
-  { key: 'notes.edit', label: 'Editar Notas' },
-  { key: 'notes.delete', label: 'Eliminar Notas' },
-];
 
 const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
   const [name, setName] = useState('');
@@ -41,9 +8,17 @@ const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
   const [permissions, setPermissions] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [groups, setGroups] = useState([]);
+  const [loadingPerms, setLoadingPerms] = useState(false);
 
   useEffect(() => {
     if (!open) return;
+    setLoadingPerms(true);
+    BackendAPI.permissions.getAll()
+      .then((res) => setGroups(res?.groups || []))
+      .catch(() => setGroups([]))
+      .finally(() => setLoadingPerms(false));
+
     if (profile) {
       setName(profile.name || '');
       setDescription(profile.description || '');
@@ -93,17 +68,57 @@ const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           <TextField fullWidth label="Nombre" value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }} required />
           <TextField fullWidth label="Descripcion" value={description} onChange={(e) => setDescription(e.target.value)} sx={{ mb: 2 }} multiline rows={2} />
+
           <FormControl component="fieldset" variant="standard" fullWidth>
-            <FormLabel component="legend" sx={{ mb: 1 }}>Permisos</FormLabel>
-            <FormGroup>
-              {ALL_PERMISSIONS.map((perm) => (
-                <FormControlLabel
-                  key={perm.key}
-                  control={<Switch checked={permissions.includes(perm.key)} onChange={() => togglePermission(perm.key)} />}
-                  label={perm.label}
-                />
-              ))}
-            </FormGroup>
+            <FormLabel component="legend" sx={{ mb: 1, fontWeight: 'bold' }}>Permisos</FormLabel>
+            {loadingPerms ? (
+              <Typography variant="body2" color="text.secondary">Cargando permisos...</Typography>
+            ) : groups.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">No se pudieron cargar los permisos</Typography>
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {groups.map((group) => (
+                  <Paper
+                    key={group.section}
+                    variant="outlined"
+                    sx={{ p: 1.5, borderLeft: 4, borderColor: group.color || 'primary.main' }}
+                  >
+                    <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1, color: group.color ? '#333' : 'primary.main' }}>
+                      {group.section}
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {(group.permissions || []).map((perm) => (
+                        <Box
+                          key={perm.key}
+                          onClick={() => togglePermission(perm.key)}
+                          sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 0.5,
+                            px: 1,
+                            py: 0.3,
+                            borderRadius: 1,
+                            cursor: 'pointer',
+                            bgcolor: permissions.includes(perm.key) ? (group.color || '#e3f2fd') : 'grey.100',
+                            border: 1,
+                            borderColor: permissions.includes(perm.key) ? (group.color || '#90caf9') : 'grey.300',
+                            '&:hover': { opacity: 0.8 },
+                            userSelect: 'none',
+                          }}
+                        >
+                          <Switch
+                            size="small"
+                            checked={permissions.includes(perm.key)}
+                            sx={{ m: 0 }}
+                          />
+                          <Typography variant="body2">{perm.label}</Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
+            )}
           </FormControl>
         </DialogContent>
         <DialogActions sx={{ p: 2, justifyContent: 'center' }}>

@@ -5,6 +5,8 @@ import { MaterialReactTable, useMaterialReactTable } from 'material-react-table'
 import { useFetch } from '../../hooks/useFetch';
 import CaseDetailModal from './CaseDetailModal';
 import AddEmergencyModal from './AddEmergencyModal';
+import usePermissions from '../../hooks/usePermissions';
+import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 
 const CurrentPatients = () => {
   const [detailEmergencyId, setDetailEmergencyId] = useState(null);
@@ -14,10 +16,7 @@ const CurrentPatients = () => {
 
   const emergencies = useMemo(() => data?.data || [], [data]);
 
-  const permissions = useMemo(() => {
-    try { return JSON.parse(localStorage.getItem('user_permissions') || '[]'); }
-    catch { return []; }
-  }, []);
+  const permissions = usePermissions();
 
   const canCreateEmergency = useMemo(() => permissions.includes('emergencia.create'), [permissions]);
 
@@ -48,14 +47,7 @@ const CurrentPatients = () => {
   const table = useMaterialReactTable({
     columns,
     data: emergencies,
-    layoutMode: 'grid',
-    enableEditing: false,
-    enableFullScreenToggle: false,
-    enableSorting: true,
-    enableStickyHeader: true,
-    enableHiding: false,
-    enableGlobalFilter: true,
-    enableDensityToggle: false,
+    ...MRT_DEFAULTS,
     enableRowActions: false,
     getRowId: (row) => row.id?.toString(),
     muiTableBodyRowProps: ({ row }) => ({

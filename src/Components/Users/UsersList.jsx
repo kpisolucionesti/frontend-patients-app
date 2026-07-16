@@ -7,14 +7,16 @@ import { useFetch } from '../../hooks/useFetch';
 import UserFormModal from './UserFormModal';
 import UserPasswordModal from './UserPasswordModal';
 import UserPermissionModal from './UserPermissionModal';
-import UserConfirmModal from './UserConfirmModal';
+import ConfirmActionModal from '../Commons/ConfirmActionModal';
+import usePermissions from '../../hooks/usePermissions';
+import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 import UserCasesModal from './UserCasesModal';
 
 const UsersList = () => {
   const { data: users, loading, refetch } = useFetch(
     () => BackendAPI.users.getAll(), [],
   );
-  const permissions = JSON.parse(localStorage.getItem('user_permissions') || '[]');
+  const permissions = usePermissions();
 
   const [tab, setTab] = useState('activos');
   const [formModal, setFormModal] = useState(null);
@@ -62,14 +64,7 @@ const UsersList = () => {
   const table = useMaterialReactTable({
     columns,
     data: currentData,
-    layoutMode: 'grid',
-    enableEditing: false,
-    enableFullScreenToggle: false,
-    enableSorting: true,
-    enableStickyHeader: true,
-    enableHiding: false,
-    enableGlobalFilter: true,
-    enableDensityToggle: false,
+    ...MRT_DEFAULTS,
     enableRowActions: true,
     renderRowActions: ({ row }) => {
       const isAdmin = row.original.username === 'admin';
@@ -176,13 +171,14 @@ const UsersList = () => {
         />
       )}
       {confirmModal && (
-        <UserConfirmModal
+        <ConfirmActionModal
           open={!!confirmModal}
           onClose={() => setConfirmModal(null)}
-          user={confirmModal.user}
+          entityType="USUARIO"
+          entityName={confirmModal.user.name || confirmModal.user.username}
           action={confirmModal.action}
-          onConfirm={(user) => {
-            handleToggleStatus(user);
+          onConfirm={() => {
+            handleToggleStatus(confirmModal.user);
             setConfirmModal(null);
           }}
         />

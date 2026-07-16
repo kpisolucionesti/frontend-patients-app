@@ -6,7 +6,7 @@ import { useFetch } from "../../hooks/useFetch";
 
 const TRANSFER_OPTIONS = ['Quirofano', 'Hospitalizacion', 'UCI'];
 
-const MovePatient = ({ row, onStatusChange }) => {
+const IngressPatientModal = ({ row, onStatusChange }) => {
     const [open, setOpen] = useState(false);
     const [transfer, setTransfer] = useState('');
     const [validation, setValidation] = useState(false);
@@ -21,7 +21,7 @@ const MovePatient = ({ row, onStatusChange }) => {
         setTransfer('');
     }, []);
 
-    const handleReleasePatient = useCallback(() => {
+    const handleIngressPatient = useCallback(() => {
         if (!transfer) {
             alert("FALTAN DATOS POR LLENAR");
             setValidation(true);
@@ -70,11 +70,11 @@ const MovePatient = ({ row, onStatusChange }) => {
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
                     <Button onClick={handleClose} variant="contained" color="error">Cancelar</Button>
-                    <Button onClick={handleReleasePatient} variant="contained" color="success">Ingresar</Button>
+                    <Button onClick={handleIngressPatient} variant="contained" color="success">Ingresar</Button>
                 </DialogActions>
             </Dialog>
         </>
     );
 };
 
-export default MovePatient;
+export default IngressPatientModal;

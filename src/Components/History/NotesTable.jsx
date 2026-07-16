@@ -24,12 +24,10 @@ const StyledTableRow = styled(TableRow)({
 });
 
 const NotesTable = ({ row }) => {
-  const { data: allNotes } = useFetch(() => BackendAPI.notes.getAll(), []);
-
   const patientId = row.patient?.id || row.patient_id;
-  const patientNotes = useMemo(
-    () => (allNotes || []).filter((f) => f.patient_id === patientId),
-    [allNotes, patientId],
+  const { data: patientNotes } = useFetch(
+    () => patientId ? BackendAPI.notes.getAll({ patient_id: patientId }) : Promise.resolve([]),
+    [patientId],
   );
 
   if (!patientNotes.length) return null;

@@ -9,32 +9,34 @@ import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
 import moment from 'moment';
 import StatusChip from '../Commons/StatusChip';
+import HistoryDetailModal from '../History/HistoryDetailModal';
 
-const NotesModal = ({ open, onClose, patientName, patientId }) => {
-  const { data: allNotes } = useFetch(
-    () => BackendAPI.notes.getAll(), [],
-  );
-
-  const notes = useMemo(
-    () => (allNotes || []).filter((n) => n.patient_id === patientId),
-    [allNotes, patientId],
+const NotesModal = ({ open, onClose, emergencyId }) => {
+  const { data: notes } = useFetch(
+    () => emergencyId ? BackendAPI.notes.getAll({ emergency_id: emergencyId }) : Promise.resolve([]),
+    [emergencyId],
   );
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
       <DialogTitle sx={{ bgcolor: 'secondary.main', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
-        NOTAS DEL CASO - {patientName}
+        NOTAS DEL CASO
       </DialogTitle>
       <DialogContent sx={{ pt: 5, px: 3 }}>
-        {notes.length === 0 ? (
+        {!notes || notes.length === 0 ? (
           <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-            Sin notas registradas.
+            Sin notas registradas para este caso.
           </Typography>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             {notes.map((n) => (
               <Paper key={n.id} variant="outlined" sx={{ p: 1.5, bgcolor: '#f3e5f5' }}>
                 <Typography variant="body2">{n.note}</Typography>
+                {n.created_at && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                    {new Date(n.created_at).toLocaleString('es-PY')}
+                  </Typography>
+                )}
               </Paper>
             ))}
           </Box>
@@ -49,6 +51,7 @@ const NotesModal = ({ open, onClose, patientName, patientId }) => {
 
 const PatientHistoryModal = ({ open, patient, onClose }) => {
   const [notesCase, setNotesCase] = useState(null);
+  const [detailEmergencyId, setDetailEmergencyId] = useState(null);
 
   const { data: emergencies } = useFetch(
     () => BackendAPI.emergencies.getAll({ patient_id: patient.id, per_page: 10000 }),
@@ -95,7 +98,12 @@ const PatientHistoryModal = ({ open, patient, onClose }) => {
                 </TableHead>
                 <TableBody>
                   {patientEmergencies.map((e) => (
-                    <TableRow key={e.id} hover>
+                    <TableRow
+                      key={e.id}
+                      hover
+                      onClick={() => setDetailEmergencyId(e.id)}
+                      sx={{ cursor: 'pointer' }}
+                    >
                       <TableCell>
                         {moment(e.ingress_date).format('DD/MM/YYYY')}
                       </TableCell>
@@ -103,7 +111,7 @@ const PatientHistoryModal = ({ open, patient, onClose }) => {
                       <TableCell>{e.diagnostic}</TableCell>
                       <TableCell>{e.treatment}</TableCell>
                       <TableCell><StatusChip status={e.status} /></TableCell>
-                      <TableCell align="center">
+                      <TableCell align="center" onClick={(ev) => ev.stopPropagation()}>
                         <Tooltip title="Ver notas del caso" arrow>
                           <IconButton
                             color="secondary"
@@ -130,8 +138,15 @@ const PatientHistoryModal = ({ open, patient, onClose }) => {
         <NotesModal
           open={!!notesCase}
           onClose={() => setNotesCase(null)}
-          patientName={`${patient.name} ${patient.lastname || ''}`.trim()}
-          patientId={patient.id}
+          emergencyId={notesCase}
+        />
+      )}
+
+      {detailEmergencyId && (
+        <HistoryDetailModal
+          open={!!detailEmergencyId}
+          emergencyId={detailEmergencyId}
+          onClose={() => setDetailEmergencyId(null)}
         />
       )}
     </>

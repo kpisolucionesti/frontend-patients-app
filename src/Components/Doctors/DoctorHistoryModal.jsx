@@ -8,10 +8,12 @@ import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
 import moment from 'moment';
 import StatusChip from '../Commons/StatusChip';
+import ExportModal from '../Commons/ExportModal';
 
 const DoctorHistoryModal = ({ open, doctor, onClose }) => {
   const { data: emergencies } = useFetch(
-    () => BackendAPI.emergencies.getAll(), [],
+    () => BackendAPI.emergencies.getAll({ per_page: 10000, q: doctor.name }),
+    [doctor.id],
   );
 
   const attendedPatients = useMemo(
@@ -72,6 +74,7 @@ const DoctorHistoryModal = ({ open, doctor, onClose }) => {
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
+        <ExportModal data={attendedPatients} />
         <Button onClick={onClose} variant="contained" color="error">Cerrar</Button>
       </DialogActions>
     </Dialog>

@@ -3,6 +3,7 @@ import { BackendAPI } from "../../services/BackendApi";
 import { KingBed } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField, Tooltip } from "@mui/material";
 import { useFetch } from "../../hooks/useFetch";
+import { PEDIATRIC_AGE_THRESHOLD } from "../../constants";
 
 const AsignRoom = ({ row, onStatusChange }) => {
     const [openModal, setOpenModal] = useState(false);
@@ -37,7 +38,7 @@ const AsignRoom = ({ row, onStatusChange }) => {
 
     const availableRooms = useMemo(
         () => (rooms || []).filter((r) =>
-            ((row.patient?.age || 0) < 12 ? r.room_type === 'pediatria' : r.room_type === 'adulto') && !r.patient_id
+            ((row.patient?.age || 0) < PEDIATRIC_AGE_THRESHOLD ? r.room_type === 'pediatria' : r.room_type === 'adulto') && !r.patient_id
         ),
         [rooms, row.patient?.age],
     );

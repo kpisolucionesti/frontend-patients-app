@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import SignIn from './sign-in';
+import SignIn from './SignIn';
 
 jest.mock('../../services/BackendApi');
 

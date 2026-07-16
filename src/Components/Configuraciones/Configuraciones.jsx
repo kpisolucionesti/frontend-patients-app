@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { Box, List, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material';
+import usePermissions from '../../hooks/usePermissions';
 import PeopleIcon from '@mui/icons-material/People';
 import MedicalIcon from '@mui/icons-material/MedicalServices';
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import EmailIcon from '@mui/icons-material/Email';
+import TvIcon from '@mui/icons-material/Tv';
 import PatientsList from '../Patients/PatientsList';
 import DoctorsList from '../Doctors/DoctorsList';
 import UsersList from '../Users/UsersList';
 import ProfilesList from '../Profiles/ProfilesList';
 import EmailSettingsForm from '../Settings/EmailSettingsForm';
+import TvScreensManager from './TvScreensManager';
 
 const ALL_SECTIONS = [
   { key: 'pacientes', label: 'Pacientes', icon: <PeopleIcon />, perm: 'pacientes.view' },
   { key: 'medicos', label: 'Medicos', icon: <MedicalIcon />, perm: 'medicos.view' },
   { key: 'usuarios', label: 'Usuarios', icon: <PersonIcon />, perm: 'usuarios.view' },
   { key: 'perfiles', label: 'Perfiles', icon: <AdminPanelSettingsIcon />, perm: 'perfiles.view' },
+  { key: 'tv_screens', label: 'Pantallas TV', icon: <TvIcon />, perm: 'configuraciones.view', adminOnly: true },
 ];
 
 const SECTION_MAP = {
@@ -24,15 +28,21 @@ const SECTION_MAP = {
   usuarios: <UsersList />,
   perfiles: <ProfilesList />,
   correo: <EmailSettingsForm />,
+  tv_screens: <TvScreensManager />,
 };
 
 const Configuraciones = () => {
-  const permissions = JSON.parse(localStorage.getItem('user_permissions') || '[]');
+  const permissions = usePermissions();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [selected, setSelected] = useState('');
 
-  const permSections = ALL_SECTIONS.filter((s) => permissions.includes(s.perm));
-  const SECTIONS = user.is_admin ? [...permSections, { key: 'correo', label: 'Correo', icon: <EmailIcon /> }] : permSections;
+  const permSections = ALL_SECTIONS.filter((s) => {
+    if (s.adminOnly && !user.is_admin) return false;
+    return permissions.includes(s.perm);
+  });
+  const SECTIONS = user.is_admin
+    ? [...permSections, { key: 'correo', label: 'Correo', icon: <EmailIcon /> }]
+    : permSections;
 
   useEffect(() => {
     if (!selected && SECTIONS.length > 0) {

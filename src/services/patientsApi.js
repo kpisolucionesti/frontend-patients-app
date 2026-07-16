@@ -1,0 +1,33 @@
+import axiosInstance from './axiosInstance';
+
+export const patientsApi = {
+  getAll: async (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    const res = await axiosInstance.get(`/patients?${query}`);
+    return res.data;
+  },
+  create: async (patient) => {
+    const res = await axiosInstance.post('/patients', patient);
+    return res.data;
+  },
+  delete: async (id) => {
+    const res = await axiosInstance.delete('/patients/' + id);
+    return res.data;
+  },
+  update: async (patient) => {
+    const res = await axiosInstance.put('/patients/' + patient.id, patient);
+    return res.data;
+  },
+  getById: async (id) => {
+    const res = await axiosInstance.get('/patients/' + id);
+    return res.data;
+  },
+  findByCi: async (ci) => {
+    try {
+      const res = await axiosInstance.get('/patients/find_by_ci', { params: { ci } });
+      return res.data;
+    } catch {
+      return null;
+    }
+  },
+};

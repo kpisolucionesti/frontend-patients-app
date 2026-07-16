@@ -5,15 +5,17 @@ import { MaterialReactTable, useMaterialReactTable } from 'material-react-table'
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
 import DoctorFormModal from './DoctorFormModal';
-import DoctorConfirmModal from './DoctorConfirmModal';
+import ConfirmActionModal from '../Commons/ConfirmActionModal';
+import usePermissions from '../../hooks/usePermissions';
+import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 import DoctorHistoryModal from './DoctorHistoryModal';
-import ExportButton from '../Commons/ExportButton';
+import ExportModal from '../Commons/ExportModal';
 
 const DoctorsList = () => {
   const { data: doctors, loading, refetch } = useFetch(
     () => BackendAPI.doctors.getAll(), [],
   );
-  const permissions = JSON.parse(localStorage.getItem('user_permissions') || '[]');
+  const permissions = usePermissions();
 
   const [tab, setTab] = useState('activos');
   const [formModal, setFormModal] = useState(null);
@@ -57,14 +59,7 @@ const DoctorsList = () => {
   const table = useMaterialReactTable({
     columns,
     data: currentData,
-    layoutMode: 'grid',
-    enableEditing: false,
-    enableFullScreenToggle: false,
-    enableSorting: true,
-    enableStickyHeader: true,
-    enableHiding: false,
-    enableGlobalFilter: true,
-    enableDensityToggle: false,
+    ...MRT_DEFAULTS,
     enableRowActions: true,
     renderRowActions: ({ row }) => (
       <>
@@ -96,7 +91,7 @@ const DoctorsList = () => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <ExportButton data={currentData} columns={columns} filename="Medicos" />
+          <ExportModal data={currentData} columns={columns} filename="Medicos" />
           {tab === 'activos' && permissions.includes('medicos.create') && (
             <Tooltip title="Agregar medico" arrow>
               <IconButton color="primary" onClick={() => setFormModal({})}>
@@ -132,13 +127,14 @@ const DoctorsList = () => {
         />
       )}
       {confirmModal && (
-        <DoctorConfirmModal
+        <ConfirmActionModal
           open={!!confirmModal}
           onClose={() => setConfirmModal(null)}
-          doctor={confirmModal.doctor}
+          entityType="MEDICO"
+          entityName={confirmModal.doctor.name}
           action={confirmModal.action}
-          onConfirm={(doctor) => {
-            handleToggleActive(doctor);
+          onConfirm={() => {
+            handleToggleActive(confirmModal.doctor);
             setConfirmModal(null);
           }}
         />

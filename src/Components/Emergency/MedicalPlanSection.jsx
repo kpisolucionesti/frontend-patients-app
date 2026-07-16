@@ -3,6 +3,7 @@ import { Add, Check, Delete, Edit } from "@mui/icons-material";
 import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { useFetch } from "../../hooks/useFetch";
+import usePermissions from "../../hooks/usePermissions";
 
 const TYPE_COLORS = {
   medication: { bg: '#e3f2fd', chip: 'info' },
@@ -30,10 +31,7 @@ const MedicalPlanSection = ({ emergencyId, readOnly }) => {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ description: '', indication_type: '', doctor_id: null });
 
-  const permissions = useMemo(() => {
-    try { return JSON.parse(localStorage.getItem('user_permissions') || '[]'); }
-    catch { return []; }
-  }, []);
+  const permissions = usePermissions();
   const hasPerm = useCallback((p) => permissions.includes(p), [permissions]);
   const canEdit = !readOnly && hasPerm('emergencia.edit');
 

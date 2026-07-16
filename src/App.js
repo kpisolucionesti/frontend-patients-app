@@ -7,20 +7,25 @@ import PatientsList from './Components/Patients/PatientsList';
 import DoctorsList from './Components/Doctors/DoctorsList';
 import Configuraciones from './Components/Configuraciones/Configuraciones';
 import RoomTable from './Components/Board/RoomTable';
-import SignIn from './Components/Login/sign-in';
+import TvPinGuard from './Components/Commons/TvPinGuard';
+import ErrorBoundary from './Components/Commons/ErrorBoundary';
+import usePermissions from './hooks/usePermissions';
+import SignIn from './Components/Login/SignIn';
 import ForgotPassword from './Components/Login/ForgotPassword';
 import ResetPassword from './Components/Login/ResetPassword';
 
 function ProtectedLayout() {
   const token = localStorage.getItem('auth_token');
-  const permissions = JSON.parse(localStorage.getItem('user_permissions') || '[]');
+  const permissions = usePermissions();
   if (!token) {
     return <Navigate to="/" replace />;
   }
   return (
     <>
       <NavBar />
-      <Outlet context={{ permissions }} />
+      <ErrorBoundary>
+        <Outlet context={{ permissions }} />
+      </ErrorBoundary>
     </>
   );
 }
@@ -47,7 +52,7 @@ function App() {
         <Route path="pacientes" element={<PatientsList />} />
         <Route path="medicos" element={<DoctorsList />} />
       </Route>
-      <Route path="/adulto" element={<RoomTable />} />
+      <Route path="/adulto" element={<TvPinGuard><RoomTable /></TvPinGuard>} />
     </Routes>
   );
 }

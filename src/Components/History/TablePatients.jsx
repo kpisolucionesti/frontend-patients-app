@@ -3,13 +3,13 @@ import { MaterialReactTable, useMaterialReactTable } from 'material-react-table'
 import { Box, Button, Chip, Collapse, Divider, FormControl, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
-import NotesTable from './NotesTables';
+import NotesTable from './NotesTable';
 import DetailsPatients from './DetailsPatients';
 import StatusChip from '../Commons/StatusChip';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment from 'moment';
-import ExportData from './exportDatamodal';
+import ExportModal from '../Commons/ExportModal';
 import HistoryDetailModal from './HistoryDetailModal';
 
 const STATUS_OPTIONS = [
@@ -46,8 +46,13 @@ const TablePatients = () => {
     };
     if (startDate) params.from = moment(startDate).format('YYYY-MM-DD');
     if (endDate) params.to = moment(endDate).format('YYYY-MM-DD');
-    if (filters.cedula || filters.medico) params.q = filters.cedula || filters.medico;
-    if (filters.cedula && filters.medico) params.q = filters.cedula;
+    if (filters.cedula && filters.medico) {
+      params.q = filters.medico;
+    } else if (filters.cedula) {
+      params.q = filters.cedula;
+    } else if (filters.medico) {
+      params.q = filters.medico;
+    }
     if (filters.estatus !== '') params.status = filters.estatus;
 
     try {
@@ -150,7 +155,7 @@ const TablePatients = () => {
     renderTopToolbarCustomActions: useCallback(
       () => applied && (
         <Box sx={{ display: 'flex', gap: '1rem', p: '4px', alignItems: 'center' }}>
-          <ExportData apiData={tableData} />
+          <ExportModal data={tableData} showDateFilter />
         </Box>
       ),
       [applied, tableData],

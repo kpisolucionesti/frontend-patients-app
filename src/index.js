@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { SnackbarProvider } from './hooks/useSnackbar';
 
 const theme = createTheme({
   components: {
@@ -50,7 +51,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter basename={'/'} >
     <ThemeProvider theme={theme}>
-      <App />
+      <SnackbarProvider><App /></SnackbarProvider>
     </ThemeProvider>
   </BrowserRouter>
 );

@@ -4,14 +4,16 @@ import { Add, Edit, Delete, People } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
+import usePermissions from '../../hooks/usePermissions';
 import ProfileFormModal from './ProfileFormModal';
 import ProfileUsersModal from './ProfileUsersModal';
+import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 
 const ProfilesList = () => {
   const { data: profiles, loading, refetch } = useFetch(
     () => BackendAPI.profiles.getAll(), [],
   );
-  const permissions = JSON.parse(localStorage.getItem('user_permissions') || '[]');
+  const permissions = usePermissions();
 
   const [formModal, setFormModal] = useState(null);
   const [usersModal, setUsersModal] = useState(null);
@@ -42,14 +44,7 @@ const ProfilesList = () => {
   const table = useMaterialReactTable({
     columns,
     data: profiles || [],
-    layoutMode: 'grid',
-    enableEditing: false,
-    enableFullScreenToggle: false,
-    enableSorting: true,
-    enableStickyHeader: true,
-    enableHiding: false,
-    enableGlobalFilter: true,
-    enableDensityToggle: false,
+    ...MRT_DEFAULTS,
     enableRowActions: true,
     renderRowActions: ({ row }) => {
       const isProtectedProfile = ['Administrador', 'User'].includes(row.original.name);

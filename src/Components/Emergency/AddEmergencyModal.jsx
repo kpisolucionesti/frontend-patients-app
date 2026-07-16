@@ -1,53 +1,36 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from "@mui/material";
 import { AddCircleOutlineRounded } from '@mui/icons-material';
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { useFetch } from "../../hooks/useFetch";
+import usePatientLookup from "../../hooks/usePatientLookup";
+import useEmergencyForm from "../../hooks/useEmergencyForm";
 import PatientSection from "./PatientSection";
 import EmergencySection from "./EmergencySection";
 import EditPatientData from "../Patients/editPatientDataModal";
-import moment from 'moment';
-
-const calculateAge = (birthday) => {
-  if (!birthday) return 0;
-  return moment().diff(moment(birthday, 'YYYY-MM-DD'), 'years');
-};
+import { PEDIATRIC_AGE_THRESHOLD } from "../../constants";
 
 const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
   const [open, setOpen] = useState(false);
-  const [patientValues, setPatientValues] = useState({});
-  const [locked, setLocked] = useState(false);
-  const [patientAge, setPatientAge] = useState(0);
-  const [patientValidation, setPatientValidation] = useState(false);
-  const [editPatientModalOpen, setEditPatientModalOpen] = useState(false);
-
-  const [emergencyValues, setEmergencyValues] = useState({ ingress_date: moment().format("YYYY-MM-DD") });
-  const [roomSelected, setRoomSelected] = useState(null);
-  const [emergencyValidation, setEmergencyValidation] = useState(false);
   const [roomsList, setRoomsList] = useState([]);
 
-  const ciTimer = useRef(null);
+  const patient = usePatientLookup();
+  const emergency = useEmergencyForm();
 
   const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
 
   const availableRooms = useMemo(
-    () => (roomsList || []).filter((r) => {
-      const age = patientAge;
-      return age < 12 ? r.room_type === 'pediatria' : r.room_type === 'adulto';
-    }),
-    [roomsList, patientAge],
+    () => (roomsList || []).filter((r) =>
+      patient.patientAge < PEDIATRIC_AGE_THRESHOLD ? r.room_type === 'pediatria' : r.room_type === 'adulto'
+    ),
+    [roomsList, patient.patientAge],
   );
 
   const clearFields = useCallback(() => {
-    setPatientValues({});
-    setLocked(false);
-    setPatientAge(0);
-    setPatientValidation(false);
-    setEmergencyValues({ ingress_date: moment().format("YYYY-MM-DD") });
-    setRoomSelected(null);
-    setEmergencyValidation(false);
+    patient.clearPatientFields();
+    emergency.clearEmergencyFields();
     setRoomsList([]);
-  }, []);
+  }, [patient, emergency]);
 
   const handleOpen = useCallback(() => {
     BackendAPI.rooms.getAll().then(setRoomsList);
@@ -59,87 +42,21 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
     setOpen(false);
   }, [clearFields]);
 
-  const handlePatientFieldChange = useCallback((target) => {
-    setPatientValues((prev) => ({ ...prev, [target.name]: target.value }));
-  }, []);
-
-  const handleBirthdayChange = useCallback((date) => {
-    const bday = date ? moment(date).format('YYYY-MM-DD') : '';
-    setPatientValues((prev) => ({ ...prev, birthday: bday }));
-    setPatientAge(calculateAge(bday));
-  }, []);
-
-  const handleCiChange = useCallback(({ target }) => {
-    const ci = target.value.replace(/\D/g, '');
-    setPatientValues((prev) => ({ ...prev, ci }));
-    setLocked(false);
-    setPatientAge(0);
-    setPatientValidation(false);
-    if (ciTimer.current) clearTimeout(ciTimer.current);
-    if (ci.length < 4) return;
-    ciTimer.current = setTimeout(async () => {
-      const found = await BackendAPI.patients.findByCi(ci);
-      if (found) {
-        setPatientValues({
-          ci: found.ci,
-          name: found.name || '',
-          lastname: found.lastname || '',
-          birthday: found.birthday || '',
-          gender: found.gender || '',
-        });
-        setPatientAge(found.age || calculateAge(found.birthday));
-        setLocked(true);
-      }
-    }, 500);
-  }, []);
-
-  const handleEditClick = useCallback(() => {
-    setEditPatientModalOpen(true);
-  }, []);
-
-  const handleEditPatientSaved = useCallback(() => {
-    const ci = patientValues.ci;
-    BackendAPI.patients.findByCi(ci).then((found) => {
-      if (found) {
-        setPatientValues({
-          ci: found.ci,
-          name: found.name || '',
-          lastname: found.lastname || '',
-          birthday: found.birthday || '',
-          gender: found.gender || '',
-        });
-        setPatientAge(found.age || calculateAge(found.birthday));
-      }
-    });
-  }, [patientValues.ci]);
-
-  const handleEmergencyFieldChange = useCallback((target) => {
-    setEmergencyValues((prev) => ({ ...prev, [target.name]: target.value }));
-  }, []);
-
-  const handleIngressDateChange = useCallback((date) => {
-    setEmergencyValues((prev) => ({ ...prev, ingress_date: date ? moment(date).format('YYYY-MM-DD') : '' }));
-  }, []);
-
-  const handleRoomChange = useCallback((room) => {
-    setRoomSelected(room);
-  }, []);
-
   const handleSubmit = useCallback(async () => {
     let valid = true;
 
-    if (!patientValues.ci || !patientValues.name || !patientValues.birthday || !patientValues.gender) {
-      setPatientValidation(true);
+    if (!patient.patientValues.ci || !patient.patientValues.name || !patient.patientValues.birthday || !patient.patientValues.gender) {
+      patient.setPatientValidation(true);
       valid = false;
     } else {
-      setPatientValidation(false);
+      patient.setPatientValidation(false);
     }
 
-    if (!emergencyValues.diagnostic || !emergencyValues.treatment || !emergencyValues.current_doctor || !roomSelected?.id) {
-      setEmergencyValidation(true);
+    if (!emergency.emergencyValues.diagnostic || !emergency.emergencyValues.treatment || !emergency.emergencyValues.current_doctor || !emergency.roomSelected?.id) {
+      emergency.setEmergencyValidation(true);
       valid = false;
     } else {
-      setEmergencyValidation(false);
+      emergency.setEmergencyValidation(false);
     }
 
     if (!valid) {
@@ -149,31 +66,31 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
 
     try {
       let patientId;
-      if (locked) {
-        patientId = patientValues.id;
+      if (patient.locked) {
+        patientId = patient.patientValues.id;
         if (!patientId) {
-          const existing = await BackendAPI.patients.findByCi(patientValues.ci);
+          const existing = await BackendAPI.patients.findByCi(patient.patientValues.ci);
           patientId = existing.id;
         }
       } else {
-        const newPatient = await BackendAPI.patients.create(patientValues);
+        const newPatient = await BackendAPI.patients.create(patient.patientValues);
         patientId = newPatient.id;
       }
 
-      const doctorsPayload = emergencyValues.current_doctor ? [{ id: emergencyValues.current_doctor }] : [];
+      const doctorsPayload = emergency.emergencyValues.current_doctor ? [{ id: emergency.emergencyValues.current_doctor }] : [];
 
-      const emergency = {
+      const emergencyPayload = {
         patient_id: patientId,
-        ingress_date: emergencyValues.ingress_date,
-        diagnostic: emergencyValues.diagnostic,
-        treatment: emergencyValues.treatment,
+        ingress_date: emergency.emergencyValues.ingress_date,
+        diagnostic: emergency.emergencyValues.diagnostic,
+        treatment: emergency.emergencyValues.treatment,
         observations: '',
         status: 1,
         doctors: doctorsPayload,
       };
 
-      await BackendAPI.emergencies.create(emergency);
-      await BackendAPI.rooms.update({ ...roomSelected, patient_id: patientId });
+      await BackendAPI.emergencies.create(emergencyPayload);
+      await BackendAPI.rooms.update({ ...emergency.roomSelected, patient_id: patientId });
 
       if (onEmergencyCreated) onEmergencyCreated();
       clearFields();
@@ -181,7 +98,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
     } catch {
       alert("Error al crear la emergencia");
     }
-  }, [patientValues, locked, emergencyValues, doctors, roomSelected, onEmergencyCreated, clearFields]);
+  }, [patient, emergency, onEmergencyCreated, clearFields]);
 
   return (
     <>
@@ -210,23 +127,23 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
         }}>
           <Stack spacing={2}>
             <PatientSection
-              values={patientValues}
-              locked={locked}
-              validation={patientValidation}
-              onCiChange={handleCiChange}
-              onFieldChange={handlePatientFieldChange}
-              onBirthdayChange={handleBirthdayChange}
-              onEditClick={handleEditClick}
+              values={patient.patientValues}
+              locked={patient.locked}
+              validation={patient.patientValidation}
+              onCiChange={patient.handleCiChange}
+              onFieldChange={patient.handlePatientFieldChange}
+              onBirthdayChange={patient.handleBirthdayChange}
+              onEditClick={patient.handleEditClick}
             />
             <EmergencySection
-              values={emergencyValues}
-              validation={emergencyValidation}
+              values={emergency.emergencyValues}
+              validation={emergency.emergencyValidation}
               doctors={doctors}
               availableRooms={availableRooms}
-              roomSelected={roomSelected}
-              patientReady={patientAge > 0}
-              onFieldChange={handleEmergencyFieldChange}
-              onRoomChange={handleRoomChange}
+              roomSelected={emergency.roomSelected}
+              patientReady={patient.patientAge > 0}
+              onFieldChange={emergency.handleEmergencyFieldChange}
+              onRoomChange={emergency.handleRoomChange}
             />
           </Stack>
         </DialogContent>
@@ -236,19 +153,19 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false }) => {
         </DialogActions>
       </Dialog>
 
-      {editPatientModalOpen && (
+      {patient.editPatientModalOpen && (
         <EditPatientData
-          open={editPatientModalOpen}
-          onClose={() => setEditPatientModalOpen(false)}
+          open={patient.editPatientModalOpen}
+          onClose={() => patient.setEditPatientModalOpen(false)}
           patient={{
-            id: patientValues.id,
-            ci: patientValues.ci,
-            name: patientValues.name,
-            lastname: patientValues.lastname,
-            birthday: patientValues.birthday,
-            gender: patientValues.gender,
+            id: patient.patientValues.id,
+            ci: patient.patientValues.ci,
+            name: patient.patientValues.name,
+            lastname: patient.patientValues.lastname,
+            birthday: patient.patientValues.birthday,
+            gender: patient.patientValues.gender,
           }}
-          onSaved={handleEditPatientSaved}
+          onSaved={patient.handleEditPatientSaved}
         />
       )}
     </>

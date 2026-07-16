@@ -7,13 +7,15 @@ import { useFetch } from '../../hooks/useFetch';
 import moment from 'moment';
 import EditPatientData from './editPatientDataModal';
 import PatientHistoryModal from './PatientHistoryModal';
-import ExportButton from '../Commons/ExportButton';
+import ExportModal from '../Commons/ExportModal';
+import usePermissions from '../../hooks/usePermissions';
+import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 
 const PatientsList = () => {
   const { data: patients, loading, refetch } = useFetch(
     () => BackendAPI.patients.getAll(), [],
   );
-  const permissions = JSON.parse(localStorage.getItem('user_permissions') || '[]');
+  const permissions = usePermissions();
 
   const [editPatient, setEditPatient] = useState(null);
   const [historyPatient, setHistoryPatient] = useState(null);
@@ -38,21 +40,14 @@ const PatientsList = () => {
   const table = useMaterialReactTable({
     columns,
     data: patients || [],
-    layoutMode: 'grid',
-    enableEditing: false,
-    enableFullScreenToggle: false,
-    enableSorting: true,
-    enableStickyHeader: true,
-    enableHiding: false,
-    enableFilters: true,
-    enableColumnFilters: true,
-    enableGlobalFilter: true,
-    enableDensityToggle: false,
+    ...MRT_DEFAULTS,
+    enableFilters: false,
+    enableColumnFilters: false,
     enableRowActions: true,
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <ExportButton data={patients || []} columns={columns} filename="Pacientes" />
+          <ExportModal data={patients || []} columns={columns} filename="Pacientes" />
         </Box>
       ),
       [patients, columns],

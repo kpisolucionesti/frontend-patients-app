@@ -17,6 +17,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import UserSelfPasswordModal from './UserSelfPasswordModal';
 import { BackendAPI } from '../../services/BackendApi';
 import { APP_VERSION } from '../../version';
+import usePermissions from '../../hooks/usePermissions';
 
 const MENUS = [
   { label: 'Emergencia', path: '/patients/emergencia', icon: <EmergencyIcon />, perm: 'emergencia.view' },
@@ -28,7 +29,7 @@ const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const permissions = JSON.parse(localStorage.getItem('user_permissions') || '[]');
+  const permissions = usePermissions();
   const [anchorEl, setAnchorEl] = useState(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
 
