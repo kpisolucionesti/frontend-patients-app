@@ -17,4 +17,8 @@ export const authApi = {
     const res = await axiosInstance.put('/api/v1/auth/reset_password', data);
     return res.data;
   },
+  keepAlive: async () => {
+    const res = await axiosInstance.post('/api/v1/auth/keep_alive');
+    return res.data;
+  },
 };

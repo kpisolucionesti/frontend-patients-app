@@ -16,6 +16,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const isTv = !!localStorage.getItem('tv_auth_token');
+      const sessionExpired = error.response.data?.session_expired;
       if (isTv) {
         localStorage.removeItem('tv_auth_token');
         window.location.href = '/adulto';
@@ -23,7 +24,11 @@ axiosInstance.interceptors.response.use(
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_permissions');
         localStorage.removeItem('user');
-        window.location.href = '/';
+        if (sessionExpired) {
+          window.location.href = '/?expired=1';
+        } else {
+          window.location.href = '/';
+        }
       }
     }
     return Promise.reject(error);

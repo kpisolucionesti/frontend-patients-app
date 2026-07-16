@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -13,9 +13,16 @@ import { BackendAPI } from "../../services/BackendApi";
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [values, setValues] = useState({ username: "", password: "" });
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [error, setError] = useState(searchParams.get('expired') === '1');
+  const [errorMessage, setErrorMessage] = useState(searchParams.get('expired') === '1' ? "Su sesión ha expirado por inactividad. Por favor, inicie sesión nuevamente." : "");
+
+  useEffect(() => {
+    if (searchParams.get('expired') === '1') {
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleValueChange = (target) => {
     setValues({ ...values, [target.name]: target.value });
