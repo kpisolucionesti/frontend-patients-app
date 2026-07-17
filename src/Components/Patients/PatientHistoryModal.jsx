@@ -43,7 +43,7 @@ const NotesModal = ({ open, onClose, emergencyId }) => {
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} variant="contained" color="error">Cerrar</Button>
+        <Button onClick={onClose} variant="outlined" color="error">Cerrar</Button>
       </DialogActions>
     </Dialog>
   );
@@ -130,7 +130,7 @@ const PatientHistoryModal = ({ open, patient, onClose }) => {
           )}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={onClose} variant="contained" color="error">Cerrar</Button>
+          <Button onClick={onClose} variant="outlined" color="error">Cerrar</Button>
         </DialogActions>
       </Dialog>
 

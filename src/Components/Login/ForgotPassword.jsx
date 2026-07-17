@@ -41,7 +41,7 @@ const ForgotPassword = () => {
             <form onSubmit={handleSubmit}>
               {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
               <TextField variant="standard" fullWidth label="Correo Electronico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} sx={{ mb: 3 }} required />
-              <Button fullWidth variant="contained" type="submit" sx={{ bgcolor: 'darkblue', '&:hover': { bgcolor: 'navy' }, mb: 1 }}>
+              <Button fullWidth variant="outlined" type="submit" sx={{ bgcolor: 'darkblue', '&:hover': { bgcolor: 'navy' }, mb: 1 }}>
                 Enviar
               </Button>
             </form>

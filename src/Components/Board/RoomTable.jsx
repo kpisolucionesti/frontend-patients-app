@@ -80,8 +80,9 @@ const RoomTable = ({ screenRoute }) => {
   const filteredEmergencies = useMemo(() => {
     return activeEmergencies.filter((e) => {
       const room = roomByPatientId[e.patient_id];
-      if (screenRoute === 'adulto') return room?.room_type === 'adulto';
-      if (screenRoute === 'pediatria') return room?.room_type === 'pediatria';
+      if (!room?.room_type) return true;
+      if (screenRoute === 'adulto') return room.room_type === 'adulto';
+      if (screenRoute === 'pediatria') return room.room_type === 'pediatria';
       return true;
     });
   }, [activeEmergencies, roomByPatientId, screenRoute]);

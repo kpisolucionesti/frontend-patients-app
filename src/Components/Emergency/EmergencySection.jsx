@@ -17,7 +17,7 @@ const DoctorAutocomplete = ({ doctors, value, validation, onChange }) => {
   return (
     <Autocomplete
       size="small" fullWidth
-      options={doctors || []}
+      options={(doctors || []).filter((d) => d.status === 'active')}
       getOptionLabel={(option) => option.name}
       value={localValue}
       isOptionEqualToValue={(option, val) => option.id === val.id}

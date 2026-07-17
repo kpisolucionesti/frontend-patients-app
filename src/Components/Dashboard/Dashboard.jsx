@@ -29,8 +29,8 @@ const STATUS_COLORS = {
 const STATUS_CHIP = {
   0: { color: 'success', label: 'Esperando' },
   1: { color: 'warning', label: 'Atendido' },
-  2: { color: 'success', label: 'Alta' },
-  3: { color: 'secondary', label: 'Ingresado' },
+  2: { color: 'success', label: 'Alta Médica' },
+  3: { color: 'secondary', label: 'Ingreso a Hospitalización' },
   4: { color: 'default', label: 'Anulada' },
   5: { color: 'default', label: 'Fallecido' },
 };

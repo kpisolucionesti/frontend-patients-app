@@ -15,7 +15,7 @@ const InterconsultationForm = ({ inter, index, doctors, onUpdate, onRemove }) =>
     <Stack spacing={0.5}>
       <Autocomplete
         size="small" fullWidth
-        options={doctors || []}
+        options={(doctors || []).filter((d) => d.status === 'active')}
         getOptionLabel={(option) => `${option.name}${option.speciality ? ` (${option.speciality})` : ''}`}
         value={(doctors || []).find((d) => d.id === inter.doctor_requested_id) || null}
         isOptionEqualToValue={(option, val) => option.id === val.id}
@@ -52,7 +52,7 @@ const InterconsultationSection = ({ interconsultations, doctors, onAdd, onUpdate
         <InterconsultationForm key={ic._key} inter={ic} index={i} doctors={doctors} onUpdate={onUpdate} onRemove={onRemove} />
       ))}
       <Button
-        variant="text" size="small"
+        variant="outlined" size="small"
         startIcon={<AddCircleOutlineIcon />}
         onClick={onAdd}
         sx={{ textTransform: 'none', fontSize: '0.7rem', alignSelf: 'flex-start', p: 0, minHeight: 0 }}

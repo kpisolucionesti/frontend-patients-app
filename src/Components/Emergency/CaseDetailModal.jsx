@@ -63,7 +63,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
 
     const availableConsultingDoctors = useMemo(
         () => (doctors || []).filter((d) =>
-            d.id !== row.primary_doctor?.id && !consultingDoctors.find((c) => c.id === d.id)
+            d.status === 'active' && d.id !== row.primary_doctor?.id && !consultingDoctors.find((c) => c.id === d.id)
         ),
         [doctors, row.primary_doctor, consultingDoctors],
     );
@@ -160,7 +160,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                 }}>
                     <Stack spacing={1.5}>
                         {isViewingHistory && (
-                            <Button startIcon={<ArrowBack />} size="small" onClick={handleBackToCurrent} sx={{ alignSelf: 'flex-start' }}>
+                            <Button variant="outlined" startIcon={<ArrowBack />} size="small" onClick={handleBackToCurrent} sx={{ alignSelf: 'flex-start' }}>
                                 Volver a emergencia actual
                             </Button>
                         )}
@@ -413,7 +413,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                     </Stack>
                 </DialogContent>
                 <DialogActions sx={{ p: '0.75rem 1.25rem' }}>
-                    <Button onClick={onClose} variant="contained" color="error">Cerrar</Button>
+                    <Button onClick={onClose} variant="outlined" color="error">Cerrar</Button>
                 </DialogActions>
             </Dialog>
 
@@ -430,8 +430,8 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button size="small" onClick={() => { setCancelDialogOpen(false); setCancelReason(''); }}>Cancelar</Button>
-                    <Button size="small" variant="contained" color="error" onClick={handleCancelEmergency}
+                    <Button size="small" variant="outlined" onClick={() => { setCancelDialogOpen(false); setCancelReason(''); }}>Cancelar</Button>
+                    <Button size="small" variant="outlined" color="error" onClick={handleCancelEmergency}
                         disabled={!cancelReason}>
                         Anular Emergencia
                     </Button>

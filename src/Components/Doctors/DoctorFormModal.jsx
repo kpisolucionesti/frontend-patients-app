@@ -56,8 +56,8 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
         />
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} variant="contained" color="error">Cancelar</Button>
-        <Button onClick={handleSubmit} variant="contained" color="success">Guardar</Button>
+        <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
+        <Button onClick={handleSubmit} variant="outlined" color="success">Guardar</Button>
       </DialogActions>
     </Dialog>
   );

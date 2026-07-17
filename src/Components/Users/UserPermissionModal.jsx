@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Typography, Alert, Stack } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Typography, Alert } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
+import PermissionTable from '../Commons/PermissionTable';
 
 const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
   const [profiles, setProfiles] = useState([]);
@@ -51,13 +52,15 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
   const isAdminProfile = selectedProfile?.name === 'Administrador';
 
   return (
-    <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
+    <Dialog fullWidth maxWidth={false} open={open} onClose={onClose}
+      sx={{ '& .MuiDialog-paper': { width: { xs: '100%', sm: '90%', md: '85%', lg: '80%' }, maxWidth: 1100 } }}
+    >
       <DialogTitle sx={{ bgcolor: 'info.main', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
         PERMISOS - {propUser.name}
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
         {success && <Alert severity="success" sx={{ mb: 2 }}>Permisos actualizados exitosamente</Alert>}
-        <FormControl fullWidth sx={{ mb: 3 }}>
+        <FormControl sx={{ mb: 3, minWidth: 280 }}>
           <InputLabel>Perfil</InputLabel>
           <Select variant="standard" value={selectedProfileId} label="Perfil" onChange={(e) => setSelectedProfileId(e.target.value)}>
             {profiles.map((p) => (
@@ -65,46 +68,22 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
             ))}
           </Select>
         </FormControl>
-        {isAdminProfile && (
+        {isAdminProfile ? (
           <Box sx={{ bgcolor: '#e3f2fd', p: 2, borderRadius: 2, mb: 2, textAlign: 'center' }}>
             <Typography variant="body1" color="text.secondary">
               El perfil Administrador tiene todos los permisos.
             </Typography>
           </Box>
-        )}
-        {!isAdminProfile && (
-          <Stack spacing={1.5}>
-            {groups.map((group) => (
-              <Box key={group.section} sx={{ bgcolor: group.color, p: 1.5, borderRadius: 2 }}>
-                <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
-                  {group.section}
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {group.permissions.map((perm) => {
-                    const active = extraPermissions.includes(perm.key);
-                    return (
-                      <Chip
-                        key={perm.key}
-                        label={perm.label}
-                        color={active ? 'primary' : 'default'}
-                        variant={active ? 'filled' : 'outlined'}
-                        onClick={() => togglePermission(perm.key)}
-                        size="small"
-                      />
-                    );
-                  })}
-                </Box>
-              </Box>
-            ))}
-          </Stack>
+        ) : (
+          <PermissionTable groups={groups} permissions={extraPermissions} onToggle={togglePermission} />
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
-        <Button onClick={onClose} variant="contained" color="error">
+        <Button onClick={onClose} variant="outlined" color="error">
           {success ? 'Cerrar' : 'Cancelar'}
         </Button>
         {!success && (
-          <Button onClick={handleSave} variant="contained" color="primary" disabled={saving || !selectedProfileId}>
+          <Button onClick={handleSave} variant="outlined" color="primary" disabled={saving || !selectedProfileId}>
             Guardar
           </Button>
         )}

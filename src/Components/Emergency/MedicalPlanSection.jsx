@@ -86,7 +86,7 @@ const MedicalPlanSection = ({ emergencyId, readOnly }) => {
           INDICACIONES MÉDICAS
         </Typography>
         {!readOnly && canEdit && (
-          <Button size="small" startIcon={<AddCircleOutlineIcon />} onClick={handleOpenAdd}
+          <Button size="small" variant="outlined" startIcon={<AddCircleOutlineIcon />} onClick={handleOpenAdd}
             sx={{ textTransform: 'none', fontSize: '0.7rem', minWidth: 0 }}>
             Agregar Indicación
           </Button>
@@ -151,8 +151,8 @@ const MedicalPlanSection = ({ emergencyId, readOnly }) => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button size="small" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-          <Button size="small" variant="contained" onClick={handleSave}
+          <Button size="small" variant="outlined" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+          <Button size="small" variant="outlined" onClick={handleSave}
             disabled={saving || !form.description || !form.indication_type}>
             {saving ? 'Guardando...' : 'Guardar'}
           </Button>

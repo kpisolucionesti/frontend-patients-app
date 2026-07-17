@@ -51,7 +51,7 @@ const TvPinGuard = ({ screen, children }) => {
           inputProps={{ maxLength: 6, inputMode: 'numeric', pattern: '[0-9]*' }}
           autoFocus
         />
-        <Button type="submit" variant="contained" fullWidth>
+        <Button type="submit" variant="outlined" fullWidth>
           Ingresar
         </Button>
       </Paper>

@@ -6,16 +6,19 @@ import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import EmailIcon from '@mui/icons-material/Email';
 import TvIcon from '@mui/icons-material/Tv';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import DoctorsList from '../Doctors/DoctorsList';
 import UsersList from '../Users/UsersList';
 import ProfilesList from '../Profiles/ProfilesList';
 import EmailSettingsForm from '../Settings/EmailSettingsForm';
 import TvScreensManager from './TvScreensManager';
+import UbicacionesManager from './UbicacionesManager';
 
 const ALL_SECTIONS = [
   { key: 'medicos', label: 'Medicos', icon: <MedicalIcon />, perm: 'medicos.view' },
   { key: 'usuarios', label: 'Usuarios', icon: <PersonIcon />, perm: 'usuarios.view' },
   { key: 'perfiles', label: 'Perfiles', icon: <AdminPanelSettingsIcon />, perm: 'perfiles.view' },
+  { key: 'salas', label: 'Salas', icon: <MeetingRoomIcon />, perm: 'rooms.view', adminOnly: true },
   { key: 'tv_screens', label: 'Pantallas TV', icon: <TvIcon />, perm: 'configuraciones.view', adminOnly: true },
 ];
 
@@ -24,6 +27,7 @@ const SECTION_MAP = {
   usuarios: <UsersList />,
   perfiles: <ProfilesList />,
   correo: <EmailSettingsForm />,
+  salas: <UbicacionesManager />,
   tv_screens: <TvScreensManager />,
 };
 
@@ -82,7 +86,7 @@ const Configuraciones = () => {
           ))}
         </List>
       </Paper>
-      <Box sx={{ flexGrow: 1, p: 2, overflow: 'auto' }}>
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: '#f0f4ff' }}>
         {SECTION_MAP[selected]}
       </Box>
     </Box>

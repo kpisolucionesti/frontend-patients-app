@@ -42,7 +42,7 @@ const DoctorSelect = ({ value, onChange, disabled = false, error = false }) => {
         onChange={onChange}
         error={error}
       >
-        {(doctors || []).map((doctor) => (
+        {(doctors || []).filter((d) => d.status === 'active').map((doctor) => (
           <MenuItem key={doctor.id} value={doctor.name}>
             {doctor.name} -- {doctor.speciality}
           </MenuItem>

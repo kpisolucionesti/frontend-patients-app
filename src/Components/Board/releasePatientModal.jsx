@@ -66,7 +66,7 @@ const ReleasePatient = ({ row, onStatusChange }) => {
 
     return (
         <>
-            <Tooltip title='Alta Medica' arrow>
+            <Tooltip title='Alta Médica' arrow>
                 <span>
                     <IconButton color="error" onClick={handleOpen} disabled={row.status !== 1}>
                         <HealthAndSafetyOutlined />
@@ -104,8 +104,8 @@ const ReleasePatient = ({ row, onStatusChange }) => {
                     </Stack>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                    <Button onClick={handleClose} variant="contained" color="error">Cancelar</Button>
-                    <Button onClick={handleReleasePatient} variant="contained" color={isDeath ? 'error' : 'success'}>{isDeath ? 'REGISTRAR FALLECIMIENTO' : 'DAR DE ALTA'}</Button>
+                    <Button onClick={handleClose} variant="outlined" color="error">Cancelar</Button>
+                    <Button onClick={handleReleasePatient} variant="outlined" color={isDeath ? 'error' : 'success'}>{isDeath ? 'REGISTRAR FALLECIMIENTO' : 'DAR DE ALTA'}</Button>
                 </DialogActions>
             </Dialog>
         </>

@@ -55,7 +55,7 @@ const EmergencyEditButton = ({ row, onRefresh }) => {
                 </DialogContent>
                 <DialogActions sx={{ px: '1.25rem', py: 0.75 }}>
                     <Button onClick={() => setOpen(false)} variant="outlined" color="error">Cancelar</Button>
-                    <Button onClick={handleSubmit} variant="contained" color="success">Guardar</Button>
+                    <Button onClick={handleSubmit} variant="outlined" color="success">Guardar</Button>
                 </DialogActions>
             </Dialog>
         </>

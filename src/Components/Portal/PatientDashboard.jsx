@@ -1,15 +1,20 @@
-import { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Card, CardContent, List, ListItem, ListItemText, Button, Divider, Paper } from '@mui/material';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Box, Typography, Grid, Card, CardContent, List, ListItem, ListItemText, Button, Divider, Paper, IconButton, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import HistoryIcon from '@mui/icons-material/History';
 import WarningIcon from '@mui/icons-material/Warning';
+import SubjectIcon from '@mui/icons-material/Subject';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { BackendAPI } from '../../services/BackendApi';
+import { useFetch } from '../../hooks/useFetch';
 import HistoryDetailModal from '../History/HistoryDetailModal';
 import AllergiesSection from './AllergiesSection';
 import AntecedentsSection from './AntecedentsSection';
 import MedicalPlansDetail from './MedicalPlansDetail';
 import InterconsultationsDetail from './InterconsultationsDetail';
+import ParaclinicalStudiesDetail from './ParaclinicalStudiesDetail';
+import NoteItem from '../Emergency/NoteItem';
 
 const StatCard = ({ icon, label, value, color }) => (
   <Card sx={{ bgcolor: color || '#f5f5f5' }}>
@@ -29,6 +34,31 @@ const PatientDashboard = ({ patient, stats, emergencyId }) => {
   const [cases, setCases] = useState([]);
   const [selectedCase, setSelectedCase] = useState(null);
   const [showAllCases, setShowAllCases] = useState(false);
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [noteSaving, setNoteSaving] = useState(false);
+
+  const isDeceased = patient?.disabled;
+
+  const { data: notesData, refetch: refetchNotes } = useFetch(
+    () => emergencyId ? BackendAPI.notes.getAll({ emergency_id: emergencyId }) : Promise.resolve([]),
+    [emergencyId],
+  );
+  const patientNotes = useMemo(() => notesData || [], [notesData]);
+
+  const handleAddNote = useCallback(async () => {
+    if (!noteText.trim()) return;
+    setNoteSaving(true);
+    try {
+      await BackendAPI.notes.create({ note: noteText, patient_id: patient.id, emergency_id: emergencyId });
+      setNoteText('');
+      setNoteDialogOpen(false);
+      refetchNotes();
+    } catch {
+      alert('Error al agregar nota');
+    }
+    setNoteSaving(false);
+  }, [noteText, patient?.id, emergencyId, refetchNotes]);
 
   useEffect(() => {
     if (!patient) return;
@@ -44,7 +74,7 @@ const PatientDashboard = ({ patient, stats, emergencyId }) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-      {patient?.disabled && (
+      {isDeceased && (
         <Paper sx={{ p: 1, bgcolor: '#212121', color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
           <WarningIcon sx={{ fontSize: 20 }} />
           <Typography variant="body2" fontWeight={700}>PACIENTE FALLECIDO — Solo lectura</Typography>
@@ -70,10 +100,61 @@ const PatientDashboard = ({ patient, stats, emergencyId }) => {
         </Grid>
       </Grid>
 
-      <AllergiesSection patientId={patient?.id} readOnly={patient?.disabled} />
-      <AntecedentsSection patientId={patient?.id} readOnly={patient?.disabled} />
-      <MedicalPlansDetail emergencyId={emergencyId} readOnly={patient?.disabled} />
-      <InterconsultationsDetail emergencyId={emergencyId} readOnly={patient?.disabled} />
+      <MedicalPlansDetail emergencyId={emergencyId} readOnly={isDeceased} />
+      <InterconsultationsDetail emergencyId={emergencyId} readOnly={isDeceased} />
+
+      {emergencyId && (
+        <ParaclinicalStudiesDetail emergencyId={emergencyId} readOnly={isDeceased} />
+      )}
+
+      {emergencyId && (
+        <Paper sx={{ p: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <SubjectIcon sx={{ fontSize: 18, color: '#7b1fa2' }} />
+              <Typography variant="caption" fontWeight={600} sx={{ color: '#7b1fa2' }}>
+                NOTAS
+              </Typography>
+            </Box>
+            {!isDeceased && (
+              <Tooltip title="Agregar nota" arrow>
+                <IconButton size="small" onClick={() => setNoteDialogOpen(true)} sx={{ p: 0.25 }}>
+                  <AddCircleOutlineIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+          {patientNotes.length === 0 ? (
+            <Typography variant="caption" color="text.secondary">Sin notas</Typography>
+          ) : isDeceased ? (
+            patientNotes.map((note) => (
+              <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'rgba(255,255,255,0.6)', borderRadius: 1 }}>
+                <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{note.note}</Typography>
+              </Box>
+            ))
+          ) : (
+            patientNotes.map((note) => (
+              <NoteItem key={note.id} note={note} onRefresh={refetchNotes} canEdit canDelete />
+            ))
+          )}
+
+          <Dialog open={noteDialogOpen} onClose={() => setNoteDialogOpen(false)} maxWidth="sm" fullWidth>
+            <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#7b1fa2', color: 'white' }}>Agregar Nota</DialogTitle>
+            <DialogContent style={{ paddingTop: 24 }}>
+              <TextField variant="standard" size="small" label="Nota" value={noteText} onChange={(e) => setNoteText(e.target.value)} multiline rows={3} required fullWidth />
+            </DialogContent>
+            <DialogActions>
+              <Button size="small" variant="outlined" onClick={() => setNoteDialogOpen(false)}>Cancelar</Button>
+              <Button size="small" variant="outlined" onClick={handleAddNote} disabled={noteSaving || !noteText.trim()}>
+                {noteSaving ? <CircularProgress size={14} /> : 'Guardar'}
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </Paper>
+      )}
+
+      <AllergiesSection patientId={patient?.id} readOnly={isDeceased} />
+      <AntecedentsSection patientId={patient?.id} readOnly={isDeceased} />
 
       <Paper sx={{ p: 1.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
@@ -97,7 +178,7 @@ const PatientDashboard = ({ patient, stats, emergencyId }) => {
                       primaryTypographyProps={{ fontSize: '0.7rem' }}
                       secondary={
                         <Box component="span" sx={{ display: 'inline-flex', gap: 0.5, alignItems: 'center' }}>
-                          {c.status === 1 ? 'Atendido' : c.status === 2 ? 'Alta' : c.status === 3 ? 'Ingresado' : c.status === 4 ? 'Anulada' : c.status === 5 ? 'Fallecido' : 'Esperando'}
+                          {c.status === 1 ? 'Atendido' : c.status === 2 ? 'Alta Médica' : c.status === 3 ? 'Ingreso a Hospitalización' : c.status === 4 ? 'Anulada' : c.status === 5 ? 'Fallecido' : 'Esperando'}
                         </Box>
                       }
                     />

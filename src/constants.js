@@ -1,4 +1,4 @@
-export const PEDIATRIC_AGE_THRESHOLD = 12;
+export const PEDIATRIC_AGE_THRESHOLD = 14;
 
 export const CLASSIFICATION_OPTIONS = [
   { key: 'red', label: 'Resucitación', color: '#e53935' },

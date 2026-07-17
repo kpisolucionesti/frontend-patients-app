@@ -99,7 +99,7 @@ const EmailSettingsForm = () => {
           <TextField variant="standard" fullWidth size="small" label="Correo Remitente" name="sender_email" value={values.sender_email} onChange={handleChange} placeholder="noreply@ejemplo.com" />
           <FormControlLabel control={<Switch name="enable_starttls_auto" checked={values.enable_starttls_auto} onChange={handleChange} />} label="Habilitar STARTTLS" />
           <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-            <Button variant="contained" color="primary" onClick={handleSave} disabled={saving}>
+            <Button variant="outlined" color="primary" onClick={handleSave} disabled={saving}>
               {saving ? <CircularProgress size={20} /> : 'Guardar'}
             </Button>
             <Button variant="outlined" color="info" onClick={handleTest} disabled={testing || !values.smtp_address}>

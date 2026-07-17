@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Chip } from '@mui/material';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -64,7 +65,10 @@ const MedicalPlansDetail = ({ emergencyId, readOnly }) => {
   return (
     <Paper sx={{ p: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-        <Typography variant="caption" fontWeight={600} sx={{ color: '#2e7d32' }}>INDICACIONES MÉDICAS</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <AssignmentIcon sx={{ fontSize: 18, color: '#2e7d32' }} />
+          <Typography variant="caption" fontWeight={600} sx={{ color: '#2e7d32' }}>INDICACIONES MÉDICAS</Typography>
+        </Box>
         {!readOnly && <Tooltip title="Agregar indicación" arrow><IconButton size="small" onClick={handleOpenAdd} sx={{ p: 0.25 }}><AddCircleOutlineIcon fontSize="small" /></IconButton></Tooltip>}
       </Box>
       {plans.length > 0 ? (
@@ -97,8 +101,8 @@ const MedicalPlansDetail = ({ emergencyId, readOnly }) => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button size="small" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-          <Button size="small" variant="contained" onClick={handleSave} disabled={saving || !form.description || !form.indication_type}>{saving ? 'Guardando...' : 'Guardar'}</Button>
+          <Button size="small" variant="outlined" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+          <Button size="small" variant="outlined" onClick={handleSave} disabled={saving || !form.description || !form.indication_type}>{saving ? 'Guardando...' : 'Guardar'}</Button>
         </DialogActions>
       </Dialog>
     </Paper>

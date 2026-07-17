@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, IconButton, Tooltip } from '@mui/material';
+import { Box, IconButton, Paper, Tooltip } from '@mui/material';
 import { Add, Edit, Delete, People } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -46,6 +46,8 @@ const ProfilesList = () => {
     data: profiles || [],
     ...MRT_DEFAULTS,
     enableRowActions: true,
+    positionPagination: 'top',
+    muiTableContainerProps: { sx: { flex: 1, overflow: 'auto' } },
     renderRowActions: ({ row }) => {
       const isProtectedProfile = ['Administrador', 'User'].includes(row.original.name);
       return (
@@ -92,8 +94,10 @@ const ProfilesList = () => {
   });
 
   return (
-    <>
-      <MaterialReactTable table={table} />
+    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
+        <MaterialReactTable table={table} />
+      </Paper>
       {formModal && (
         <ProfileFormModal
           open={!!formModal}
@@ -109,7 +113,7 @@ const ProfilesList = () => {
           profile={usersModal}
         />
       )}
-    </>
+    </Box>
   );
 };
 

@@ -53,7 +53,7 @@ const SessionTimeoutModal = ({ open, onContinue }) => {
         </Typography>
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
-        <Button variant="contained" size="large" onClick={handleContinue}>
+        <Button variant="outlined" size="large" onClick={handleContinue}>
           Continuar sesión
         </Button>
       </DialogActions>

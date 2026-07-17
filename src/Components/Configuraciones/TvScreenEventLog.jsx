@@ -93,7 +93,7 @@ const TvScreenEventLog = ({ open, onClose, screen }) => {
         <MaterialReactTable table={table} />
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} variant="contained">Cerrar</Button>
+        <Button onClick={onClose} variant="outlined">Cerrar</Button>
       </DialogActions>
     </Dialog>
   );

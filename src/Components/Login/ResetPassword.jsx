@@ -4,6 +4,14 @@ import { Box, Button, Card, CardContent, TextField, Typography, Avatar, Alert } 
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { BackendAPI } from '../../services/BackendApi';
 
+const PWD_RULES = [
+  { key: 'minLen', label: '8+ caracteres', test: (v) => v.length >= 8 },
+  { key: 'upper', label: 'Mayúscula', test: (v) => /[A-Z]/.test(v) },
+  { key: 'lower', label: 'Minúscula', test: (v) => /[a-z]/.test(v) },
+  { key: 'num', label: 'Número', test: (v) => /\d/.test(v) },
+  { key: 'special', label: 'Especial', test: (v) => /[^A-Za-z0-9]/.test(v) },
+];
+
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -14,6 +22,10 @@ const ResetPassword = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const pwdChecks = PWD_RULES.map((r) => ({ ...r, met: r.test(values.password || '') }));
+  const allPwdMet = pwdChecks.every((c) => c.met);
+  const passwordsMatch = values.password === values.password_confirmation;
 
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -26,7 +38,11 @@ const ResetPassword = () => {
       setError('Todos los campos son obligatorios');
       return;
     }
-    if (values.password !== values.password_confirmation) {
+    if (!allPwdMet) {
+      setError('La nueva contraseña no cumple con los requisitos mínimos');
+      return;
+    }
+    if (!passwordsMatch) {
       setError('Las contrasenas no coinciden');
       return;
     }
@@ -65,9 +81,18 @@ const ResetPassword = () => {
           ) : (
             <form onSubmit={handleSubmit}>
               {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-              <TextField variant="standard" fullWidth label="Nueva contrasena" name="password" type="password" value={values.password} onChange={handleChange} sx={{ mb: 2 }} required />
-              <TextField variant="standard" fullWidth label="Confirmar contrasena" name="password_confirmation" type="password" value={values.password_confirmation} onChange={handleChange} sx={{ mb: 3 }} required />
-              <Button fullWidth variant="contained" type="submit" sx={{ bgcolor: 'darkblue', '&:hover': { bgcolor: 'navy' } }}>
+              <TextField variant="standard" fullWidth label="Nueva contrasena" name="password" type="password" value={values.password} onChange={handleChange} error={!!values.password && !allPwdMet} sx={{ mb: 1 }} required />
+              {values.password && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 2 }}>
+                  {pwdChecks.map((rule) => (
+                    <Typography key={rule.key} variant="caption" sx={{ color: rule.met ? '#2e7d32' : '#9e9e9e', fontWeight: rule.met ? 600 : 400 }}>
+                      {rule.met ? '✓' : '✗'} {rule.label}
+                    </Typography>
+                  ))}
+                </Box>
+              )}
+              <TextField variant="standard" fullWidth label="Confirmar contrasena" name="password_confirmation" type="password" value={values.password_confirmation} onChange={handleChange} error={!!values.password_confirmation && !passwordsMatch} helperText={values.password_confirmation && !passwordsMatch ? 'No coincide' : ''} sx={{ mb: 3 }} required />
+              <Button fullWidth variant="outlined" type="submit" sx={{ bgcolor: 'darkblue', '&:hover': { bgcolor: 'navy' } }}>
                 Restablecer
               </Button>
             </form>

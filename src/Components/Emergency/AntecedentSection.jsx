@@ -73,7 +73,7 @@ const AntecedentSection = ({ antecedents, onAdd, onUpdate, onRemove }) => (
         <AntecedentForm key={a._key} antecedent={a} index={i} onUpdate={onUpdate} onRemove={onRemove} />
       ))}
       <Button
-        variant="text" size="small"
+        variant="outlined" size="small"
         startIcon={<AddCircleOutlineIcon />}
         onClick={onAdd}
         sx={{ textTransform: 'none', fontSize: '0.7rem', alignSelf: 'flex-start', p: 0, minHeight: 0 }}

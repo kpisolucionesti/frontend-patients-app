@@ -31,8 +31,8 @@ const NoteItem = ({ note, onRefresh, canEdit, canDelete }) => {
         return (
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
                 <TextField variant="standard" size="small" fullWidth value={text} onChange={({ target }) => setText(target.value)} autoFocus />
-                <Button size="small" variant="contained" color="success" onClick={handleSave}>Guardar</Button>
-                <Button size="small" color="error" onClick={() => setEditing(false)}>Cancelar</Button>
+                <Button size="small" variant="outlined" color="success" onClick={handleSave}>Guardar</Button>
+                <Button size="small" variant="outlined" color="error" onClick={() => setEditing(false)}>Cancelar</Button>
             </Stack>
         );
     }

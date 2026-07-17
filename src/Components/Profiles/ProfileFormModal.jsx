@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormLabel, Paper, Switch, TextField, Typography, Alert } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, Alert } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
+import PermissionTable from '../Commons/PermissionTable';
 
 const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
   const [name, setName] = useState('');
@@ -59,71 +60,33 @@ const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
   };
 
   return (
-    <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
+    <Dialog fullWidth maxWidth={false} open={open} onClose={onClose}
+      sx={{ '& .MuiDialog-paper': { width: { xs: '100%', sm: '90%', md: '85%', lg: '80%' }, maxWidth: 1100 } }}
+    >
       <form onSubmit={handleSubmit}>
         <DialogTitle sx={{ bgcolor: 'info.main', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
           {profile ? 'EDITAR PERFIL' : 'NUEVO PERFIL'}
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          <TextField variant="standard" fullWidth label="Nombre" value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 2 }} required />
-          <TextField variant="standard" fullWidth label="Descripcion" value={description} onChange={(e) => setDescription(e.target.value)} sx={{ mb: 2 }} multiline rows={2} />
+          <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+            <TextField variant="standard" label="Nombre" value={name} onChange={(e) => setName(e.target.value)} required
+              sx={{ minWidth: 250 }} />
+            <TextField variant="standard" label="Descripción" value={description} onChange={(e) => setDescription(e.target.value)}
+              multiline rows={1} sx={{ flex: 1, minWidth: 250 }} />
+          </Box>
 
-          <FormControl component="fieldset" variant="standard" fullWidth>
-            <FormLabel component="legend" sx={{ mb: 1, fontWeight: 'bold' }}>Permisos</FormLabel>
-            {loadingPerms ? (
-              <Typography variant="body2" color="text.secondary">Cargando permisos...</Typography>
-            ) : groups.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">No se pudieron cargar los permisos</Typography>
-            ) : (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                {groups.map((group) => (
-                  <Paper
-                    key={group.section}
-                    variant="outlined"
-                    sx={{ p: 1.5, borderLeft: 4, borderColor: group.color || 'primary.main' }}
-                  >
-                    <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1, color: group.color ? '#333' : 'primary.main' }}>
-                      {group.section}
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {(group.permissions || []).map((perm) => (
-                        <Box
-                          key={perm.key}
-                          onClick={() => togglePermission(perm.key)}
-                          sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 0.5,
-                            px: 1,
-                            py: 0.3,
-                            borderRadius: 1,
-                            cursor: 'pointer',
-                            bgcolor: permissions.includes(perm.key) ? (group.color || '#e3f2fd') : 'grey.100',
-                            border: 1,
-                            borderColor: permissions.includes(perm.key) ? (group.color || '#90caf9') : 'grey.300',
-                            '&:hover': { opacity: 0.8 },
-                            userSelect: 'none',
-                          }}
-                        >
-                          <Switch
-                            size="small"
-                            checked={permissions.includes(perm.key)}
-                            sx={{ m: 0 }}
-                          />
-                          <Typography variant="body2">{perm.label}</Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </Paper>
-                ))}
-              </Box>
-            )}
-          </FormControl>
+          {loadingPerms ? (
+            <Typography variant="body2" color="text.secondary">Cargando permisos...</Typography>
+          ) : groups.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">No se pudieron cargar los permisos</Typography>
+          ) : (
+            <PermissionTable groups={groups} permissions={permissions} onToggle={togglePermission} />
+          )}
         </DialogContent>
         <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
-          <Button onClick={onClose} variant="contained" color="error">Cancelar</Button>
-          <Button type="submit" variant="contained" color="primary" disabled={saving}>Guardar</Button>
+          <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
+          <Button type="submit" variant="outlined" color="primary" disabled={saving}>Guardar</Button>
         </DialogActions>
       </form>
     </Dialog>

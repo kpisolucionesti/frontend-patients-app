@@ -38,7 +38,11 @@ const AsignRoom = ({ row, onStatusChange, iconOnly }) => {
 
     const availableRooms = useMemo(
         () => (rooms || []).filter((r) =>
-            ((row.patient?.age || 0) < PEDIATRIC_AGE_THRESHOLD ? r.room_type === 'pediatria' : r.room_type === 'adulto') && !r.patient_id
+            !r.patient_id && (
+                !r.room_type ||
+                (r.room_type === 'pediatria' && (row.patient?.age || 0) < PEDIATRIC_AGE_THRESHOLD) ||
+                (r.room_type === 'adulto' && (row.patient?.age || 0) >= PEDIATRIC_AGE_THRESHOLD)
+            )
         ),
         [rooms, row.patient?.age],
     );
@@ -83,8 +87,8 @@ const AsignRoom = ({ row, onStatusChange, iconOnly }) => {
                     </Stack>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                    <Button onClick={handleClose} variant="contained" color="error">Cancelar</Button>
-                    <Button onClick={handleSubmit} variant="contained" color="success">Asignar</Button>
+                    <Button onClick={handleClose} variant="outlined" color="error">Cancelar</Button>
+                    <Button onClick={handleSubmit} variant="outlined" color="success">Asignar</Button>
                 </DialogActions>
             </Dialog>
         </>

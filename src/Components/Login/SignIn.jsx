@@ -10,6 +10,7 @@ import {
   Alert,
 } from "@mui/material";
 import { BackendAPI } from "../../services/BackendApi";
+import ForcePasswordChange from "./ForcePasswordChange";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const SignIn = () => {
   const [values, setValues] = useState({ username: "", password: "" });
   const [error, setError] = useState(searchParams.get('expired') === '1');
   const [errorMessage, setErrorMessage] = useState(searchParams.get('expired') === '1' ? "Su sesión ha expirado por inactividad. Por favor, inicie sesión nuevamente." : "");
+  const [showForceChange, setShowForceChange] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('expired') === '1') {
@@ -43,7 +45,11 @@ const SignIn = () => {
         localStorage.setItem("auth_token", response.token);
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("user_permissions", JSON.stringify(response.user.permissions));
-        navigate("/patients", { replace: true });
+        if (response.user.must_change_password) {
+          setShowForceChange(true);
+        } else {
+          navigate("/patients", { replace: true });
+        }
       } else {
         setError(true);
         setErrorMessage(response.message || "Error al iniciar sesión");
@@ -105,7 +111,7 @@ const SignIn = () => {
             />
             <Button
               fullWidth
-              variant="contained"
+              variant="outlined"
               type="submit"
               sx={{ bgcolor: "darkblue", "&:hover": { bgcolor: "navy" } }}
             >
@@ -117,6 +123,10 @@ const SignIn = () => {
           </form>
         </CardContent>
       </Card>
+
+      {showForceChange && (
+        <ForcePasswordChange onComplete={() => navigate("/patients", { replace: true })} />
+      )}
     </Box>
   );
 };

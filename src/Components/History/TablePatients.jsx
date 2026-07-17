@@ -14,8 +14,8 @@ import HistoryDetailModal from './HistoryDetailModal';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Todos' },
-  { value: 2, label: 'Alta Medica' },
-  { value: 3, label: 'Ingresado' },
+  { value: 2, label: 'Alta Médica' },
+  { value: 3, label: 'Ingreso a Hospitalización' },
 ];
 
 const TablePatients = ({ onSelectEmergency, embedded }) => {
@@ -263,7 +263,7 @@ const TablePatients = ({ onSelectEmergency, embedded }) => {
             </Collapse>
 
             <Stack direction="row" spacing={1} justifyContent="flex-end">
-              <Button onClick={handleApplyFilters} size="small" variant="contained" color="success">Aplicar Filtros</Button>
+              <Button onClick={handleApplyFilters} size="small" variant="outlined" color="success">Aplicar Filtros</Button>
             </Stack>
           </Stack>
         </Collapse>
@@ -276,7 +276,7 @@ const TablePatients = ({ onSelectEmergency, embedded }) => {
           </Typography>
         </Paper>
       ) : (
-        <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
           <MaterialReactTable table={table} />
         </Paper>
       )}

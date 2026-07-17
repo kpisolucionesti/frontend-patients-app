@@ -5,14 +5,12 @@ import { BackendAPI } from "../../services/BackendApi";
 import { useFetch } from "../../hooks/useFetch";
 import usePatientLookup from "../../hooks/usePatientLookup";
 import useEmergencyForm from "../../hooks/useEmergencyForm";
-import useAntecedentForm from "../../hooks/useAntecedentForm";
 import PatientSection from "./PatientSection";
-import AntecedentSection from "./AntecedentSection";
 import EmergencySection from "./EmergencySection";
 import EditPatientData from "../Patients/editPatientDataModal";
 import { PEDIATRIC_AGE_THRESHOLD } from "../../constants";
 
-const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externalOpen, onClose: externalOnClose }) => {
+const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externalOpen, onClose: externalOnClose, preloadPatient }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const [roomsList, setRoomsList] = useState([]);
 
@@ -21,8 +19,6 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
 
   const patient = usePatientLookup();
   const emergency = useEmergencyForm();
-  const antecedents = useAntecedentForm();
-
   const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
 
   useEffect(() => {
@@ -32,9 +28,18 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  useEffect(() => {
+    if (open && preloadPatient) {
+      patient.loadPatient(preloadPatient);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, preloadPatient]);
+
   const availableRooms = useMemo(
     () => (roomsList || []).filter((r) =>
-      patient.patientAge < PEDIATRIC_AGE_THRESHOLD ? r.room_type === 'pediatria' : r.room_type === 'adulto'
+      !r.room_type ||
+      (r.room_type === 'pediatria' && patient.patientAge < PEDIATRIC_AGE_THRESHOLD) ||
+      (r.room_type === 'adulto' && patient.patientAge >= PEDIATRIC_AGE_THRESHOLD)
     ),
     [roomsList, patient.patientAge],
   );
@@ -42,9 +47,8 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
   const clearFields = useCallback(() => {
     patient.clearPatientFields();
     emergency.clearEmergencyFields();
-    antecedents.clearAntecedents();
     setRoomsList([]);
-  }, [patient, emergency, antecedents]);
+  }, [patient, emergency]);
 
   const handleOpen = useCallback(() => {
     BackendAPI.rooms.getAll().then(setRoomsList);
@@ -99,18 +103,6 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
         patientId = newPatient.id;
       }
 
-      for (const a of antecedents.antecedents) {
-        if (a.condition_type) {
-          await BackendAPI.antecedents.create(patientId, {
-            condition_type: a.condition_type,
-            description: a.description,
-            diagnosed_at: a.diagnosed_at,
-            medication: a.medication,
-            notes: a.notes,
-          });
-        }
-      }
-
       const doctorsPayload = emergency.emergencyValues.current_doctor ? [{ id: emergency.emergencyValues.current_doctor }] : [];
 
       const emergencyPayload = {
@@ -135,7 +127,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
       const msg = err?.response?.data?.error || 'Error al crear la emergencia';
       alert(msg);
     }
-  }, [patient, emergency, antecedents, onEmergencyCreated, handleClose]);
+  }, [patient, emergency, onEmergencyCreated, handleClose]);
 
   return (
     <>
@@ -143,7 +135,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
         <Button
           color="success"
           onClick={handleOpen}
-          variant="contained"
+          variant="outlined"
           disabled={disabled}
           startIcon={<AddCircleOutlineRounded />}
         >
@@ -165,7 +157,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
           '& .MuiChip-label': { fontSize: '0.7rem' },
         }}>
           <Grid container spacing={1.5}>
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <PatientSection
                 values={patient.patientValues}
                 locked={patient.locked}
@@ -176,15 +168,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
                 onEditClick={patient.handleEditClick}
               />
             </Grid>
-            <Grid item xs={4}>
-              <AntecedentSection
-                antecedents={antecedents.antecedents}
-                onAdd={antecedents.addAntecedent}
-                onUpdate={antecedents.updateAntecedent}
-                onRemove={antecedents.removeAntecedent}
-              />
-            </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <EmergencySection
                 values={emergency.emergencyValues}
                 validation={emergency.emergencyValidation}
@@ -199,8 +183,8 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: '0.75rem 1.25rem' }}>
-          <Button onClick={handleClose} variant="contained" color="error">Cancelar</Button>
-          <Button onClick={handleSubmit} variant="contained" color="success">Guardar</Button>
+          <Button onClick={handleClose} variant="outlined" color="error">Cancelar</Button>
+          <Button onClick={handleSubmit} variant="outlined" color="success">Guardar</Button>
         </DialogActions>
       </Dialog>
 

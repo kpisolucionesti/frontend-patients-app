@@ -166,7 +166,7 @@ const ReportsSection = () => {
 
             <Box>
               <Button
-                variant="contained"
+                variant="outlined"
                 size="small"
                 startIcon={<PlayArrowIcon />}
                 onClick={handleGenerate}

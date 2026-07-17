@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, IconButton, Tab, Tabs, Tooltip } from '@mui/material';
+import { Box, IconButton, Paper, Tab, Tabs, Tooltip } from '@mui/material';
 import { Add, Block, CheckCircle, Edit, History as HistoryIcon } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -32,7 +32,13 @@ const DoctorsList = () => {
     [doctors],
   );
 
-  const currentData = tab === 'activos' ? activeDoctors : suspendedDoctors;
+  const currentData = useMemo(
+    () => {
+      const data = tab === 'activos' ? activeDoctors : suspendedDoctors;
+      return [...data].sort((a, b) => a.name.localeCompare(b.name));
+    },
+    [activeDoctors, suspendedDoctors, tab],
+  );
 
   const handleToggleActive = useCallback(async (doctor) => {
     try {
@@ -61,6 +67,8 @@ const DoctorsList = () => {
     data: currentData,
     ...MRT_DEFAULTS,
     enableRowActions: true,
+    positionPagination: 'top',
+    muiTableContainerProps: { sx: { flex: 1, overflow: 'auto' } },
     renderRowActions: ({ row }) => (
       <>
         {permissions.includes('medicos.edit') && (
@@ -109,14 +117,21 @@ const DoctorsList = () => {
   });
 
   return (
-    <>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 1 }}>
-        <Tabs value={tab} onChange={(_, v) => setTab(v)}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 500 }, '& .Mui-selected': { color: '#1565c0', fontWeight: 700 } }}
+          TabIndicatorProps={{ sx: { bgcolor: '#1565c0', height: 3 } }}
+        >
           <Tab label={`Activos (${activeDoctors.length})`} value="activos" />
           <Tab label={`Suspendidos (${suspendedDoctors.length})`} value="suspendidos" />
         </Tabs>
       </Box>
-      <MaterialReactTable table={table} />
+      <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
+        <MaterialReactTable table={table} />
+      </Paper>
 
       {formModal && (
         <DoctorFormModal
@@ -146,7 +161,7 @@ const DoctorsList = () => {
           doctor={historyDoctor}
         />
       )}
-    </>
+    </Box>
   );
 };
 

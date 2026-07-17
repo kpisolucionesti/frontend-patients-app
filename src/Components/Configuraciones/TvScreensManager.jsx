@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Chip, IconButton, Tooltip } from '@mui/material';
+import { Box, Chip, IconButton, Paper, Tooltip } from '@mui/material';
 import { Add, Delete, Edit, History, PowerSettingsNew, VpnKey } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -101,6 +101,8 @@ const TvScreensManager = () => {
     data: screens || [],
     ...MRT_DEFAULTS,
     enableRowActions: true,
+    positionPagination: 'top',
+    muiTableContainerProps: { sx: { flex: 1, overflow: 'auto' } },
     positionActionsColumn: 'last',
     renderRowActions: ({ row }) => {
       const screen = row.original;
@@ -152,8 +154,10 @@ const TvScreensManager = () => {
   });
 
   return (
-    <>
-      <MaterialReactTable table={table} />
+    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
+        <MaterialReactTable table={table} />
+      </Paper>
       {formModal && (
         <TvScreenFormModal
           open={!!formModal}
@@ -169,7 +173,7 @@ const TvScreensManager = () => {
           screen={eventLog}
         />
       )}
-    </>
+    </Box>
   );
 };
 

@@ -73,6 +73,20 @@ const usePatientLookup = () => {
     });
   }, [patientValues.ci]);
 
+  const loadPatient = useCallback((patient) => {
+    if (!patient) return;
+    setPatientValues({
+      ci: patient.ci || '',
+      name: patient.name || '',
+      lastname: patient.lastname || '',
+      birthday: patient.birthday || '',
+      gender: patient.gender || '',
+    });
+    setPatientAge(patient.age || calculateAge(patient.birthday));
+    setLocked(true);
+    setPatientValidation(false);
+  }, []);
+
   const clearPatientFields = useCallback(() => {
     setPatientValues({});
     setLocked(false);
@@ -93,6 +107,7 @@ const usePatientLookup = () => {
     handlePatientFieldChange,
     handleEditClick,
     handleEditPatientSaved,
+    loadPatient,
     setEditPatientModalOpen,
     setPatientValidation,
     clearPatientFields,

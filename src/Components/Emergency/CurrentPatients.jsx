@@ -13,16 +13,16 @@ import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 const STATUS_STYLES = {
   0: { label: 'Esperando', color: '#fff3e0', textColor: '#e65100', chipColor: 'warning' },
   1: { label: 'Atendido', color: '#e3f2fd', textColor: '#1565c0', chipColor: 'info' },
-  2: { label: 'Alta', color: '#e8f5e9', textColor: '#2e7d32', chipColor: 'success' },
-  3: { label: 'Ingresado', color: '#f3e5f5', textColor: '#6a1b9a', chipColor: 'secondary' },
+  2: { label: 'Alta Médica', color: '#e8f5e9', textColor: '#2e7d32', chipColor: 'success' },
+  3: { label: 'Ingreso a Hospitalización', color: '#f3e5f5', textColor: '#6a1b9a', chipColor: 'secondary' },
   4: { label: 'Anulada', color: '#eeeeee', textColor: '#616161', chipColor: 'default' },
   5: { label: 'Fallecido', color: '#212121', textColor: '#ffffff', chipColor: 'default' },
 };
 
-const CurrentPatients = ({ onSelectEmergency, embedded }) => {
+const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey }) => {
   const [detailEmergencyId, setDetailEmergencyId] = useState(null);
   const { data, loading, error, refetch } = useFetch(
-    () => BackendAPI.emergencies.getAll({ status: 1, per_page: 200 }), [],
+    () => BackendAPI.emergencies.getAll({ status: 1, per_page: 200 }), [refreshKey],
   );
 
   const emergencies = useMemo(() => data?.data || [], [data]);

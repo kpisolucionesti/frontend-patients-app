@@ -13,6 +13,7 @@ import ErrorBoundary from './Components/Commons/ErrorBoundary';
 import usePermissions from './hooks/usePermissions';
 import useSessionTimeout from './hooks/useSessionTimeout';
 import SessionTimeoutModal from './Components/Commons/SessionTimeoutModal';
+import ForcePasswordChange from './Components/Login/ForcePasswordChange';
 import SignIn from './Components/Login/SignIn';
 import ForgotPassword from './Components/Login/ForgotPassword';
 import ResetPassword from './Components/Login/ResetPassword';
@@ -34,6 +35,16 @@ function ProtectedLayout() {
   if (!token) {
     return <Navigate to="/" replace />;
   }
+
+  const userData = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    catch { return {}; }
+  })();
+
+  if (userData.must_change_password) {
+    return <ForcePasswordChange onComplete={() => window.location.reload()} />;
+  }
+
   return (
     <>
       <NavBar />

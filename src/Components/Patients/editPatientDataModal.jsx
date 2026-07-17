@@ -115,8 +115,8 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
                 )}
             </DialogContent>
             <DialogActions sx={{ p: '1.25rem' }}>
-                <Button onClick={onClose} variant="contained" color='error'>Cancelar</Button>
-                <Button onClick={handleSubmit} variant="contained" color='success'>Guardar</Button>
+                <Button onClick={onClose} variant="outlined" color='error'>Cancelar</Button>
+                <Button onClick={handleSubmit} variant="outlined" color='success'>Guardar</Button>
             </DialogActions>
         </Dialog>
     );

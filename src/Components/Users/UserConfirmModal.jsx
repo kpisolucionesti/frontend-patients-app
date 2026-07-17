@@ -18,10 +18,10 @@ const UserConfirmModal = ({ open, onClose, user, action, onConfirm }) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
-        <Button onClick={onClose} variant="contained" color="inherit">Cancelar</Button>
+        <Button onClick={onClose} variant="outlined" color="inherit">Cancelar</Button>
         <Button
           onClick={() => onConfirm(user)}
-          variant="contained"
+          variant="outlined"
           color={isSuspend ? 'error' : 'success'}
         >
           {isSuspend ? 'Suspender' : 'Reactivar'}

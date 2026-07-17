@@ -63,31 +63,31 @@ const VitalSignsPanel = ({ emergencyId, vitalSigns, onCreated, readOnly }) => {
         <Grid container spacing={1} sx={{ mt: 1 }}>
           {latest.systolic_bp && (
             <Grid item xs={4}>
-              <Typography variant="caption" color="text.secondary">PA</Typography>
+              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>PA</Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.systolic_bp}/{latest.diastolic_bp}</Typography>
             </Grid>
           )}
           {latest.heart_rate && (
             <Grid item xs={4}>
-              <Typography variant="caption" color="text.secondary">FC</Typography>
+              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>FC</Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.heart_rate} lpm</Typography>
             </Grid>
           )}
           {latest.temperature && (
             <Grid item xs={4}>
-              <Typography variant="caption" color="text.secondary">Temp</Typography>
+              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>Temp</Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.temperature} °C</Typography>
             </Grid>
           )}
           {latest.oxygen_saturation && (
             <Grid item xs={4}>
-              <Typography variant="caption" color="text.secondary">SpO2</Typography>
+              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>SpO2</Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.oxygen_saturation}%</Typography>
             </Grid>
           )}
           {latest.respiratory_rate && (
             <Grid item xs={4}>
-              <Typography variant="caption" color="text.secondary">FR</Typography>
+              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>FR</Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.respiratory_rate} rpm</Typography>
             </Grid>
           )}

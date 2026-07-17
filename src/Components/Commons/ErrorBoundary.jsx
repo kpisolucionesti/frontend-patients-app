@@ -21,7 +21,7 @@ class ErrorBoundary extends React.Component {
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', gap: 2 }}>
           <Typography variant="h5" color="error">Algo salió mal</Typography>
           <Typography variant="body2" color="text.secondary">{this.state.error?.message}</Typography>
-          <Button variant="contained" onClick={this.handleReload}>Reintentar</Button>
+          <Button variant="outlined" onClick={this.handleReload}>Reintentar</Button>
         </Box>
       );
     }

@@ -131,7 +131,7 @@ const ExportModal = ({ data, columns, filename = 'Reporte', showDateFilter = fal
 
   return (
     <>
-      <Button variant="contained" onClick={() => setOpen(true)} startIcon={<FileDownloadOutlined />} size="small">
+      <Button variant="outlined" onClick={() => setOpen(true)} startIcon={<FileDownloadOutlined />} size="small">
         Reporte
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
@@ -158,8 +158,8 @@ const ExportModal = ({ data, columns, filename = 'Reporte', showDateFilter = fal
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button color="error" variant="contained" onClick={() => setOpen(false)}>Cancelar</Button>
-          <Button color="success" variant="contained" onClick={handleExport}>Descargar</Button>
+          <Button color="error" variant="outlined" onClick={() => setOpen(false)}>Cancelar</Button>
+          <Button color="success" variant="outlined" onClick={handleExport}>Descargar</Button>
         </DialogActions>
       </Dialog>
     </>

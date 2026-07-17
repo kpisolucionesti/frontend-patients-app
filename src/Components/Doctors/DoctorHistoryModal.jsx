@@ -110,7 +110,7 @@ const DoctorHistoryModal = ({ open, doctor, onClose }) => {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <ExportModal data={filteredPatients} filename={`Historial_${doctor.name}`} />
-          <Button onClick={onClose} variant="contained" color="error">Cerrar</Button>
+          <Button onClick={onClose} variant="outlined" color="error">Cerrar</Button>
         </DialogActions>
       </Dialog>
 

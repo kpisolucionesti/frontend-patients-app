@@ -69,8 +69,8 @@ const IngressPatientModal = ({ row, onStatusChange }) => {
                     </Stack>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                    <Button onClick={handleClose} variant="contained" color="error">Cancelar</Button>
-                    <Button onClick={handleIngressPatient} variant="contained" color="success">Ingresar</Button>
+                    <Button onClick={handleClose} variant="outlined" color="error">Cancelar</Button>
+                    <Button onClick={handleIngressPatient} variant="outlined" color="success">Ingresar</Button>
                 </DialogActions>
             </Dialog>
         </>

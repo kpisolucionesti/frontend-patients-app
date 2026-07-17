@@ -42,8 +42,8 @@ const NotesPatient = ({ row, onNoteAdded }) => {
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose} variant="contained" color="error">Cancelar</Button>
-                    <Button onClick={handleCreateNote} variant='contained' color="success">Agregar</Button>
+                    <Button onClick={handleClose} variant="outlined" color="error">Cancelar</Button>
+                    <Button onClick={handleCreateNote} variant='outlined' color="success">Agregar</Button>
                 </DialogActions>
             </Dialog>
         </>

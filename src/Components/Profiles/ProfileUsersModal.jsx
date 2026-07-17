@@ -50,7 +50,7 @@ const ProfileUsersModal = ({ open, onClose, profile }) => {
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
-        <Button onClick={onClose} variant="contained" color="error">Cerrar</Button>
+        <Button onClick={onClose} variant="outlined" color="error">Cerrar</Button>
       </DialogActions>
     </Dialog>
   );

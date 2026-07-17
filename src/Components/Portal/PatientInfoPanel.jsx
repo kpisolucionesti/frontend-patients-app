@@ -1,17 +1,18 @@
 import { useMemo, useState, useCallback } from 'react';
 import {
   Box, Paper, Typography, Chip, Grid, Button, TextField, MenuItem, CircularProgress,
-  Dialog, DialogActions, DialogContent, DialogTitle, Autocomplete
+  Dialog, DialogActions, DialogContent, DialogTitle, Autocomplete, Table, TableBody,
+  TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import CancelIcon from '@mui/icons-material/Cancel';
 import WarningIcon from '@mui/icons-material/Warning';
-import SubjectIcon from '@mui/icons-material/Subject';
+import EditIcon from '@mui/icons-material/Edit';
+import DescriptionIcon from '@mui/icons-material/Description';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import VitalSignsPanel from './VitalSignsPanel';
 import AsignRoom from '../Board/asignRoomModal';
-import NoteItem from '../Emergency/NoteItem';
-import AddNoteInline from '../Emergency/AddNoteInline';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
 import { CLASSIFICATION_OPTIONS } from '../../constants';
@@ -20,21 +21,26 @@ import { useSnackbar } from '../../hooks/useSnackbar';
 const STATUS_MAP = {
   0: { label: 'Esperando', color: 'warning' },
   1: { label: 'Atendido', color: 'info' },
-  2: { label: 'Alta', color: 'success' },
-  3: { label: 'Ingresado', color: 'secondary' },
+  2: { label: 'Alta Médica', color: 'success' },
+  3: { label: 'Ingreso a Hospitalización', color: 'secondary' },
   4: { label: 'Anulada', color: 'default' },
   5: { label: 'Fallecido', color: 'default' },
 };
 
-const GENDER_MAP = { M: 'Masculino', F: 'Femenino' };
+const STATUS_LABELS = {
+  0: 'Esperando', 1: 'Atendido', 2: 'Alta', 3: 'Ingresado', 4: 'Anulada', 5: 'Fallecido',
+};
 
-const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated }) => {
+const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated, onStartEmergency }) => {
   const [diagnostic, setDiagnostic] = useState(emergency?.diagnostic || '');
   const [treatment, setTreatment] = useState(emergency?.treatment || '');
   const [observations, setObservations] = useState(emergency?.observations || '');
   const [status, setStatus] = useState(emergency?.status || 1);
   const [classification, setClassification] = useState(emergency?.classification || '');
+  const [reasonForConsultation, setReasonForConsultation] = useState(emergency?.reason_for_consultation || '');
+  const [currentIllness, setCurrentIllness] = useState(emergency?.current_illness || '');
   const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [deathDialogOpen, setDeathDialogOpen] = useState(false);
@@ -42,6 +48,11 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
   const [deathDateTime, setDeathDateTime] = useState(new Date().toISOString().slice(0, 16));
   const [deathObservations, setDeathObservations] = useState('');
   const [currentDoctor, setCurrentDoctor] = useState(emergency?.primary_doctor?.id || null);
+  const [evolutiveDialogOpen, setEvolutiveDialogOpen] = useState(false);
+  const [evolutiveType, setEvolutiveType] = useState(null);
+  const [evolutiveNote, setEvolutiveNote] = useState('');
+  const [dischargeNote, setDischargeNote] = useState(emergency?.discharge_note || '');
+  const [admissionNote, setAdmissionNote] = useState(emergency?.admission_note || '');
   const { show: showSnackbar } = useSnackbar();
 
   const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
@@ -54,13 +65,14 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
     [rooms, patient?.id],
   );
 
-  const { data: notesData, refetch: refetchNotes } = useFetch(
-    () => emergency?.id ? BackendAPI.notes.getAll({ emergency_id: emergency.id }) : Promise.resolve([]),
-    [emergency?.id],
+  const { data: emergencyHistory } = useFetch(
+    () => patient?.id ? BackendAPI.emergencies.getAll({ patient_id: patient.id, per_page: 50 }) : Promise.resolve({ data: [] }),
+    [patient?.id],
   );
-  const patientNotes = useMemo(() => notesData || [], [notesData]);
 
-  const handleSave = async () => {
+  const fieldDisabled = isDeceased || (!editing && !!emergency?.id && emergency.status !== 0);
+
+  const handleSave = async (extraPayload) => {
     if (!emergency) return;
     setSaving(true);
     try {
@@ -71,10 +83,14 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
         observations,
         status,
         classification,
+        reason_for_consultation: reasonForConsultation,
+        current_illness: currentIllness,
+        ...extraPayload,
       };
       if (currentDoctor) payload.doctors = [{ id: currentDoctor }];
       await BackendAPI.emergencies.update(payload);
       showSnackbar('Emergencia actualizada', 'success');
+      setEditing(false);
     } catch {
       showSnackbar('Error al guardar', 'error');
     } finally {
@@ -124,30 +140,31 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
     }
   };
 
-  const handleStartEmergency = async () => {
-    if (!patient) return;
-    if (!diagnostic || !treatment) {
-      showSnackbar('Debe completar diagnóstico y tratamiento', 'error');
-      return;
+  const handleStatusChange = (newStatus) => {
+    setStatus(Number(newStatus));
+    if (Number(newStatus) === 2) {
+      setEvolutiveType('discharge');
+      setEvolutiveNote(dischargeNote || '');
+      setEvolutiveDialogOpen(true);
+    } else if (Number(newStatus) === 3) {
+      setEvolutiveType('admission');
+      setEvolutiveNote(admissionNote || '');
+      setEvolutiveDialogOpen(true);
     }
+  };
+
+  const handleEvolutiveSave = async () => {
+    const extraPayload = evolutiveType === 'discharge'
+      ? { status: 2, discharge_note: evolutiveNote }
+      : { status: 3, admission_note: evolutiveNote };
     setSaving(true);
     try {
-      const doctorsPayload = currentDoctor ? [{ id: currentDoctor }] : [];
-      await BackendAPI.emergencies.create({
-        patient_id: patient.id,
-        ingress_date: new Date().toISOString().split('T')[0],
-        diagnostic,
-        treatment,
-        observations,
-        classification,
-        status: 1,
-        doctors: doctorsPayload,
-      });
-      showSnackbar('Emergencia iniciada', 'success');
-      onVitalSignsCreated();
-      window.location.reload();
+      await handleSave(extraPayload);
+      if (evolutiveType === 'discharge') setDischargeNote(evolutiveNote);
+      else setAdmissionNote(evolutiveNote);
+      setEvolutiveDialogOpen(false);
     } catch {
-      showSnackbar('Error al iniciar emergencia', 'error');
+      showSnackbar('Error al guardar', 'error');
     } finally {
       setSaving(false);
     }
@@ -155,54 +172,29 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-      {isDeceased && (
-        <Paper sx={{ p: 1, bgcolor: '#212121', color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <WarningIcon sx={{ fontSize: 20 }} />
-          <Typography variant="body2" fontWeight={700}>PACIENTE FALLECIDO — Solo lectura</Typography>
-        </Paper>
-      )}
-
-      <Paper sx={{ p: 1.5 }}>
-        <Typography variant="caption" fontWeight={600} sx={{ mb: 0.5, display: 'block', color: '#1565c0' }}>
-          DATOS DEL PACIENTE
-        </Typography>
-        <Grid container spacing={1}>
-          <Grid item xs={6}>
-            <Typography variant="caption" color="text.secondary">Nombre</Typography>
-            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{patient.name} {patient.lastname}</Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="text.secondary">CI</Typography>
-            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{patient.ci || 'N/A'}</Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="caption" color="text.secondary">Edad</Typography>
-            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{patient.age || '?'} años</Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="caption" color="text.secondary">Sexo</Typography>
-            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{GENDER_MAP[patient.gender] || patient.gender || 'N/A'}</Typography>
-          </Grid>
-          {patient.representante && (
-            <>
-              <Grid item xs={6}>
-                <Typography variant="caption" color="text.secondary">Representante</Typography>
-                <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{patient.representante}</Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="caption" color="text.secondary">CI Representante</Typography>
-                <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{patient.representante_ci || 'N/A'}</Typography>
-              </Grid>
-            </>
-          )}
-        </Grid>
-      </Paper>
 
       {emergency && (
         <Paper sx={{ p: 1.5 }}>
-          <Typography variant="caption" fontWeight={600} sx={{ mb: 0.5, display: 'block', color: '#e65100' }}>
-            EMERGENCIA ACTUAL
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <MedicalServicesIcon sx={{ fontSize: 18, color: '#e65100' }} />
+              <Typography variant="caption" fontWeight={600} sx={{ color: '#e65100' }}>
+                EMERGENCIA ACTUAL
+              </Typography>
+            </Box>
+            {!isDeceased && emergency.status === 1 && (
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={editing ? <SaveIcon /> : <EditIcon />}
+                onClick={editing ? () => handleSave() : () => setEditing(true)}
+                disabled={saving}
+                sx={{ fontSize: '0.7rem', py: 0.25, px: 1 }}
+              >
+                {editing ? (saving ? 'Guardando...' : 'Guardar') : 'Editar'}
+              </Button>
+            )}
+          </Box>
           <Box sx={{ mb: 0.5, display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
             <Chip
               label={STATUS_MAP[emergency.status]?.label || 'Desconocido'}
@@ -223,11 +215,11 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
           </Box>
           <Grid container spacing={0.5}>
             <Grid item xs={3}>
-              <Typography variant="caption" color="text.secondary">F. Ingreso</Typography>
+              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>F. Ingreso</Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{emergency.ingress_date}</Typography>
             </Grid>
             <Grid item xs={5}>
-              <Typography variant="caption" color="text.secondary">Médico</Typography>
+              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>Médico</Typography>
               {isDeceased ? (
                 <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{emergency.primary_doctor?.name || 'No asignado'}</Typography>
               ) : (
@@ -244,30 +236,32 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
                   disableClearable
                   disablePortal
                   sx={{ width: '100%' }}
+                  disabled={fieldDisabled}
                 />
               )}
             </Grid>
             <Grid item xs={4} sx={{ textAlign: 'right' }}>
-              <Typography variant="caption" color="text.secondary">Cama</Typography>
+              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>Cama</Typography>
               <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{patientRoom?.name || 'No asignada'}</Typography>
             </Grid>
           </Grid>
 
           <TextField variant="standard" fullWidth size="small" label="Diagnóstico" value={diagnostic}
             onChange={(e) => setDiagnostic(e.target.value)}
-            disabled={isDeceased}
+            disabled={fieldDisabled}
             sx={{ mt: 0.5, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
           <TextField variant="standard" fullWidth size="small" label="Plan" value={treatment}
             onChange={(e) => setTreatment(e.target.value)}
-            disabled={isDeceased}
+            disabled={fieldDisabled}
             sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
           <TextField variant="standard" fullWidth size="small" label="Observaciones" value={observations}
             onChange={(e) => setObservations(e.target.value)} multiline rows={2}
-            disabled={isDeceased}
+            disabled={fieldDisabled}
             sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
           {!isDeceased && (
             <TextField select variant="standard" fullWidth size="small" label="Clasificación" value={classification}
               onChange={(e) => setClassification(e.target.value)}
+              disabled={!editing}
               sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }}>
               <MenuItem value=""><em>Sin clasificación</em></MenuItem>
               {CLASSIFICATION_OPTIONS.map((opt) => (
@@ -282,25 +276,35 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
           )}
           {!isDeceased && emergency.status === 1 && (
             <TextField select variant="standard" fullWidth size="small" label="Cambiar Estado" value={status}
-              onChange={(e) => setStatus(Number(e.target.value))}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              disabled={!editing}
               sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }}>
               <MenuItem value={1}>Atendido</MenuItem>
-              <MenuItem value={2}>Alta</MenuItem>
-              <MenuItem value={3}>Ingresado</MenuItem>
+              <MenuItem value={2}>Alta Médica</MenuItem>
+              <MenuItem value={3}>Ingreso a Hospitalización</MenuItem>
             </TextField>
+          )}
+
+          {dischargeNote && emergency.status === 2 && (
+            <Box sx={{ mt: 1, p: 1, bgcolor: '#f1f8e9', borderRadius: 1 }}>
+              <Typography variant="caption" fontWeight={600} sx={{ color: '#2e7d32' }}>
+                NOTA EVOLUTIVA DE EGRESO
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.25 }}>{dischargeNote}</Typography>
+            </Box>
+          )}
+
+          {admissionNote && emergency.status === 3 && (
+            <Box sx={{ mt: 1, p: 1, bgcolor: '#e8f5e9', borderRadius: 1 }}>
+              <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0' }}>
+                NOTA EVOLUTIVA DE INGRESO
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.25 }}>{admissionNote}</Typography>
+            </Box>
           )}
 
           {!isDeceased && (
             <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              <Button
-                variant="contained"
-                size="small"
-                startIcon={saving ? <CircularProgress size={14} /> : <SaveIcon />}
-                onClick={emergency?.id ? handleSave : handleStartEmergency}
-                disabled={saving}
-              >
-                {emergency?.id ? 'Guardar' : 'Iniciar Emergencia'}
-              </Button>
               {emergency?.status === 1 && <AsignRoom row={{ ...emergency, patient }} onStatusChange={() => {}} />}
               {emergency?.id && emergency.status === 1 && (
                 <>
@@ -343,8 +347,8 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
               />
             </DialogContent>
             <DialogActions>
-              <Button size="small" onClick={() => setCancelDialogOpen(false)}>Cancelar</Button>
-              <Button size="small" variant="contained" color="error" onClick={handleCancelEmergency}
+              <Button size="small" variant="outlined" onClick={() => setCancelDialogOpen(false)}>Cancelar</Button>
+              <Button size="small" variant="outlined" color="error" onClick={handleCancelEmergency}
                 disabled={saving || !cancelReason}>
                 {saving ? 'Anulando...' : 'Anular Emergencia'}
               </Button>
@@ -370,10 +374,32 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button size="small" onClick={() => setDeathDialogOpen(false)}>Cancelar</Button>
-              <Button size="small" variant="contained" color="error" onClick={handleDeath}
+              <Button size="small" variant="outlined" onClick={() => setDeathDialogOpen(false)}>Cancelar</Button>
+              <Button size="small" variant="outlined" color="error" onClick={handleDeath}
                 disabled={saving || !deathCause}>
                 {saving ? 'Guardando...' : 'Confirmar Fallecimiento'}
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog open={evolutiveDialogOpen} onClose={() => { setEvolutiveDialogOpen(false); setStatus(emergency.status); }} maxWidth="sm" fullWidth>
+            <DialogTitle sx={{ bgcolor: evolutiveType === 'discharge' ? '#2e7d32' : '#1565c0', color: 'white', fontSize: '0.85rem' }}>
+              {evolutiveType === 'discharge' ? 'NOTA EVOLUTIVA DE EGRESO' : 'NOTA EVOLUTIVA DE INGRESO'}
+            </DialogTitle>
+            <DialogContent style={{ paddingTop: 24 }}>
+              <TextField variant="standard" fullWidth size="small" required multiline rows={4}
+                label={evolutiveType === 'discharge' ? 'Motivo de Alta Médica' : 'Causa de Ingreso a Hospitalización'}
+                value={evolutiveNote}
+                onChange={(e) => setEvolutiveNote(e.target.value)}
+                error={!evolutiveNote}
+                helperText={!evolutiveNote ? 'Requerido' : ''}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button size="small" variant="outlined" onClick={() => { setEvolutiveDialogOpen(false); setStatus(emergency.status); }}>Cancelar</Button>
+              <Button size="small" variant="outlined" onClick={handleEvolutiveSave}
+                disabled={saving || !evolutiveNote}>
+                {saving ? 'Guardando...' : 'Confirmar'}
               </Button>
             </DialogActions>
           </Dialog>
@@ -382,72 +408,78 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated 
 
       {!emergency && !isDeceased && (
         <Paper sx={{ p: 1.5 }}>
-          <Typography variant="caption" fontWeight={600} sx={{ mb: 0.5, display: 'block', color: '#e65100' }}>
-            NUEVA EMERGENCIA
-          </Typography>
-          <TextField variant="standard" fullWidth size="small" label="Diagnóstico" value={diagnostic}
-            onChange={(e) => setDiagnostic(e.target.value)}
-            sx={{ mt: 0.5, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
-          <TextField variant="standard" fullWidth size="small" label="Plan" value={treatment}
-            onChange={(e) => setTreatment(e.target.value)}
-            sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
-          <Autocomplete
-            size="small" fullWidth
-            options={doctors || []}
-            getOptionLabel={(option) => option.name}
-            value={(doctors || []).find((d) => d.id === currentDoctor) || null}
-            onChange={(_e, newValue) => setCurrentDoctor(newValue ? newValue.id : null)}
-            renderInput={(params) => (
-              <TextField variant="standard" {...params} size="small" label="Médico Principal"
-                sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
-            )}
-            sx={{ mt: 0.75 }}
-          />
-          <Box sx={{ mt: 1 }}>
-              <Button variant="contained" size="small" startIcon={saving ? <CircularProgress size={14} /> : <MedicalServicesIcon />}
-                onClick={handleStartEmergency} disabled={saving || !diagnostic || !treatment}>
-                Iniciar Emergencia
-              </Button>
-          </Box>
-        </Paper>
-      )}
-
-      {emergency && (
-        <Paper sx={{ p: 1.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
-            <SubjectIcon sx={{ fontSize: 18, color: '#7b1fa2' }} />
-            <Typography variant="caption" fontWeight={600} sx={{ color: '#7b1fa2' }}>
-              NOTAS
-            </Typography>
-          </Box>
-          {patientNotes.length === 0 ? (
-            <Typography variant="caption" color="text.secondary">Sin notas</Typography>
-          ) : isDeceased ? (
-            patientNotes.map((note) => (
-              <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'rgba(255,255,255,0.6)', borderRadius: 1 }}>
-                <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{note.note}</Typography>
-              </Box>
-            ))
-          ) : (
-            patientNotes.map((note) => (
-              <NoteItem key={note.id} note={note} onRefresh={refetchNotes} canEdit canDelete />
-            ))
-          )}
-          {!isDeceased && (
-            <Box sx={{ mt: 1 }}>
-              <AddNoteInline emergencyId={emergency.id} patientId={patient.id} onAdded={refetchNotes} />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <MedicalServicesIcon sx={{ fontSize: 18, color: '#e65100' }} />
+              <Typography variant="caption" fontWeight={600} sx={{ color: '#e65100' }}>
+                EMERGENCIAS ANTERIORES
+              </Typography>
             </Box>
+            <Button
+              variant="outlined" size="small" color="success"
+              startIcon={<AddCircleOutlineIcon />}
+              onClick={() => onStartEmergency?.(patient)}
+            >
+              Nueva Emergencia
+            </Button>
+          </Box>
+          {emergencyHistory?.data?.length > 0 ? (
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontSize: '0.7rem', fontWeight: 600, p: 0.5 }}>Fecha</TableCell>
+                    <TableCell sx={{ fontSize: '0.7rem', fontWeight: 600, p: 0.5 }}>Diagnóstico</TableCell>
+                    <TableCell sx={{ fontSize: '0.7rem', fontWeight: 600, p: 0.5 }}>Estado</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {emergencyHistory.data.map((e) => (
+                    <TableRow key={e.id}>
+                      <TableCell sx={{ fontSize: '0.75rem', p: 0.5 }}>{e.ingress_date}</TableCell>
+                      <TableCell sx={{ fontSize: '0.75rem', p: 0.5 }}>{e.diagnostic}</TableCell>
+                      <TableCell sx={{ fontSize: '0.75rem', p: 0.5 }}>
+                        <Chip label={STATUS_LABELS[e.status] || e.status} size="small" variant="outlined" sx={{ fontSize: '0.65rem' }} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'text.secondary', textAlign: 'center', py: 2 }}>
+              Este paciente no tiene emergencias registradas
+            </Typography>
           )}
         </Paper>
       )}
 
       {emergency && (
-        <VitalSignsPanel
-          emergencyId={emergency.id}
-          vitalSigns={vitalSigns}
-          onCreated={onVitalSignsCreated}
-          readOnly={isDeceased}
-        />
+        <>
+          <Paper sx={{ p: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+              <DescriptionIcon sx={{ fontSize: 18, color: '#1565c0' }} />
+              <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0' }}>
+                MOTIVO DE CONSULTA
+              </Typography>
+            </Box>
+            <TextField variant="standard" fullWidth size="small" label="Motivo de consulta" value={reasonForConsultation}
+              onChange={(e) => setReasonForConsultation(e.target.value)}
+              disabled={fieldDisabled}
+              sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+            <TextField variant="standard" fullWidth size="small" label="Enfermedad actual" value={currentIllness}
+              onChange={(e) => setCurrentIllness(e.target.value)} multiline rows={2}
+              disabled={fieldDisabled}
+              sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+          </Paper>
+
+          <VitalSignsPanel
+            emergencyId={emergency.id}
+            vitalSigns={vitalSigns}
+            onCreated={onVitalSignsCreated}
+            readOnly={isDeceased}
+          />
+        </>
       )}
     </Box>
   );

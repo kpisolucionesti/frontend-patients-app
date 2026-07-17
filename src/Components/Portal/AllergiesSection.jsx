@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem } from '@mui/material';
+import WarningIcon from '@mui/icons-material/Warning';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -59,7 +60,10 @@ const AllergiesSection = ({ patientId, readOnly }) => {
   return (
     <Paper sx={{ p: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-        <Typography variant="caption" fontWeight={600} sx={{ color: '#e65100' }}>ALERGIAS</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <WarningIcon sx={{ fontSize: 18, color: '#e65100' }} />
+          <Typography variant="caption" fontWeight={600} sx={{ color: '#e65100' }}>ALERGIAS</Typography>
+        </Box>
         {!readOnly && <Tooltip title="Agregar alergia" arrow><IconButton size="small" onClick={handleOpenAdd} sx={{ p: 0.25 }}><AddCircleOutlineIcon fontSize="small" /></IconButton></Tooltip>}
       </Box>
       {allergies.length > 0 ? (
@@ -86,8 +90,8 @@ const AllergiesSection = ({ patientId, readOnly }) => {
         <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#e65100', color: 'white' }}>{editing ? 'Editar Alergia' : 'Agregar Alergia'}</DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}><AllergyForm values={form} onChange={handleChange} /></DialogContent>
         <DialogActions>
-          <Button size="small" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-          <Button size="small" variant="contained" onClick={handleSave} disabled={saving || !form.allergy}>{saving ? 'Guardando...' : 'Guardar'}</Button>
+          <Button size="small" variant="outlined" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+          <Button size="small" variant="outlined" onClick={handleSave} disabled={saving || !form.allergy}>{saving ? 'Guardando...' : 'Guardar'}</Button>
         </DialogActions>
       </Dialog>
     </Paper>

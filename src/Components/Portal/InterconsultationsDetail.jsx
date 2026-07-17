@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Autocomplete, Box, IconButton, MenuItem, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Chip } from '@mui/material';
+import GroupIcon from '@mui/icons-material/Group';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -61,7 +62,10 @@ const InterconsultationsDetail = ({ emergencyId, readOnly }) => {
   return (
     <Paper sx={{ p: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-        <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0' }}>INTERCONSULTAS</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <GroupIcon sx={{ fontSize: 18, color: '#1565c0' }} />
+          <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0' }}>INTERCONSULTAS</Typography>
+        </Box>
         {!readOnly && <Tooltip title="Agregar interconsulta" arrow><IconButton size="small" onClick={handleOpenAdd} sx={{ p: 0.25 }}><AddCircleOutlineIcon fontSize="small" /></IconButton></Tooltip>}
       </Box>
       {items.length > 0 ? (
@@ -111,8 +115,8 @@ const InterconsultationsDetail = ({ emergencyId, readOnly }) => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button size="small" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-          <Button size="small" variant="contained" onClick={handleSave} disabled={saving || !form.doctor_requested_id}>{saving ? 'Guardando...' : 'Guardar'}</Button>
+          <Button size="small" variant="outlined" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+          <Button size="small" variant="outlined" onClick={handleSave} disabled={saving || !form.doctor_requested_id}>{saving ? 'Guardando...' : 'Guardar'}</Button>
         </DialogActions>
       </Dialog>
     </Paper>

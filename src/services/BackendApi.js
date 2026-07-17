@@ -2,6 +2,7 @@ import { authApi } from './authApi';
 import { patientsApi } from './patientsApi';
 import { doctorsApi } from './doctorsApi';
 import { emergenciesApi } from './emergenciesApi';
+import { areasApi } from './areasApi';
 import { roomsApi } from './roomsApi';
 import { notesApi } from './notesApi';
 import { usersApi } from './usersApi';
@@ -16,12 +17,14 @@ import { antecedentsApi } from './antecedentsApi';
 import { interconsultationsApi } from './interconsultationsApi';
 import { dashboardApi } from './dashboardApi';
 import { userActivityLogsApi } from './userActivityLogsApi';
+import { paraclinicalStudiesApi } from './paraclinicalStudiesApi';
 
 export const BackendAPI = {
   auth: authApi,
   patients: patientsApi,
   doctors: doctorsApi,
   emergencies: emergenciesApi,
+  areas: areasApi,
   rooms: roomsApi,
   notes: notesApi,
   users: usersApi,
@@ -36,4 +39,5 @@ export const BackendAPI = {
   interconsultations: interconsultationsApi,
   dashboard: dashboardApi,
   userActivityLogs: userActivityLogsApi,
+  paraclinicalStudies: paraclinicalStudiesApi,
 };
