@@ -41,8 +41,6 @@ const NavBar = () => {
     navigate('/', { replace: true });
   };
 
-  const isActive = (path) => location.pathname === path;
-
   const visibleMenus = MENUS.filter((m) => permissions.includes(m.perm));
 
   return (
@@ -55,17 +53,26 @@ const NavBar = () => {
           <Typography variant="caption" color="rgba(255,255,255,0.5)" sx={{ mr: 2 }}>
             v{APP_VERSION}
           </Typography>
-          {visibleMenus.map((m) => (
-            <Button
-              key={m.path}
-              color="inherit"
-              startIcon={m.icon}
-              onClick={() => navigate(m.path)}
-              sx={{ fontWeight: isActive(m.path) ? 'bold' : 'normal', textDecoration: isActive(m.path) ? 'underline' : 'none' }}
-            >
-              {m.label}
-            </Button>
-          ))}
+          {visibleMenus.map((m) => {
+            const active = location.pathname.startsWith(m.path);
+            return (
+              <Button
+                key={m.path}
+                startIcon={m.icon}
+                onClick={() => navigate(m.path)}
+                variant={active ? 'contained' : 'text'}
+                sx={{
+                  mr: 0.5,
+                  ...(active
+                    ? { bgcolor: 'white', color: 'darkblue', '&:hover': { bgcolor: '#f0f0f0' } }
+                    : { color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }
+                  ),
+                }}
+              >
+                {m.label}
+              </Button>
+            );
+          })}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} />
           <Typography variant="h6" component="div" sx={{ mr: 2 }}>
             {(user.name || '') + (user.lastname ? ' ' + user.lastname : '') || 'Usuario'}

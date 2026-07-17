@@ -18,6 +18,9 @@ import { interconsultationsApi } from './interconsultationsApi';
 import { dashboardApi } from './dashboardApi';
 import { userActivityLogsApi } from './userActivityLogsApi';
 import { paraclinicalStudiesApi } from './paraclinicalStudiesApi';
+import { physicalExamsApi } from './physicalExamsApi';
+import { laboratoryResultsApi } from './laboratoryResultsApi';
+import { labParametersApi } from './labParametersApi';
 
 export const BackendAPI = {
   auth: authApi,
@@ -40,4 +43,7 @@ export const BackendAPI = {
   dashboard: dashboardApi,
   userActivityLogs: userActivityLogsApi,
   paraclinicalStudies: paraclinicalStudiesApi,
+  physicalExams: physicalExamsApi,
+  laboratoryResults: laboratoryResultsApi,
+  labParameters: labParametersApi,
 };

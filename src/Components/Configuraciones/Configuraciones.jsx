@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, List, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material';
+import { Box } from '@mui/material';
 import usePermissions from '../../hooks/usePermissions';
 import MedicalIcon from '@mui/icons-material/MedicalServices';
 import PersonIcon from '@mui/icons-material/Person';
@@ -7,18 +7,22 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import EmailIcon from '@mui/icons-material/Email';
 import TvIcon from '@mui/icons-material/Tv';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import ScienceIcon from '@mui/icons-material/Science';
+import SectionSidebar from '../Commons/SectionSidebar';
 import DoctorsList from '../Doctors/DoctorsList';
 import UsersList from '../Users/UsersList';
 import ProfilesList from '../Profiles/ProfilesList';
 import EmailSettingsForm from '../Settings/EmailSettingsForm';
 import TvScreensManager from './TvScreensManager';
 import UbicacionesManager from './UbicacionesManager';
+import LabParametersManager from './LabParametersManager';
 
 const ALL_SECTIONS = [
   { key: 'medicos', label: 'Medicos', icon: <MedicalIcon />, perm: 'medicos.view' },
   { key: 'usuarios', label: 'Usuarios', icon: <PersonIcon />, perm: 'usuarios.view' },
   { key: 'perfiles', label: 'Perfiles', icon: <AdminPanelSettingsIcon />, perm: 'perfiles.view' },
   { key: 'salas', label: 'Salas', icon: <MeetingRoomIcon />, perm: 'rooms.view', adminOnly: true },
+  { key: 'laboratorio', label: 'Laboratorio', icon: <ScienceIcon />, perm: 'lab_params.view' },
   { key: 'tv_screens', label: 'Pantallas TV', icon: <TvIcon />, perm: 'configuraciones.view', adminOnly: true },
 ];
 
@@ -28,6 +32,7 @@ const SECTION_MAP = {
   perfiles: <ProfilesList />,
   correo: <EmailSettingsForm />,
   salas: <UbicacionesManager />,
+  laboratorio: <LabParametersManager />,
   tv_screens: <TvScreensManager />,
 };
 
@@ -54,38 +59,12 @@ const Configuraciones = () => {
 
   return (
     <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)', gap: 0 }}>
-      <Paper
-        square
-        sx={{
-          width: 220,
-          minWidth: 220,
-          bgcolor: 'grey.100',
-          borderRight: '1px solid',
-          borderColor: 'divider',
-        }}
-      >
-        <List sx={{ pt: 2 }}>
-          {SECTIONS.map((s) => (
-            <ListItemButton
-              key={s.key}
-              selected={selected === s.key}
-              onClick={() => setSelected(s.key)}
-              sx={{
-                mx: 1,
-                borderRadius: 1,
-                '&.Mui-selected': {
-                  bgcolor: 'primary.main',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                },
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 40 }}>{s.icon}</ListItemIcon>
-              <ListItemText primary={s.label} />
-            </ListItemButton>
-          ))}
-        </List>
-      </Paper>
+      <SectionSidebar
+        sections={SECTIONS}
+        activeSection={selected}
+        onSectionChange={setSelected}
+        collapsible={false}
+      />
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: '#f0f4ff' }}>
         {SECTION_MAP[selected]}
       </Box>

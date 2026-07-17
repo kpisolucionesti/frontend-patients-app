@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Box, Typography, Grid, Card, CardContent, List, ListItem, ListItemText, Button, Divider, Paper, IconButton, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import RepeatIcon from '@mui/icons-material/Repeat';
+import { Box, Typography, List, ListItem, ListItemText, Button, Divider, Paper, IconButton, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
-import WarningIcon from '@mui/icons-material/Warning';
 import SubjectIcon from '@mui/icons-material/Subject';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ScienceIcon from '@mui/icons-material/Science';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
+import VitalSignsPanel from './VitalSignsPanel';
+import LabResultsQuickModal from './LabResultsQuickModal';
 import HistoryDetailModal from '../History/HistoryDetailModal';
 import AllergiesSection from './AllergiesSection';
 import AntecedentsSection from './AntecedentsSection';
@@ -16,27 +16,14 @@ import InterconsultationsDetail from './InterconsultationsDetail';
 import ParaclinicalStudiesDetail from './ParaclinicalStudiesDetail';
 import NoteItem from '../Emergency/NoteItem';
 
-const StatCard = ({ icon, label, value, color }) => (
-  <Card sx={{ bgcolor: color || '#f5f5f5' }}>
-    <CardContent sx={{ py: 1, px: 1, '&:last-child': { pb: 1 } }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-        {icon}
-        <Box>
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>{label}</Typography>
-          <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.85rem' }}>{value ?? 'N/A'}</Typography>
-        </Box>
-      </Box>
-    </CardContent>
-  </Card>
-);
-
-const PatientDashboard = ({ patient, stats, emergencyId }) => {
+const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns, onVitalSignsCreated, onOpenLabPanel }) => {
   const [cases, setCases] = useState([]);
   const [selectedCase, setSelectedCase] = useState(null);
   const [showAllCases, setShowAllCases] = useState(false);
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [noteSaving, setNoteSaving] = useState(false);
+  const [labQuickOpen, setLabQuickOpen] = useState(false);
 
   const isDeceased = patient?.disabled;
 
@@ -74,37 +61,32 @@ const PatientDashboard = ({ patient, stats, emergencyId }) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-      {isDeceased && (
-        <Paper sx={{ p: 1, bgcolor: '#212121', color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <WarningIcon sx={{ fontSize: 20 }} />
-          <Typography variant="body2" fontWeight={700}>PACIENTE FALLECIDO — Solo lectura</Typography>
-        </Paper>
-      )}
-
-      <Grid container spacing={1}>
-        <Grid item xs={6}>
-          <StatCard
-            icon={<CalendarTodayIcon color="primary" sx={{ fontSize: 18 }} />}
-            label="Última Visita"
-            value={stats?.last_visit_date || 'N/A'}
-            color="#e3f2fd"
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <StatCard
-            icon={<RepeatIcon color="secondary" sx={{ fontSize: 18 }} />}
-            label="Total Visitas"
-            value={stats?.total_visits ?? '0'}
-            color="#f3e5f5"
-          />
-        </Grid>
-      </Grid>
-
-      <MedicalPlansDetail emergencyId={emergencyId} readOnly={isDeceased} />
-      <InterconsultationsDetail emergencyId={emergencyId} readOnly={isDeceased} />
-
       {emergencyId && (
-        <ParaclinicalStudiesDetail emergencyId={emergencyId} readOnly={isDeceased} />
+        <>
+          <VitalSignsPanel
+            emergencyId={emergencyId}
+            vitalSigns={vitalSigns}
+            onCreated={onVitalSignsCreated}
+            readOnly={isDeceased}
+          />
+          <Paper sx={{ p: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <ScienceIcon sx={{ fontSize: 18, color: '#1565c0' }} />
+                <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0' }}>
+                  LABORATORIOS
+                </Typography>
+              </Box>
+              <Button size="small" sx={{ fontSize: '0.7rem', minWidth: 'auto' }} onClick={() => setLabQuickOpen(true)}>
+                Ver resultados
+              </Button>
+            </Box>
+          </Paper>
+
+          <MedicalPlansDetail emergencyId={emergencyId} readOnly={isDeceased} />
+          <InterconsultationsDetail emergencyId={emergencyId} readOnly={isDeceased} />
+          <ParaclinicalStudiesDetail emergencyId={emergencyId} readOnly={isDeceased} />
+        </>
       )}
 
       {emergencyId && (
@@ -203,6 +185,15 @@ const PatientDashboard = ({ patient, stats, emergencyId }) => {
           emergencyId={selectedCase.id}
           open={!!selectedCase}
           onClose={() => setSelectedCase(null)}
+        />
+      )}
+
+      {emergencyId && (
+        <LabResultsQuickModal
+          open={labQuickOpen}
+          onClose={() => setLabQuickOpen(false)}
+          emergencyId={emergencyId}
+          onGoToFullPanel={() => { setLabQuickOpen(false); onOpenLabPanel?.(); }}
         />
       )}
     </Box>

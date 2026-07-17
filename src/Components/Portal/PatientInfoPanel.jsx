@@ -11,7 +11,7 @@ import WarningIcon from '@mui/icons-material/Warning';
 import EditIcon from '@mui/icons-material/Edit';
 import DescriptionIcon from '@mui/icons-material/Description';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import VitalSignsPanel from './VitalSignsPanel';
+import PhysicalExamTable from './PhysicalExamTable';
 import AsignRoom from '../Board/asignRoomModal';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
@@ -31,7 +31,7 @@ const STATUS_LABELS = {
   0: 'Esperando', 1: 'Atendido', 2: 'Alta', 3: 'Ingresado', 4: 'Anulada', 5: 'Fallecido',
 };
 
-const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated, onStartEmergency }) => {
+const PatientInfoPanel = ({ patient, emergency, onStartEmergency }) => {
   const [diagnostic, setDiagnostic] = useState(emergency?.diagnostic || '');
   const [treatment, setTreatment] = useState(emergency?.treatment || '');
   const [observations, setObservations] = useState(emergency?.observations || '');
@@ -473,12 +473,7 @@ const PatientInfoPanel = ({ patient, emergency, vitalSigns, onVitalSignsCreated,
               sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
           </Paper>
 
-          <VitalSignsPanel
-            emergencyId={emergency.id}
-            vitalSigns={vitalSigns}
-            onCreated={onVitalSignsCreated}
-            readOnly={isDeceased}
-          />
+          <PhysicalExamTable emergencyId={emergency.id} readOnly={isDeceased} />
         </>
       )}
     </Box>

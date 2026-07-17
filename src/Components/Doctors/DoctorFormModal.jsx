@@ -7,6 +7,8 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
   const [values, setValues] = useState({
     name: doctor?.name || '',
     speciality: doctor?.speciality || '',
+    email: doctor?.email || '',
+    phone: doctor?.phone || '',
   });
   const [validation, setValidation] = useState(false);
 
@@ -53,6 +55,20 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
           onChange={({ target }) => handleChange(target)}
           error={validation && !values.speciality}
           helperText={validation && !values.speciality ? 'Requerido' : ''}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          variant="standard"
+          fullWidth label="Correo Electrónico" name="email" type="email" value={values.email}
+          onChange={({ target }) => handleChange(target)}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          variant="standard"
+          fullWidth label="Teléfono" name="phone" type="tel" value={values.phone}
+          onChange={({ target }) => handleChange(target)}
+          placeholder="+58 412 1234567"
+          helperText="Incluir código de país"
         />
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
