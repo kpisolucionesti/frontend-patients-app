@@ -11,6 +11,7 @@ import PatientsList from '../Patients/PatientsList';
 import TablePatients from '../History/TablePatients';
 import AddEmergencyModal from '../Emergency/AddEmergencyModal';
 import LabResultsPanel from './LabResultsPanel';
+import HistoricalCasePanel from './HistoricalCasePanel';
 import BreadcrumbNav from '../Commons/BreadcrumbNav';
 import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
@@ -145,11 +146,16 @@ const EmergencyPortal = () => {
                   TabIndicatorProps={{ sx: { bgcolor: '#1565c0', height: 3 } }}
                 >
                   <Tab label="Resumen" value="resumen" />
+                  <Tab label="Historial de Casos" value="historial_casos" />
                   <Tab label="Laboratorio" value="laboratorio" />
                 </Tabs>
               </Box>
             )}
-            {activePanel === 'laboratorio' ? (
+            {activePanel === 'historial_casos' ? (
+              <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: '#f0f4ff' }}>
+                <HistoricalCasePanel patient={selectedPatient} currentEmergencyId={selectedEmergency?.id} />
+              </Box>
+            ) : activePanel === 'laboratorio' ? (
               <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: '#f0f4ff' }}>
                 <LabResultsPanel emergencyId={selectedEmergency?.id} patientGender={selectedPatient?.gender} />
               </Box>

@@ -8,6 +8,8 @@ import DoctorsList from './Components/Doctors/DoctorsList';
 import Configuraciones from './Components/Configuraciones/Configuraciones';
 import Dashboard from './Components/Dashboard/Dashboard';
 import RoomTable from './Components/Board/RoomTable';
+import HospitalizationBoard from './Components/Hospitalizacion/HospitalizationBoard';
+import HospitalizationDetail from './Components/Hospitalizacion/HospitalizationDetail';
 import TvPinGuard from './Components/Commons/TvPinGuard';
 import ErrorBoundary from './Components/Commons/ErrorBoundary';
 import usePermissions from './hooks/usePermissions';
@@ -84,6 +86,8 @@ function App() {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="portal" element={<EmergencyPortal />} />
+        <Route path="hospitalizacion" element={<HospitalizationBoard />} />
+        <Route path="hospitalizacion/:emergencyId" element={<HospitalizationDetail />} />
         <Route path="configuraciones" element={<Configuraciones />} />
         <Route path="medicos" element={<DoctorsList />} />
       </Route>

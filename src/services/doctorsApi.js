@@ -1,8 +1,9 @@
 import axiosInstance from './axiosInstance';
 
 export const doctorsApi = {
-  getAll: async () => {
-    const res = await axiosInstance.get('/doctors');
+  getAll: async (params = {}) => {
+    const query = Object.keys(params).length ? '?' + new URLSearchParams(params).toString() : '';
+    const res = await axiosInstance.get('/doctors' + query);
     const doctors = res.data || [];
     return doctors.sort((a, b) => a.name.localeCompare(b.name));
   },

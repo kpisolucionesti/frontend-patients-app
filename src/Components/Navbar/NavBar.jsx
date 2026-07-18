@@ -11,6 +11,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import EmergencyIcon from '@mui/icons-material/LocalHospital';
+import HotelIcon from '@mui/icons-material/Hotel';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import LockIcon from '@mui/icons-material/Lock';
@@ -22,6 +23,7 @@ import usePermissions from '../../hooks/usePermissions';
 const MENUS = [
   { label: 'Dashboard', path: '/patients/dashboard', icon: <DashboardIcon />, perm: 'emergencia.view' },
   { label: 'Emergencia', path: '/patients/portal', icon: <EmergencyIcon />, perm: 'emergencia.view' },
+  { label: 'Hospitalización', path: '/patients/hospitalizacion', icon: <HotelIcon />, perm: 'hospitalizacion.view' },
   { label: 'Configuraciones', path: '/patients/configuraciones', icon: <SettingsIcon />, perm: 'configuraciones.view' },
 ];
 

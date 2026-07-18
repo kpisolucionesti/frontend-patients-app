@@ -16,7 +16,7 @@ import InterconsultationsDetail from './InterconsultationsDetail';
 import ParaclinicalStudiesDetail from './ParaclinicalStudiesDetail';
 import NoteItem from '../Emergency/NoteItem';
 
-const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns, onVitalSignsCreated, onOpenLabPanel }) => {
+const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns = [], onVitalSignsCreated, onOpenLabPanel, readOnly }) => {
   const [cases, setCases] = useState([]);
   const [selectedCase, setSelectedCase] = useState(null);
   const [showAllCases, setShowAllCases] = useState(false);
@@ -26,6 +26,7 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns, onVitalSign
   const [labQuickOpen, setLabQuickOpen] = useState(false);
 
   const isDeceased = patient?.disabled;
+  const effectiveReadOnly = readOnly || isDeceased;
 
   const { data: notesData, refetch: refetchNotes } = useFetch(
     () => emergencyId ? BackendAPI.notes.getAll({ emergency_id: emergencyId }) : Promise.resolve([]),
@@ -67,7 +68,7 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns, onVitalSign
             emergencyId={emergencyId}
             vitalSigns={vitalSigns}
             onCreated={onVitalSignsCreated}
-            readOnly={isDeceased}
+            readOnly={effectiveReadOnly}
           />
           <Paper sx={{ p: 1.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -83,9 +84,9 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns, onVitalSign
             </Box>
           </Paper>
 
-          <MedicalPlansDetail emergencyId={emergencyId} readOnly={isDeceased} />
-          <InterconsultationsDetail emergencyId={emergencyId} readOnly={isDeceased} />
-          <ParaclinicalStudiesDetail emergencyId={emergencyId} readOnly={isDeceased} />
+          <MedicalPlansDetail emergencyId={emergencyId} readOnly={effectiveReadOnly} />
+          <InterconsultationsDetail emergencyId={emergencyId} readOnly={effectiveReadOnly} />
+          <ParaclinicalStudiesDetail emergencyId={emergencyId} readOnly={effectiveReadOnly} />
         </>
       )}
 
@@ -98,7 +99,7 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns, onVitalSign
                 NOTAS
               </Typography>
             </Box>
-            {!isDeceased && (
+            {!effectiveReadOnly && (
               <Tooltip title="Agregar nota" arrow>
                 <IconButton size="small" onClick={() => setNoteDialogOpen(true)} sx={{ p: 0.25 }}>
                   <AddCircleOutlineIcon fontSize="small" />
@@ -108,7 +109,7 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns, onVitalSign
           </Box>
           {patientNotes.length === 0 ? (
             <Typography variant="caption" color="text.secondary">Sin notas</Typography>
-          ) : isDeceased ? (
+          ) : effectiveReadOnly ? (
             patientNotes.map((note) => (
               <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'rgba(255,255,255,0.6)', borderRadius: 1 }}>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{note.note}</Typography>
@@ -135,50 +136,8 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns, onVitalSign
         </Paper>
       )}
 
-      <AllergiesSection patientId={patient?.id} readOnly={isDeceased} />
-      <AntecedentsSection patientId={patient?.id} readOnly={isDeceased} />
-
-      <Paper sx={{ p: 1.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-          <HistoryIcon sx={{ fontSize: 16 }} />
-          <Typography variant="caption" fontWeight={600} sx={{ color: '#6a1b9a' }}>CASOS ANTERIORES</Typography>
-        </Box>
-        {cases.length > 0 ? (
-          <>
-            <List dense disablePadding>
-              {displayCases.map((c) => (
-                <Box key={c.id}>
-                  <ListItem
-                    secondaryAction={
-                      <Button size="small" sx={{ fontSize: '0.7rem', minWidth: 'auto' }} onClick={() => setSelectedCase(c)}>Detalle</Button>
-                    }
-                    disablePadding
-                    sx={{ py: 0.25 }}
-                  >
-                    <ListItemText
-                      primary={`${c.ingress_date} - ${c.diagnostic || 'Sin diagnóstico'}`}
-                      primaryTypographyProps={{ fontSize: '0.7rem' }}
-                      secondary={
-                        <Box component="span" sx={{ display: 'inline-flex', gap: 0.5, alignItems: 'center' }}>
-                          {c.status === 1 ? 'Atendido' : c.status === 2 ? 'Alta Médica' : c.status === 3 ? 'Ingreso a Hospitalización' : c.status === 4 ? 'Anulada' : c.status === 5 ? 'Fallecido' : 'Esperando'}
-                        </Box>
-                      }
-                    />
-                  </ListItem>
-                  <Divider />
-                </Box>
-              ))}
-            </List>
-            {cases.length > 3 && (
-              <Button size="small" sx={{ fontSize: '0.7rem', mt: 0.5 }} onClick={() => setShowAllCases(!showAllCases)}>
-                {showAllCases ? 'Mostrar menos' : `Ver todos (${cases.length})`}
-              </Button>
-            )}
-          </>
-        ) : (
-          <Typography variant="caption" color="text.secondary">Sin casos anteriores</Typography>
-        )}
-      </Paper>
+      <AllergiesSection patientId={patient?.id} readOnly={effectiveReadOnly} />
+      <AntecedentsSection patientId={patient?.id} readOnly={effectiveReadOnly} />
 
       {selectedCase && (
         <HistoryDetailModal
@@ -193,6 +152,7 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns, onVitalSign
           open={labQuickOpen}
           onClose={() => setLabQuickOpen(false)}
           emergencyId={emergencyId}
+          patientGender={patient?.gender}
           onGoToFullPanel={() => { setLabQuickOpen(false); onOpenLabPanel?.(); }}
         />
       )}

@@ -21,6 +21,12 @@ import { paraclinicalStudiesApi } from './paraclinicalStudiesApi';
 import { physicalExamsApi } from './physicalExamsApi';
 import { laboratoryResultsApi } from './laboratoryResultsApi';
 import { labParametersApi } from './labParametersApi';
+import { hospitalizationsApi } from './hospitalizationsApi';
+import { hospitalizationNotesApi } from './hospitalizationNotesApi';
+import { fluidBalancesApi } from './fluidBalancesApi';
+import { medicationAdministrationsApi } from './medicationAdministrationsApi';
+import { surgeriesApi } from './surgeriesApi';
+import { directAdmissionsApi } from './directAdmissionsApi';
 
 export const BackendAPI = {
   auth: authApi,
@@ -46,4 +52,10 @@ export const BackendAPI = {
   physicalExams: physicalExamsApi,
   laboratoryResults: laboratoryResultsApi,
   labParameters: labParametersApi,
+  hospitalizations: hospitalizationsApi,
+  hospitalizationNotes: hospitalizationNotesApi,
+  fluidBalances: fluidBalancesApi,
+  medicationAdministrations: medicationAdministrationsApi,
+  surgeries: surgeriesApi,
+  directAdmissions: directAdmissionsApi,
 };

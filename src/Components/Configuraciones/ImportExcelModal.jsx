@@ -4,6 +4,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Chip,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ErrorIcon from '@mui/icons-material/Error';
@@ -13,13 +14,80 @@ import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
 
 const EXPECTED_COLUMNS = [
-  { field: 'parameter_name', label: 'Parameter Name', required: true, aliases: ['parameter_name', 'nombre', 'parametro', 'parameter', 'name'] },
-  { field: 'abbreviation', label: 'Abbreviation', required: false, aliases: ['abbreviation', 'abreviatura', 'abrev', 'abbr'] },
-  { field: 'unit', label: 'Unit', required: false, aliases: ['unit', 'unidad'] },
-  { field: 'reference_range', label: 'Reference Range', required: false, aliases: ['reference_range', 'rango', 'ref', 'reference'] },
-  { field: 'reference_ranges', label: 'Reference Ranges (JSON)', required: false, aliases: ['reference_ranges', 'rango_json', 'ref_json', 'ranges'] },
-  { field: 'group_name', label: 'Group Name', required: false, aliases: ['group_name', 'grupo', 'group'] },
+  { field: 'parameter_name', label: 'Nombre del Parámetro', required: true, aliases: ['parameter_name', 'nombre', 'parametro', 'parameter', 'name'] },
+  { field: 'abbreviation', label: 'Abreviatura', required: false, aliases: ['abbreviation', 'abreviatura', 'abrev', 'abbr'] },
+  { field: 'unit', label: 'Unidad', required: false, aliases: ['unit', 'unidad'] },
+  { field: 'group_name', label: 'Grupo', required: false, aliases: ['group_name', 'grupo', 'group'] },
+  { field: 'ref_male_type', label: 'Ref. Masculino - Tipo', required: false, aliases: ['ref_male_type', 'ref_hombre_type', 'male_type', 'm_type'] },
+  { field: 'ref_male_min', label: 'Ref. Masculino - Mín', required: false, aliases: ['ref_male_min', 'ref_hombre_min', 'male_min', 'm_min'] },
+  { field: 'ref_male_max', label: 'Ref. Masculino - Máx', required: false, aliases: ['ref_male_max', 'ref_hombre_max', 'male_max', 'm_max'] },
+  { field: 'ref_male_comparator', label: 'Ref. Masculino - Comparador', required: false, aliases: ['ref_male_comparator', 'ref_hombre_comparator', 'male_comparator', 'm_comp'] },
+  { field: 'ref_male_value', label: 'Ref. Masculino - Valor', required: false, aliases: ['ref_male_value', 'ref_hombre_value', 'male_value', 'm_val'] },
+  { field: 'ref_female_type', label: 'Ref. Femenino - Tipo', required: false, aliases: ['ref_female_type', 'ref_mujer_type', 'female_type', 'f_type'] },
+  { field: 'ref_female_min', label: 'Ref. Femenino - Mín', required: false, aliases: ['ref_female_min', 'ref_mujer_min', 'female_min', 'f_min'] },
+  { field: 'ref_female_max', label: 'Ref. Femenino - Máx', required: false, aliases: ['ref_female_max', 'ref_mujer_max', 'female_max', 'f_max'] },
+  { field: 'ref_female_comparator', label: 'Ref. Femenino - Comparador', required: false, aliases: ['ref_female_comparator', 'ref_mujer_comparator', 'female_comparator', 'f_comp'] },
+  { field: 'ref_female_value', label: 'Ref. Femenino - Valor', required: false, aliases: ['ref_female_value', 'ref_mujer_value', 'female_value', 'f_val'] },
 ];
+
+function buildReferenceRanges(row) {
+  function buildSex(type, min, max, comparator, value) {
+    const t = (type || '').toLowerCase().trim();
+    if (t === 'range' || t === 'rango') {
+      return { type: 'range', min: parseFloat(min) || 0, max: parseFloat(max) || 0 };
+    }
+    if (t === 'inequality' || t === 'desigualdad') {
+      return { type: 'inequality', comparator: (comparator || '<').trim(), value: parseFloat(value) || 0 };
+    }
+    if (t === 'categorical' || t === 'categorico' || t === 'categórico') {
+      return { type: 'categorical', value: value || '' };
+    }
+    return null;
+  }
+
+  const male = buildSex(row.ref_male_type, row.ref_male_min, row.ref_male_max, row.ref_male_comparator, row.ref_male_value);
+  const female = buildSex(row.ref_female_type, row.ref_female_min, row.ref_female_max, row.ref_female_comparator, row.ref_female_value);
+
+  if (!male && !female) return null;
+  return { male: male || { type: 'range', min: 0, max: 0 }, female: female || { type: 'range', min: 0, max: 0 } };
+}
+
+const TEMPLATE_ROWS = [
+  {
+    parameter_name: 'Hemoglobina',
+    abbreviation: 'Hb',
+    unit: 'g/dL',
+    group_name: 'Hematología',
+    ref_male_type: 'range', ref_male_min: '13', ref_male_max: '17', ref_male_comparator: '', ref_male_value: '',
+    ref_female_type: 'range', ref_female_min: '12', ref_female_max: '16', ref_female_comparator: '', ref_female_value: '',
+  },
+  {
+    parameter_name: 'Glucosa',
+    abbreviation: 'Glu',
+    unit: 'mg/dL',
+    group_name: 'Química Sanguínea',
+    ref_male_type: 'range', ref_male_min: '70', ref_male_max: '110', ref_male_comparator: '', ref_male_value: '',
+    ref_female_type: 'range', ref_female_min: '70', ref_female_max: '110', ref_female_comparator: '', ref_female_value: '',
+  },
+  {
+    parameter_name: 'Proteína C Reactiva',
+    abbreviation: 'PCR',
+    unit: 'mg/L',
+    group_name: 'Inmunología',
+    ref_male_type: 'inequality', ref_male_min: '', ref_male_max: '', ref_male_comparator: '<', ref_male_value: '5',
+    ref_female_type: 'inequality', ref_female_min: '', ref_female_max: '', ref_female_comparator: '<', ref_female_value: '5',
+  },
+  {
+    parameter_name: 'Factor Rh',
+    abbreviation: 'Rh',
+    unit: '',
+    group_name: 'Inmunología',
+    ref_male_type: 'categorical', ref_male_min: '', ref_male_max: '', ref_male_comparator: '', ref_male_value: 'Positivo',
+    ref_female_type: 'categorical', ref_female_min: '', ref_female_max: '', ref_female_comparator: '', ref_female_value: 'Positivo',
+  },
+];
+
+const TEMPLATE_HEADERS = EXPECTED_COLUMNS.map((c) => c.label);
 
 const ImportExcelModal = ({ open, onClose, onImported }) => {
   const { show } = useSnackbar();
@@ -59,6 +127,48 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
   const validRows = useMemo(() => rows.filter((r) => r.parameter_name.trim()), [rows]);
   const invalidRows = useMemo(() => rows.filter((r) => !r.parameter_name.trim()), [rows]);
 
+  const downloadTemplate = useCallback(() => {
+    const ws = XLSX.utils.aoa_to_sheet([
+      TEMPLATE_HEADERS,
+      ...TEMPLATE_ROWS.map((row) => EXPECTED_COLUMNS.map((col) => row[col.field] || '')),
+    ]);
+
+    const colWidths = EXPECTED_COLUMNS.map((c) => {
+      const headerLen = c.label.length;
+      const maxDataLen = TEMPLATE_ROWS.reduce((max, r) => Math.max(max, (r[c.field] || '').length), 0);
+      return { wch: Math.max(headerLen, maxDataLen) + 3 };
+    });
+    ws['!cols'] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Parámetros');
+
+    XLSX.writeFile(wb, 'plantilla_parametros_laboratorio.xlsx');
+    show('Plantilla descargada exitosamente', 'success');
+  }, [show]);
+
+  const OLD_COLUMN_ALIASES = {
+    reference_range: ['reference_range', 'rango', 'ref', 'reference'],
+    reference_ranges: ['reference_ranges', 'rango_json', 'ref_json', 'ranges'],
+  };
+
+  const findVal = useCallback((item, aliases) => {
+    for (const alias of aliases) {
+      const key = Object.keys(item).find(
+        (k) => k.toLowerCase().trim() === alias.toLowerCase().trim(),
+      );
+      if (key && item[key]) return String(item[key]).trim();
+    }
+    return '';
+  }, []);
+
+  const findRawColumn = useCallback((columns, aliases) => {
+    return columns.find((c) => {
+      const lower = c.toLowerCase().trim();
+      return aliases.some((a) => a.toLowerCase().trim() === lower);
+    });
+  }, []);
+
   const parseFile = useCallback((file) => {
     if (!file) return;
     setFileName(file.name);
@@ -75,26 +185,48 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
         const columns = json.length > 0 ? Object.keys(json[0]) : [];
         setRawColumns(columns);
 
+        const hasOldRefRange = !!(columns.length > 0 && (
+          findRawColumn(columns, OLD_COLUMN_ALIASES.reference_range) ||
+          findRawColumn(columns, OLD_COLUMN_ALIASES.reference_ranges)
+        ));
+        const hasNewRefColumns = !!(columns.length > 0 &&
+          findRawColumn(columns, EXPECTED_COLUMNS[4].aliases)
+        );
+
         const mapped = json.map((item, idx) => {
-          const findVal = (aliases) => {
-            for (const alias of aliases) {
-              const key = Object.keys(item).find(
-                (k) => k.toLowerCase().trim() === alias.toLowerCase().trim(),
-              );
-              if (key && item[key]) return String(item[key]).trim();
-            }
-            return '';
+          const row = {
+            _row: idx + 1,
+            parameter_name: findVal(item, EXPECTED_COLUMNS[0].aliases),
+            abbreviation: findVal(item, EXPECTED_COLUMNS[1].aliases),
+            unit: findVal(item, EXPECTED_COLUMNS[2].aliases),
+            group_name: findVal(item, EXPECTED_COLUMNS[3].aliases),
           };
 
-          return {
-            _row: idx + 1,
-            parameter_name: findVal(EXPECTED_COLUMNS[0].aliases),
-            abbreviation: findVal(EXPECTED_COLUMNS[1].aliases),
-            unit: findVal(EXPECTED_COLUMNS[2].aliases),
-            reference_range: findVal(EXPECTED_COLUMNS[3].aliases),
-            reference_ranges: findVal(EXPECTED_COLUMNS[4].aliases),
-            group_name: findVal(EXPECTED_COLUMNS[5].aliases),
-          };
+          if (hasOldRefRange && !hasNewRefColumns) {
+            const oldRange = findVal(item, OLD_COLUMN_ALIASES.reference_range);
+            const oldRangesJson = findVal(item, OLD_COLUMN_ALIASES.reference_ranges);
+            row.reference_range = oldRange;
+            row.reference_ranges = oldRangesJson;
+            row.ref_summary = oldRangesJson || oldRange || '';
+          } else {
+            const flatRow = {
+              ref_male_type: findVal(item, EXPECTED_COLUMNS[4].aliases),
+              ref_male_min: findVal(item, EXPECTED_COLUMNS[5].aliases),
+              ref_male_max: findVal(item, EXPECTED_COLUMNS[6].aliases),
+              ref_male_comparator: findVal(item, EXPECTED_COLUMNS[7].aliases),
+              ref_male_value: findVal(item, EXPECTED_COLUMNS[8].aliases),
+              ref_female_type: findVal(item, EXPECTED_COLUMNS[9].aliases),
+              ref_female_min: findVal(item, EXPECTED_COLUMNS[10].aliases),
+              ref_female_max: findVal(item, EXPECTED_COLUMNS[11].aliases),
+              ref_female_comparator: findVal(item, EXPECTED_COLUMNS[12].aliases),
+              ref_female_value: findVal(item, EXPECTED_COLUMNS[13].aliases),
+            };
+            const builtRanges = buildReferenceRanges(flatRow);
+            row.reference_ranges = builtRanges ? JSON.stringify(builtRanges) : '';
+            row.ref_summary = builtRanges ? describeRanges(builtRanges) : '';
+          }
+
+          return row;
         });
 
         setRows(mapped);
@@ -103,7 +235,18 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
       }
     };
     reader.readAsArrayBuffer(file);
-  }, [show]);
+  }, [show, findVal, findRawColumn]);
+
+  function describeRanges(ranges) {
+    const desc = (label, r) => {
+      if (!r) return '';
+      if (r.type === 'range') return `${label}: ${r.min}-${r.max}`;
+      if (r.type === 'inequality') return `${label}: ${r.comparator}${r.value}`;
+      if (r.type === 'categorical') return `${label}: ${r.value}`;
+      return '';
+    };
+    return [desc('M', ranges.male), desc('F', ranges.female)].filter(Boolean).join(' | ');
+  }
 
   const handleFileSelect = useCallback((e) => {
     parseFile(e.target.files?.[0]);
@@ -203,8 +346,22 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
                 Formatos aceptados: .xlsx, .xls
               </Typography>
             </Box>
+
+            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+              <Button
+                variant="outlined"
+                color="info"
+                size="small"
+                startIcon={<CloudDownloadIcon />}
+                onClick={downloadTemplate}
+                sx={{ fontSize: '0.75rem' }}
+              >
+                Descargar Plantilla
+              </Button>
+            </Box>
+
             <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: 'block', textAlign: 'center' }}>
-              Columnas: <strong>parameter_name</strong> (obligatorio), abbreviation, unit, reference_range, reference_ranges (JSON), group_name
+              Descarga la plantilla para ver las columnas requeridas. La columna <strong>parameter_name</strong> es obligatoria.
             </Typography>
           </>
         ) : (
@@ -284,7 +441,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
                   {invalidRows.length > 0 ? `, ${invalidRows.length} sin parámetro` : ''})
                 </Typography>
 
-                  <TableContainer sx={{ maxHeight: 300 }}>
+                <TableContainer sx={{ maxHeight: 300 }}>
                   <Table size="small" stickyHeader>
                     <TableHead>
                       <TableRow>
@@ -292,7 +449,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
                         <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Parámetro</TableCell>
                         <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Abrev.</TableCell>
                         <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Unidad</TableCell>
-                        <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Rango</TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Rangos Ref.</TableCell>
                         <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Grupo</TableCell>
                       </TableRow>
                     </TableHead>
@@ -303,13 +460,13 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
                           <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.parameter_name || <i style={{ color: '#999' }}>vacío</i>}</TableCell>
                           <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.abbreviation}</TableCell>
                           <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.unit}</TableCell>
-                          <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.reference_range || (r.reference_ranges ? 'JSON' : '')}</TableCell>
+                          <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.ref_summary || '—'}</TableCell>
                           <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.group_name}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                  </TableContainer>
+                </TableContainer>
               </>
             )}
           </>

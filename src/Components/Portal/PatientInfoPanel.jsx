@@ -31,7 +31,18 @@ const STATUS_LABELS = {
   0: 'Esperando', 1: 'Atendido', 2: 'Alta', 3: 'Ingresado', 4: 'Anulada', 5: 'Fallecido',
 };
 
-const PatientInfoPanel = ({ patient, emergency, onStartEmergency }) => {
+const FieldRow = ({ label, value }) => (
+  <Box sx={{ display: 'flex', gap: 1, py: 0.4 }}>
+    <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, minWidth: 140, fontSize: '0.72rem' }}>
+      {label}
+    </Typography>
+    <Typography variant="body2" sx={{ fontSize: '0.78rem', color: value ? 'text.primary' : 'text.disabled' }}>
+      {value || '—'}
+    </Typography>
+  </Box>
+);
+
+const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) => {
   const [diagnostic, setDiagnostic] = useState(emergency?.diagnostic || '');
   const [treatment, setTreatment] = useState(emergency?.treatment || '');
   const [observations, setObservations] = useState(emergency?.observations || '');
@@ -58,6 +69,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency }) => {
   const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
 
   const isDeceased = patient?.disabled;
+  const effectiveReadOnly = readOnly || isDeceased;
 
   const { data: rooms } = useFetch(() => BackendAPI.rooms.getAll(), []);
   const patientRoom = useMemo(
@@ -70,7 +82,12 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency }) => {
     [patient?.id],
   );
 
-  const fieldDisabled = isDeceased || (!editing && !!emergency?.id && emergency.status !== 0);
+  const fieldDisabled = effectiveReadOnly || (!editing && !!emergency?.id && emergency.status !== 0);
+
+  const classificationLabel = useMemo(() => {
+    const opt = CLASSIFICATION_OPTIONS.find((c) => c.key === (classification || emergency?.classification));
+    return opt ? `${opt.label}` : (classification || emergency?.classification || '');
+  }, [classification, emergency]);
 
   const handleSave = async (extraPayload) => {
     if (!emergency) return;
@@ -156,7 +173,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency }) => {
   const handleEvolutiveSave = async () => {
     const extraPayload = evolutiveType === 'discharge'
       ? { status: 2, discharge_note: evolutiveNote }
-      : { status: 3, admission_note: evolutiveNote };
+      : { status: 3, transfer: 'Hospitalizacion', admission_note: evolutiveNote };
     setSaving(true);
     try {
       await handleSave(extraPayload);
@@ -179,10 +196,10 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency }) => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <MedicalServicesIcon sx={{ fontSize: 18, color: '#e65100' }} />
               <Typography variant="caption" fontWeight={600} sx={{ color: '#e65100' }}>
-                EMERGENCIA ACTUAL
+                DATOS DE LA EMERGENCIA
               </Typography>
             </Box>
-            {!isDeceased && emergency.status === 1 && (
+            {!effectiveReadOnly && emergency.status === 1 && (
               <Button
                 size="small"
                 variant="outlined"
@@ -203,7 +220,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency }) => {
             />
             {(classification || emergency.classification) && (
               <Chip
-                label={CLASSIFICATION_OPTIONS.find((c) => c.key === (classification || emergency.classification))?.label || classification || emergency.classification}
+                label={classificationLabel}
                 size="small"
                 sx={{
                   bgcolor: CLASSIFICATION_OPTIONS.find((c) => c.key === (classification || emergency.classification))?.color || '#999',
@@ -213,97 +230,99 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency }) => {
               />
             )}
           </Box>
-          <Grid container spacing={0.5}>
-            <Grid item xs={3}>
-              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>F. Ingreso</Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{emergency.ingress_date}</Typography>
-            </Grid>
-            <Grid item xs={5}>
-              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>Médico</Typography>
-              {isDeceased ? (
-                <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{emergency.primary_doctor?.name || 'No asignado'}</Typography>
-              ) : (
-                <Autocomplete
-                  size="small"
-                  options={doctors || []}
-                  getOptionLabel={(option) => option.name}
-                  value={(doctors || []).find((d) => d.id === currentDoctor) || null}
-                  onChange={(_e, newValue) => setCurrentDoctor(newValue ? newValue.id : null)}
-                  renderInput={(params) => (
-                    <TextField variant="standard" {...params} size="small"
-                      sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
-                  )}
-                  disableClearable
-                  disablePortal
-                  sx={{ width: '100%' }}
-                  disabled={fieldDisabled}
-                />
+
+          {effectiveReadOnly || !editing ? (
+            <Box>
+              <FieldRow label="Fecha de Ingreso" value={emergency.ingress_date} />
+              <FieldRow
+                label="Médico"
+                value={emergency.primary_doctor?.name || 'No asignado'}
+              />
+              <FieldRow label="Cama" value={patientRoom?.name || 'No asignada'} />
+              <FieldRow label="Diagnóstico" value={diagnostic} />
+              <FieldRow label="Plan" value={treatment} />
+              <FieldRow label="Observaciones" value={observations} />
+              <FieldRow label="Clasificación" value={classificationLabel || '—'} />
+              {dischargeNote && emergency.status === 2 && (
+                <Box sx={{ mt: 1, p: 1, bgcolor: '#f1f8e9', borderRadius: 1 }}>
+                  <Typography variant="caption" fontWeight={600} sx={{ color: '#2e7d32' }}>
+                    NOTA EVOLUTIVA DE EGRESO
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.25 }}>{dischargeNote}</Typography>
+                </Box>
               )}
-            </Grid>
-            <Grid item xs={4} sx={{ textAlign: 'right' }}>
-              <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>Cama</Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{patientRoom?.name || 'No asignada'}</Typography>
-            </Grid>
-          </Grid>
+              {admissionNote && emergency.status === 3 && (
+                <Box sx={{ mt: 1, p: 1, bgcolor: '#e8f5e9', borderRadius: 1 }}>
+                  <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0' }}>
+                    NOTA EVOLUTIVA DE INGRESO
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.25 }}>{admissionNote}</Typography>
+                </Box>
+              )}
+            </Box>
+          ) : (
+            <Box>
+              <Grid container spacing={0.5}>
+                <Grid item xs={3}>
+                  <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>F. Ingreso</Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{emergency.ingress_date}</Typography>
+                </Grid>
+                <Grid item xs={5}>
+                  <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>Médico</Typography>
+                  <Autocomplete
+                    size="small"
+                    options={doctors || []}
+                    getOptionLabel={(option) => option.name}
+                    value={(doctors || []).find((d) => d.id === currentDoctor) || null}
+                    onChange={(_e, newValue) => setCurrentDoctor(newValue ? newValue.id : null)}
+                    renderInput={(params) => (
+                      <TextField variant="standard" {...params} size="small"
+                        sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+                    )}
+                    disableClearable
+                    disablePortal
+                    sx={{ width: '100%' }}
+                  />
+                </Grid>
+                <Grid item xs={4} sx={{ textAlign: 'right' }}>
+                  <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600 }}>Cama</Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{patientRoom?.name || 'No asignada'}</Typography>
+                </Grid>
+              </Grid>
 
-          <TextField variant="standard" fullWidth size="small" label="Diagnóstico" value={diagnostic}
-            onChange={(e) => setDiagnostic(e.target.value)}
-            disabled={fieldDisabled}
-            sx={{ mt: 0.5, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
-          <TextField variant="standard" fullWidth size="small" label="Plan" value={treatment}
-            onChange={(e) => setTreatment(e.target.value)}
-            disabled={fieldDisabled}
-            sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
-          <TextField variant="standard" fullWidth size="small" label="Observaciones" value={observations}
-            onChange={(e) => setObservations(e.target.value)} multiline rows={2}
-            disabled={fieldDisabled}
-            sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
-          {!isDeceased && (
-            <TextField select variant="standard" fullWidth size="small" label="Clasificación" value={classification}
-              onChange={(e) => setClassification(e.target.value)}
-              disabled={!editing}
-              sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }}>
-              <MenuItem value=""><em>Sin clasificación</em></MenuItem>
-              {CLASSIFICATION_OPTIONS.map((opt) => (
-                <MenuItem key={opt.key} value={opt.key}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: opt.color }} />
-                    {opt.label}
-                  </Box>
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-          {!isDeceased && emergency.status === 1 && (
-            <TextField select variant="standard" fullWidth size="small" label="Cambiar Estado" value={status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              disabled={!editing}
-              sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }}>
-              <MenuItem value={1}>Atendido</MenuItem>
-              <MenuItem value={2}>Alta Médica</MenuItem>
-              <MenuItem value={3}>Ingreso a Hospitalización</MenuItem>
-            </TextField>
-          )}
-
-          {dischargeNote && emergency.status === 2 && (
-            <Box sx={{ mt: 1, p: 1, bgcolor: '#f1f8e9', borderRadius: 1 }}>
-              <Typography variant="caption" fontWeight={600} sx={{ color: '#2e7d32' }}>
-                NOTA EVOLUTIVA DE EGRESO
-              </Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.25 }}>{dischargeNote}</Typography>
+              <TextField variant="standard" fullWidth size="small" label="Diagnóstico" value={diagnostic}
+                onChange={(e) => setDiagnostic(e.target.value)}
+                sx={{ mt: 0.5, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+              <TextField variant="standard" fullWidth size="small" label="Plan" value={treatment}
+                onChange={(e) => setTreatment(e.target.value)}
+                sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+              <TextField variant="standard" fullWidth size="small" label="Observaciones" value={observations}
+                onChange={(e) => setObservations(e.target.value)} multiline rows={2}
+                sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+              <TextField select variant="standard" fullWidth size="small" label="Clasificación" value={classification}
+                onChange={(e) => setClassification(e.target.value)}
+                sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }}>
+                <MenuItem value=""><em>Sin clasificación</em></MenuItem>
+                {CLASSIFICATION_OPTIONS.map((opt) => (
+                  <MenuItem key={opt.key} value={opt.key}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: opt.color }} />
+                      {opt.label}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField select variant="standard" fullWidth size="small" label="Cambiar Estado" value={status}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }}>
+                <MenuItem value={1}>Atendido</MenuItem>
+                <MenuItem value={2}>Alta Médica</MenuItem>
+                <MenuItem value={3}>Ingreso a Hospitalización</MenuItem>
+              </TextField>
             </Box>
           )}
 
-          {admissionNote && emergency.status === 3 && (
-            <Box sx={{ mt: 1, p: 1, bgcolor: '#e8f5e9', borderRadius: 1 }}>
-              <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0' }}>
-                NOTA EVOLUTIVA DE INGRESO
-              </Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.25 }}>{admissionNote}</Typography>
-            </Box>
-          )}
-
-          {!isDeceased && (
+          {!effectiveReadOnly && (
             <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {emergency?.status === 1 && <AsignRoom row={{ ...emergency, patient }} onStatusChange={() => {}} />}
               {emergency?.id && emergency.status === 1 && (
@@ -463,17 +482,26 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency }) => {
                 MOTIVO DE CONSULTA
               </Typography>
             </Box>
-            <TextField variant="standard" fullWidth size="small" label="Motivo de consulta" value={reasonForConsultation}
-              onChange={(e) => setReasonForConsultation(e.target.value)}
-              disabled={fieldDisabled}
-              sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
-            <TextField variant="standard" fullWidth size="small" label="Enfermedad actual" value={currentIllness}
-              onChange={(e) => setCurrentIllness(e.target.value)} multiline rows={2}
-              disabled={fieldDisabled}
-              sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+            {effectiveReadOnly ? (
+              <Box>
+                <FieldRow label="Motivo de consulta" value={reasonForConsultation} />
+                <FieldRow label="Enfermedad actual" value={currentIllness} />
+              </Box>
+            ) : (
+              <>
+                <TextField variant="standard" fullWidth size="small" label="Motivo de consulta" value={reasonForConsultation}
+                  onChange={(e) => setReasonForConsultation(e.target.value)}
+                  disabled={fieldDisabled}
+                  sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" fullWidth size="small" label="Enfermedad actual" value={currentIllness}
+                  onChange={(e) => setCurrentIllness(e.target.value)} multiline rows={2}
+                  disabled={fieldDisabled}
+                  sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+              </>
+            )}
           </Paper>
 
-          <PhysicalExamTable emergencyId={emergency.id} readOnly={isDeceased} />
+          <PhysicalExamTable emergencyId={emergency.id} readOnly={effectiveReadOnly} />
         </>
       )}
     </Box>
