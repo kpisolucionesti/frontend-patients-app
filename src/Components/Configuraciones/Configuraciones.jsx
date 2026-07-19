@@ -8,6 +8,8 @@ import EmailIcon from '@mui/icons-material/Email';
 import TvIcon from '@mui/icons-material/Tv';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import ScienceIcon from '@mui/icons-material/Science';
+import CategoryIcon from '@mui/icons-material/Category';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SectionSidebar from '../Commons/SectionSidebar';
 import DoctorsList from '../Doctors/DoctorsList';
 import UsersList from '../Users/UsersList';
@@ -16,24 +18,33 @@ import EmailSettingsForm from '../Settings/EmailSettingsForm';
 import TvScreensManager from './TvScreensManager';
 import UbicacionesManager from './UbicacionesManager';
 import LabParametersManager from './LabParametersManager';
+import SpecialtiesManager from './SpecialtiesManager';
+import DoctorSchedulePanel from '../Doctors/DoctorSchedulePanel';
+import DisplaysManager from './DisplaysManager';
 
 const ALL_SECTIONS = [
   { key: 'medicos', label: 'Medicos', icon: <MedicalIcon />, perm: 'medicos.view' },
+  { key: 'especialidades', label: 'Especialidades', icon: <CategoryIcon />, perm: 'especialidades.view' },
+  { key: 'agenda', label: 'Agenda Médica', icon: <CalendarMonthIcon />, perm: 'agenda.edit' },
   { key: 'usuarios', label: 'Usuarios', icon: <PersonIcon />, perm: 'usuarios.view' },
   { key: 'perfiles', label: 'Perfiles', icon: <AdminPanelSettingsIcon />, perm: 'perfiles.view' },
   { key: 'salas', label: 'Salas', icon: <MeetingRoomIcon />, perm: 'rooms.view', adminOnly: true },
   { key: 'laboratorio', label: 'Laboratorio', icon: <ScienceIcon />, perm: 'lab_params.view' },
   { key: 'tv_screens', label: 'Pantallas TV', icon: <TvIcon />, perm: 'configuraciones.view', adminOnly: true },
+  { key: 'displays', label: 'Pantallas Citas', icon: <TvIcon />, perm: 'citas.view', adminOnly: true },
 ];
 
 const SECTION_MAP = {
   medicos: <DoctorsList />,
+  especialidades: <SpecialtiesManager />,
+  agenda: <DoctorSchedulePanel />,
   usuarios: <UsersList />,
   perfiles: <ProfilesList />,
   correo: <EmailSettingsForm />,
   salas: <UbicacionesManager />,
   laboratorio: <LabParametersManager />,
   tv_screens: <TvScreensManager />,
+  displays: <DisplaysManager />,
 };
 
 const Configuraciones = () => {
@@ -63,7 +74,7 @@ const Configuraciones = () => {
         sections={SECTIONS}
         activeSection={selected}
         onSectionChange={setSelected}
-        collapsible={false}
+        collapsible
       />
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: '#f0f4ff' }}>
         {SECTION_MAP[selected]}

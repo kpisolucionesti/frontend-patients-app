@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Box, Typography, Card, CardContent, TextField, Button, Select, MenuItem,
   FormControl, InputLabel, IconButton, Dialog, DialogTitle, DialogContent,
@@ -44,8 +44,22 @@ const DailyProgressNotes = ({ hospitalizationId }) => {
   const [form, setForm] = useState({ ...initialNote });
   const [saving, setSaving] = useState(false);
 
+  const currentUser = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
+  }, []);
+
+  const esAdmin = useMemo(() => {
+    return currentUser?.is_admin === true;
+  }, [currentUser]);
+
   const canEdit = permissions.includes('hospitalizacion.edit');
   const canNurse = permissions.includes('hospitalizacion.nursing');
+
+  const canModifyNote = useCallback((note) => {
+    if (!canEdit && !canNurse) return false;
+    if (esAdmin) return true;
+    return note.created_by?.id === currentUser.id;
+  }, [canEdit, canNurse, esAdmin, currentUser]);
 
   const loadNotes = useCallback(async () => {
     if (!hospitalizationId) return;
@@ -156,7 +170,7 @@ const DailyProgressNotes = ({ hospitalizationId }) => {
                   por {note.created_by?.name || 'Desconocido'}
                 </Typography>
               </Box>
-              {canCreateOrEdit && (
+              {canModifyNote(note) && (
                 <Box>
                   <IconButton size="small" onClick={() => handleOpenEdit(note)}><EditIcon fontSize="small" /></IconButton>
                   <IconButton size="small" onClick={() => handleDelete(note.id)} color="error"><DeleteIcon fontSize="small" /></IconButton>

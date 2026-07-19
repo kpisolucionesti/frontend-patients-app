@@ -11,6 +11,7 @@ const useSessionTimeout = (onExpired) => {
   const timerRef = useRef(null);
   const warningTimerRef = useRef(null);
   const expiredRef = useRef(false);
+  const lastActivityRef = useRef(Date.now());
 
   const clearTimers = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -40,6 +41,7 @@ const useSessionTimeout = (onExpired) => {
   }, [startTimers]);
 
   const handleActivity = useCallback(() => {
+    lastActivityRef.current = Date.now();
     if (!expiredRef.current) {
       startTimers();
     }
@@ -57,6 +59,20 @@ const useSessionTimeout = (onExpired) => {
       });
     };
   }, [startTimers, clearTimers, handleActivity]);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.hidden) return;
+      const elapsed = Date.now() - lastActivityRef.current;
+      if (elapsed >= IDLE_TIMEOUT_MS && !expiredRef.current) {
+        expiredRef.current = true;
+        setWarning(false);
+        onExpired?.();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [onExpired]);
 
   return { warning, resetTimer };
 };

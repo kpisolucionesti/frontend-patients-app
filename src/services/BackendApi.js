@@ -27,6 +27,11 @@ import { fluidBalancesApi } from './fluidBalancesApi';
 import { medicationAdministrationsApi } from './medicationAdministrationsApi';
 import { surgeriesApi } from './surgeriesApi';
 import { directAdmissionsApi } from './directAdmissionsApi';
+import { specialtiesApi } from './specialtiesApi';
+import { doctorSchedulesApi } from './doctorSchedulesApi';
+import { appointmentsApi } from './appointmentsApi';
+import { appointmentRecordsApi } from './appointmentRecordsApi';
+import { appointmentDisplaysApi } from './appointmentDisplaysApi';
 
 export const BackendAPI = {
   auth: authApi,
@@ -58,4 +63,9 @@ export const BackendAPI = {
   medicationAdministrations: medicationAdministrationsApi,
   surgeries: surgeriesApi,
   directAdmissions: directAdmissionsApi,
+  specialties: specialtiesApi,
+  doctorSchedules: doctorSchedulesApi,
+  appointments: appointmentsApi,
+  appointmentRecords: appointmentRecordsApi,
+  appointmentDisplays: appointmentDisplaysApi,
 };

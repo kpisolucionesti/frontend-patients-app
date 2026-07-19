@@ -1,12 +1,13 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import React, { useCallback, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
+import SpecialtySelect from "../Commons/SpecialtySelect";
 
 const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
   const isEdit = !!doctor;
   const [values, setValues] = useState({
     name: doctor?.name || '',
-    speciality: doctor?.speciality || '',
+    specialty_id: doctor?.specialty?.id || '',
     email: doctor?.email || '',
     phone: doctor?.phone || '',
   });
@@ -17,7 +18,7 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (!values.name || !values.speciality) {
+    if (!values.name || !values.specialty_id) {
       alert("FALTAN DATOS POR LLENAR");
       setValidation(true);
       return;
@@ -49,13 +50,11 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
           helperText={validation && !values.name ? 'Requerido' : ''}
           sx={{ mb: 2 }}
         />
-        <TextField
-          variant="standard"
-          fullWidth required label="Especialidad" name="speciality" value={values.speciality}
+        <SpecialtySelect
+          value={values.specialty_id}
           onChange={({ target }) => handleChange(target)}
-          error={validation && !values.speciality}
-          helperText={validation && !values.speciality ? 'Requerido' : ''}
-          sx={{ mb: 2 }}
+          error={validation && !values.specialty_id}
+          required
         />
         <TextField
           variant="standard"

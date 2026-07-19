@@ -115,12 +115,12 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ bgcolor: '#1565c0', color: 'white', fontSize: '0.9rem', fontWeight: 700 }}>
         Nuevo Ingreso Directo a Hospitalización
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
-        <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
+        <Stepper activeStep={activeStep} sx={{ mt: 2, mb: 3 }}>
           {STEPS.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -134,7 +134,7 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography variant="subtitle2">Buscar paciente por CI</Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
-              <TextField size="small" label="CI" value={searchCi} onChange={(e) => setSearchCi(e.target.value)} sx={{ flex: 1 }} />
+              <TextField variant="standard" size="small" label="CI" value={searchCi} onChange={(e) => setSearchCi(e.target.value)} sx={{ flex: 1 }} />
               <Button variant="outlined" onClick={handleSearchCi}>Buscar</Button>
             </Box>
             {foundPatient && (
@@ -145,17 +145,17 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
             </Typography>
             {!foundPatient && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
-                <TextField size="small" label="Nombre" value={patientForm.name} onChange={(e) => setPatientForm({ ...patientForm, name: e.target.value })} required />
-                <TextField size="small" label="Apellido" value={patientForm.lastname} onChange={(e) => setPatientForm({ ...patientForm, lastname: e.target.value })} required />
+                <TextField variant="standard" size="small" label="Nombre" value={patientForm.name} onChange={(e) => setPatientForm({ ...patientForm, name: e.target.value })} required />
+                <TextField variant="standard" size="small" label="Apellido" value={patientForm.lastname} onChange={(e) => setPatientForm({ ...patientForm, lastname: e.target.value })} required />
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <FormControl variant="standard" size="small" sx={{ minWidth: 120 }}>
                     <InputLabel>Género</InputLabel>
-                    <Select value={patientForm.gender} onChange={(e) => setPatientForm({ ...patientForm, gender: e.target.value })} label="Género" required>
+                    <Select value={patientForm.gender} onChange={(e) => setPatientForm({ ...patientForm, gender: e.target.value })} required>
                       <MenuItem value="M">Masculino</MenuItem>
                       <MenuItem value="F">Femenino</MenuItem>
                     </Select>
                   </FormControl>
-                  <TextField size="small" label="Fecha de Nacimiento" type="date" value={patientForm.birthday} onChange={(e) => setPatientForm({ ...patientForm, birthday: e.target.value })}
+                  <TextField variant="standard" size="small" label="Fecha de Nacimiento" type="date" value={patientForm.birthday} onChange={(e) => setPatientForm({ ...patientForm, birthday: e.target.value })}
                     InputLabelProps={{ shrink: true }} sx={{ flex: 1 }} />
                 </Box>
               </Box>
@@ -166,19 +166,19 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
         {activeStep === 1 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <Typography variant="subtitle2">Datos Clínicos de Ingreso</Typography>
-            <TextField size="small" label="Diagnóstico" value={emergencyForm.diagnostic} onChange={(e) => setEmergencyForm({ ...emergencyForm, diagnostic: e.target.value })} required multiline rows={2} />
-            <TextField size="small" label="Plan / Tratamiento" value={emergencyForm.treatment} onChange={(e) => setEmergencyForm({ ...emergencyForm, treatment: e.target.value })} required multiline rows={2} />
-            <TextField size="small" label="Clasificación" value={emergencyForm.classification} onChange={(e) => setEmergencyForm({ ...emergencyForm, classification: e.target.value })} required />
-            <TextField size="small" label="Motivo de Consulta" value={emergencyForm.reason_for_consultation} onChange={(e) => setEmergencyForm({ ...emergencyForm, reason_for_consultation: e.target.value })} required multiline rows={2} />
-            <TextField size="small" label="Enfermedad Actual" value={emergencyForm.current_illness} onChange={(e) => setEmergencyForm({ ...emergencyForm, current_illness: e.target.value })} required multiline rows={2} />
-            <TextField size="small" label="Nota de Ingreso (opcional)" value={emergencyForm.admission_note} onChange={(e) => setEmergencyForm({ ...emergencyForm, admission_note: e.target.value })} multiline rows={2} />
+            <TextField variant="standard" size="small" label="Diagnóstico" value={emergencyForm.diagnostic} onChange={(e) => setEmergencyForm({ ...emergencyForm, diagnostic: e.target.value })} required multiline rows={2} />
+            <TextField variant="standard" size="small" label="Plan / Tratamiento" value={emergencyForm.treatment} onChange={(e) => setEmergencyForm({ ...emergencyForm, treatment: e.target.value })} required multiline rows={2} />
+            <TextField variant="standard" size="small" label="Clasificación" value={emergencyForm.classification} onChange={(e) => setEmergencyForm({ ...emergencyForm, classification: e.target.value })} required />
+            <TextField variant="standard" size="small" label="Motivo de Consulta" value={emergencyForm.reason_for_consultation} onChange={(e) => setEmergencyForm({ ...emergencyForm, reason_for_consultation: e.target.value })} required multiline rows={2} />
+            <TextField variant="standard" size="small" label="Enfermedad Actual" value={emergencyForm.current_illness} onChange={(e) => setEmergencyForm({ ...emergencyForm, current_illness: e.target.value })} required multiline rows={2} />
+            <TextField variant="standard" size="small" label="Nota de Ingreso (opcional)" value={emergencyForm.admission_note} onChange={(e) => setEmergencyForm({ ...emergencyForm, admission_note: e.target.value })} multiline rows={2} />
             <Autocomplete
               size="small"
               options={doctors}
               getOptionLabel={(opt) => opt.name}
               value={selectedDoctor}
               onChange={(_e, v) => setSelectedDoctor(v)}
-              renderInput={(params) => <TextField {...params} label="Médico de Cabecera" required />}
+              renderInput={(params) => <TextField variant="standard" {...params} label="Médico de Cabecera" required />}
               disableClearable
             />
           </Box>
@@ -187,9 +187,9 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
         {activeStep === 2 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography variant="subtitle2">Asignación de Cama</Typography>
-            <FormControl size="small" fullWidth>
+            <FormControl variant="standard" size="small" fullWidth>
               <InputLabel>Cama</InputLabel>
-              <Select value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)} label="Cama">
+              <Select value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)}>
                 <MenuItem value=""><em>Sin asignar</em></MenuItem>
                 {rooms.map((r) => (
                   <MenuItem key={r.id} value={r.id}>{r.name} {r.area_name ? `(${r.area_name})` : ''}</MenuItem>

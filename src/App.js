@@ -19,6 +19,10 @@ import ForcePasswordChange from './Components/Login/ForcePasswordChange';
 import SignIn from './Components/Login/SignIn';
 import ForgotPassword from './Components/Login/ForgotPassword';
 import ResetPassword from './Components/Login/ResetPassword';
+import AppointmentsLayout from './Components/Citas/AppointmentsLayout';
+import AppointmentDisplayScreen from './Components/Citas/AppointmentDisplayScreen';
+import PatientsModule from './Components/Patients/PatientsModule';
+import AtencionLayout from './Components/Atencion/AtencionLayout';
 
 function ProtectedLayout() {
   const token = localStorage.getItem('auth_token');
@@ -82,12 +86,16 @@ function App() {
       <Route path="/" element={<PublicRoute><SignIn /></PublicRoute>} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/display/:displayId" element={<AppointmentDisplayScreen />} />
       <Route path="/patients" element={<ProtectedLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="portal" element={<EmergencyPortal />} />
+        <Route path="atencion" element={<AtencionLayout />} />
+        <Route path="pacientes" element={<PatientsModule />} />
         <Route path="hospitalizacion" element={<HospitalizationBoard />} />
         <Route path="hospitalizacion/:emergencyId" element={<HospitalizationDetail />} />
+        <Route path="citas/*" element={<AppointmentsLayout />} />
         <Route path="configuraciones" element={<Configuraciones />} />
         <Route path="medicos" element={<DoctorsList />} />
       </Route>

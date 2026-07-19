@@ -1,7 +1,30 @@
-import { Box, Paper, Typography, Grid } from '@mui/material';
+import { useState, useEffect, useCallback } from 'react';
+import { Box, Paper, Typography, Grid, CircularProgress } from '@mui/material';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import { BackendAPI } from '../../services/BackendApi';
+import { usePolling } from '../../hooks/usePolling';
 
-const LatestVitalSigns = ({ vitalSigns = [] }) => {
+const POLL_INTERVAL = 10000;
+
+const LatestVitalSigns = ({ emergencyId }) => {
+  const [vitalSigns, setVitalSigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchVitalSigns = useCallback(async () => {
+    if (!emergencyId) return;
+    try {
+      const data = await BackendAPI.vitalSigns.getAll(emergencyId);
+      setVitalSigns(data || []);
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
+  }, [emergencyId]);
+
+  useEffect(() => { fetchVitalSigns(); }, [fetchVitalSigns]);
+  usePolling(fetchVitalSigns, POLL_INTERVAL);
+
   const latest = vitalSigns[0];
   if (!latest) return null;
 
@@ -18,6 +41,9 @@ const LatestVitalSigns = ({ vitalSigns = [] }) => {
           </Typography>
         )}
       </Box>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}><CircularProgress size={16} /></Box>
+      ) : (
       <Grid container spacing={1}>
         {latest.systolic_bp && (
           <Grid item xs={4}>
@@ -55,30 +81,26 @@ const LatestVitalSigns = ({ vitalSigns = [] }) => {
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.glucose} mg/dL</Typography>
           </Grid>
         )}
-        {(latest.gcs_eye || latest.gcs_verbal || latest.gcs_motor) && (
+        {latest.height && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>GCS</Typography>
-            <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
-              {[latest.gcs_eye, latest.gcs_verbal, latest.gcs_motor].filter(Boolean).reduce((a, b) => Number(a) + Number(b), 0)}
-              /15
-            </Typography>
+            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Talla</Typography>
+            <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.height} cm</Typography>
           </Grid>
         )}
-        {latest.pupil_left && (
+        {latest.weight && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Pupilas</Typography>
-            <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
-              {latest.pupil_left === 'reactive' ? '◉' : '●'} / {latest.pupil_right === 'reactive' ? '◉' : '●'}
-            </Typography>
+            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Peso</Typography>
+            <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.weight} kg</Typography>
           </Grid>
         )}
-        {latest.pain_scale !== null && latest.pain_scale !== undefined && latest.pain_scale !== '' && (
+        {latest.bmi && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Dolor</Typography>
-            <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.pain_scale}/10</Typography>
+            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>IMC</Typography>
+            <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.bmi}</Typography>
           </Grid>
         )}
       </Grid>
+      )}
     </Paper>
   );
 };

@@ -17,8 +17,7 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
   const [form, setForm] = useState({
     systolic_bp: '', diastolic_bp: '', heart_rate: '',
     respiratory_rate: '', temperature: '', oxygen_saturation: '',
-    glucose: '', gcs_eye: '', gcs_verbal: '', gcs_motor: '',
-    pupil_left: '', pupil_right: '', pain_scale: '',
+    glucose: '', height: '', weight: '', bmi: '',
   });
   const [saving, setSaving] = useState(false);
   const { show: showSnackbar } = useSnackbar();
@@ -38,6 +37,19 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
 
   useEffect(() => { fetchVitalSigns(); }, [fetchVitalSigns]);
 
+  const handleFieldChange = (field, value) => {
+    const updated = { ...form, [field]: value };
+    const h = parseFloat(updated.height);
+    const w = parseFloat(updated.weight);
+    if (h > 0 && w > 0) {
+      const heightInMeters = h / 100;
+      updated.bmi = (w / (heightInMeters ** 2)).toFixed(1);
+    } else {
+      updated.bmi = '';
+    }
+    setForm(updated);
+  };
+
   const handleSubmit = async () => {
     const allEmpty = Object.values(form).every(v => v === '');
     if (allEmpty) {
@@ -47,13 +59,12 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
     setSaving(true);
     try {
       const data = {};
-      const stringFields = ['pupil_left', 'pupil_right'];
       Object.entries(form).forEach(([k, v]) => {
-        if (v !== '') data[k] = stringFields.includes(k) ? v : Number(v);
+        if (v !== '') data[k] = Number(v);
       });
       await BackendAPI.vitalSigns.create(emergencyId, data);
       showSnackbar('Signos vitales registrados', 'success');
-      setForm({ systolic_bp: '', diastolic_bp: '', heart_rate: '', respiratory_rate: '', temperature: '', oxygen_saturation: '', glucose: '', gcs_eye: '', gcs_verbal: '', gcs_motor: '', pupil_left: '', pupil_right: '', pain_scale: '' });
+      setForm({ systolic_bp: '', diastolic_bp: '', heart_rate: '', respiratory_rate: '', temperature: '', oxygen_saturation: '', glucose: '', height: '', weight: '', bmi: '' });
       fetchVitalSigns();
     } catch {
       showSnackbar('Error al guardar signos vitales', 'error');
@@ -122,6 +133,24 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.glucose} mg/dL</Typography>
               </Grid>
             )}
+            {latest.height && (
+              <Grid item xs={3} sm={2}>
+                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Talla</Typography>
+                <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.height} cm</Typography>
+              </Grid>
+            )}
+            {latest.weight && (
+              <Grid item xs={3} sm={2}>
+                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Peso</Typography>
+                <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.weight} kg</Typography>
+              </Grid>
+            )}
+            {latest.bmi && (
+              <Grid item xs={3} sm={2}>
+                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>IMC</Typography>
+                <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.bmi}</Typography>
+              </Grid>
+            )}
           </Grid>
         </Paper>
       )}
@@ -139,43 +168,34 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
           <Collapse in={open}>
             <Grid container spacing={1} sx={{ mt: 1 }}>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="PA Sist" value={form.systolic_bp} onChange={(e) => setForm({ ...form, systolic_bp: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="PA Sist" value={form.systolic_bp} onChange={(e) => handleFieldChange('systolic_bp', e.target.value)} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="PA Diast" value={form.diastolic_bp} onChange={(e) => setForm({ ...form, diastolic_bp: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="PA Diast" value={form.diastolic_bp} onChange={(e) => handleFieldChange('diastolic_bp', e.target.value)} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="FC (lpm)" value={form.heart_rate} onChange={(e) => setForm({ ...form, heart_rate: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="FC (lpm)" value={form.heart_rate} onChange={(e) => handleFieldChange('heart_rate', e.target.value)} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="FR (rpm)" value={form.respiratory_rate} onChange={(e) => setForm({ ...form, respiratory_rate: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="FR (rpm)" value={form.respiratory_rate} onChange={(e) => handleFieldChange('respiratory_rate', e.target.value)} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="Temp (°C)" value={form.temperature} onChange={(e) => setForm({ ...form, temperature: e.target.value })} type="number" fullWidth inputProps={{ step: 0.1, style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="Temp (°C)" value={form.temperature} onChange={(e) => handleFieldChange('temperature', e.target.value)} type="number" fullWidth inputProps={{ step: 0.1, style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="SpO2 (%)" value={form.oxygen_saturation} onChange={(e) => setForm({ ...form, oxygen_saturation: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="SpO2 (%)" value={form.oxygen_saturation} onChange={(e) => handleFieldChange('oxygen_saturation', e.target.value)} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="GLC (mg/dL)" value={form.glucose} onChange={(e) => setForm({ ...form, glucose: e.target.value })} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="GLC (mg/dL)" value={form.glucose} onChange={(e) => handleFieldChange('glucose', e.target.value)} type="number" fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="GCS Ojos" value={form.gcs_eye} onChange={(e) => setForm({ ...form, gcs_eye: e.target.value })} type="number" fullWidth inputProps={{ min: 1, max: 4, style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="Talla (cm)" value={form.height} onChange={(e) => handleFieldChange('height', e.target.value)} type="number" fullWidth inputProps={{ step: 0.1, style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="GCS Verbal" value={form.gcs_verbal} onChange={(e) => setForm({ ...form, gcs_verbal: e.target.value })} type="number" fullWidth inputProps={{ min: 1, max: 5, style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="Peso (kg)" value={form.weight} onChange={(e) => handleFieldChange('weight', e.target.value)} type="number" fullWidth inputProps={{ step: 0.1, style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="GCS Motor" value={form.gcs_motor} onChange={(e) => setForm({ ...form, gcs_motor: e.target.value })} type="number" fullWidth inputProps={{ min: 1, max: 6, style: { fontSize: '0.75rem' } }} />
-              </Grid>
-              <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="Pupila Izq" value={form.pupil_left} onChange={(e) => setForm({ ...form, pupil_left: e.target.value })} fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} placeholder="reactiva/lenta/fija" />
-              </Grid>
-              <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="Pupila Der" value={form.pupil_right} onChange={(e) => setForm({ ...form, pupil_right: e.target.value })} fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} placeholder="reactiva/lenta/fija" />
-              </Grid>
-              <Grid item xs={4} sm={3} lg={2}>
-                <TextField variant="standard" size="small" label="Dolor (0-10)" value={form.pain_scale} onChange={(e) => setForm({ ...form, pain_scale: e.target.value })} type="number" fullWidth inputProps={{ min: 0, max: 10, style: { fontSize: '0.75rem' } }} />
+                <TextField variant="standard" size="small" label="IMC" value={form.bmi} disabled fullWidth inputProps={{ style: { fontSize: '0.75rem' } }} />
               </Grid>
               <Grid item xs={12}>
                 <Button variant="outlined" size="small" startIcon={<AddCircleIcon />} onClick={handleSubmit} disabled={saving} sx={{ fontSize: '0.75rem' }}>
@@ -209,9 +229,9 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
                 <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Temp</TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>SpO2</TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>GLC</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>GCS</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Pupilas</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Dolor</TableCell>
+                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Talla</TableCell>
+                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Peso</TableCell>
+                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>IMC</TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Registrado por</TableCell>
               </TableRow>
             </TableHead>
@@ -227,17 +247,9 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
                   <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{vs.temperature || '-'}</TableCell>
                   <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{vs.oxygen_saturation ? `${vs.oxygen_saturation}%` : '-'}</TableCell>
                   <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{vs.glucose || '-'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>
-                    {vs.gcs_eye || vs.gcs_verbal || vs.gcs_motor
-                      ? `${[vs.gcs_eye, vs.gcs_verbal, vs.gcs_motor].filter(Boolean).reduce((a, b) => Number(a) + Number(b), 0)}/15`
-                      : '-'}
-                  </TableCell>
-                  <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>
-                    {vs.pupil_left || vs.pupil_right
-                      ? `${vs.pupil_left === 'reactive' ? '◉' : '●'}/${vs.pupil_right === 'reactive' ? '◉' : '●'}`
-                      : '-'}
-                  </TableCell>
-                  <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{vs.pain_scale !== null && vs.pain_scale !== undefined && vs.pain_scale !== '' ? `${vs.pain_scale}/10` : '-'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{vs.height ? `${vs.height} cm` : '-'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{vs.weight ? `${vs.weight} kg` : '-'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{vs.bmi || '-'}</TableCell>
                   <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{vs.recorded_by?.name || '-'}</TableCell>
                 </TableRow>
               ))}

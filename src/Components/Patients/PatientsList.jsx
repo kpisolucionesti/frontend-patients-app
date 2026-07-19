@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Chip, IconButton, Paper, TextField, Tooltip } from '@mui/material';
-import { Edit, History, Search } from '@mui/icons-material';
+import { Box, Chip, IconButton, Paper, Tooltip } from '@mui/material';
+import { Edit, History } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import moment from 'moment';
@@ -92,23 +92,10 @@ const PatientsList = ({ onSelectPatient, embedded }) => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flex: 1 }}>
-          <TextField
-            variant="outlined"
-            size="small"
-            placeholder="Buscar por Cédula, Nombre o Apellido"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            slotProps={{
-              input: {
-                startAdornment: <Search sx={{ mr: 0.5, color: 'action.active', fontSize: 20 }} />,
-              },
-            }}
-            sx={{ minWidth: 320, '& .MuiOutlinedInput-root': { bgcolor: 'white' } }}
-          />
-          <ExportModal data={tableData} columns={columns} filename="Pacientes" />
+          <ExportModal data={tableData} columns={columns} filename="Pacientes" buttonLabel="Descargar" />
         </Box>
       ),
-      [searchQuery, tableData, columns],
+      [tableData, columns],
     ),
     renderRowActions: !embedded ? ({ row }) => (
       <>

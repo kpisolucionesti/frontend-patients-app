@@ -1,4 +1,4 @@
-import { Autocomplete, Box, MenuItem, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { CLASSIFICATION_OPTIONS } from "../../constants";
 
@@ -42,7 +42,7 @@ const EmergencySection = ({
   values, validation, doctors, availableRooms, roomSelected, patientReady,
   onFieldChange, onRoomChange,
 }) => (
-  <Paper sx={{ boxShadow: 3, borderRadius: 1, p: 2 }}>
+  <Box>
     <Typography variant="caption" fontWeight={600} color="warning.dark" sx={{ mb: 1, display: 'block' }}>
       EMERGENCIA ACTUAL
     </Typography>
@@ -132,7 +132,7 @@ const EmergencySection = ({
         sx={{ '& .MuiInputBase-input': { fontSize: '0.7rem' } }}
       />
     </Stack>
-  </Paper>
+  </Box>
 );
 
 export default EmergencySection;

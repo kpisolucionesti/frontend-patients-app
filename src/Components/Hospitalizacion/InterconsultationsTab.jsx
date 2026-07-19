@@ -173,7 +173,7 @@ const InterconsultationsTab = ({ emergencyId }) => {
             <Autocomplete
               size="small" fullWidth
               options={doctors}
-              getOptionLabel={(option) => `${option.name}${option.speciality ? ` (${option.speciality})` : ''}`}
+              getOptionLabel={(option) => `${option.name}${option.specialty?.name ? ` (${option.specialty.name})` : ''}`}
               value={doctors.find((d) => d.id === form.doctor_requested_id) || null}
               isOptionEqualToValue={(option, val) => option.id === val.id}
               onChange={(_e, v) => handleChange('doctor_requested_id', v ? v.id : null)}

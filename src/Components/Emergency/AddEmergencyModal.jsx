@@ -1,4 +1,7 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid } from "@mui/material";
+import {
+  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+  Stepper, Step, StepLabel, Alert,
+} from "@mui/material";
 import { AddCircleOutlineRounded } from '@mui/icons-material';
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
@@ -10,9 +13,13 @@ import EmergencySection from "./EmergencySection";
 import EditPatientData from "../Patients/editPatientDataModal";
 import { PEDIATRIC_AGE_THRESHOLD } from "../../constants";
 
+const STEPS = ['Paciente', 'Emergencia', 'Confirmación'];
+
 const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externalOpen, onClose: externalOnClose, preloadPatient }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const [roomsList, setRoomsList] = useState([]);
+  const [activeStep, setActiveStep] = useState(0);
+  const [error, setError] = useState(null);
 
   const isControlled = externalOpen !== undefined;
   const open = isControlled ? externalOpen : internalOpen;
@@ -25,14 +32,19 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
     if (open && roomsList.length === 0) {
       BackendAPI.rooms.getAll().then(setRoomsList);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      setActiveStep(0);
+      setError(null);
+    }
   }, [open]);
 
   useEffect(() => {
     if (open && preloadPatient) {
       patient.loadPatient(preloadPatient);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, preloadPatient]);
 
   const availableRooms = useMemo(
@@ -64,28 +76,45 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
     }
   }, [clearFields, isControlled, externalOnClose]);
 
+  const canGoNext = () => {
+    if (activeStep === 0) {
+      return !!patient.patientValues.ci && !!patient.patientValues.name && !!patient.patientValues.birthday && !!patient.patientValues.gender;
+    }
+    if (activeStep === 1) {
+      return !!emergency.emergencyValues.diagnostic && !!emergency.emergencyValues.treatment && !!emergency.emergencyValues.current_doctor && !!emergency.roomSelected?.id;
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (activeStep === 0) {
+      patient.setPatientValidation(!canGoNext());
+      if (!canGoNext()) return;
+    }
+    if (activeStep === 1) {
+      emergency.setEmergencyValidation(!canGoNext());
+      if (!canGoNext()) return;
+    }
+    setError(null);
+    setActiveStep((prev) => Math.min(prev + 1, STEPS.length - 1));
+  };
+
+  const handleBack = () => setActiveStep((prev) => Math.max(prev - 1, 0));
+
   const handleSubmit = useCallback(async () => {
-    let valid = true;
+    patient.setPatientValidation(!patient.patientValues.ci || !patient.patientValues.name || !patient.patientValues.birthday || !patient.patientValues.gender);
+    emergency.setEmergencyValidation(!emergency.emergencyValues.diagnostic || !emergency.emergencyValues.treatment || !emergency.emergencyValues.current_doctor || !emergency.roomSelected?.id);
 
     if (!patient.patientValues.ci || !patient.patientValues.name || !patient.patientValues.birthday || !patient.patientValues.gender) {
-      patient.setPatientValidation(true);
-      valid = false;
-    } else {
-      patient.setPatientValidation(false);
+      setError("Complete todos los datos del paciente");
+      return;
     }
-
     if (!emergency.emergencyValues.diagnostic || !emergency.emergencyValues.treatment || !emergency.emergencyValues.current_doctor || !emergency.roomSelected?.id) {
-      emergency.setEmergencyValidation(true);
-      valid = false;
-    } else {
-      emergency.setEmergencyValidation(false);
-    }
-
-    if (!valid) {
-      alert("FALTAN DATOS POR LLENAR");
+      setError("Complete todos los datos de la emergencia");
       return;
     }
 
+    setError(null);
     try {
       let patientId;
       if (patient.locked) {
@@ -93,7 +122,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
         if (!patientId) {
           const existing = await BackendAPI.patients.findByCi(patient.patientValues.ci);
           if (existing && existing._error) {
-            alert(existing._error);
+            setError(existing._error);
             return;
           }
           patientId = existing.id;
@@ -124,8 +153,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
       if (onEmergencyCreated) onEmergencyCreated();
       handleClose();
     } catch (err) {
-      const msg = err?.response?.data?.error || 'Error al crear la emergencia';
-      alert(msg);
+      setError(err?.response?.data?.error || 'Error al crear la emergencia');
     }
   }, [patient, emergency, onEmergencyCreated, handleClose]);
 
@@ -143,48 +171,83 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
         </Button>
       )}
 
-      <Dialog fullWidth maxWidth='lg' open={open} onClose={handleClose}>
+      <Dialog fullWidth maxWidth='sm' open={open} onClose={handleClose}>
         <DialogTitle textAlign="center" sx={{ bgcolor: 'warning.main', color: 'white', fontWeight: 'bold', py: 0.75, fontSize: '0.9rem' }}>
-          AGREGAR EMERGENCIA
+          NUEVA EMERGENCIA
         </DialogTitle>
         <DialogContent sx={{
-          bgcolor: '#f0f4ff',
-          '&:first-of-type': { pt: 1.5 },
+          pt: 3,
           '& .MuiInputBase-input': { fontSize: '0.75rem' },
           '& .MuiInputLabel-root': { fontSize: '0.75rem' },
           '& .MuiFormHelperText-root': { fontSize: '0.65rem' },
           '& .MuiTypography-root': { fontSize: '0.75rem' },
           '& .MuiChip-label': { fontSize: '0.7rem' },
         }}>
-          <Grid container spacing={1.5}>
-            <Grid item xs={6}>
-              <PatientSection
-                values={patient.patientValues}
-                locked={patient.locked}
-                validation={patient.patientValidation}
-                onCiChange={patient.handleCiChange}
-                onFieldChange={patient.handlePatientFieldChange}
-                onBirthdayChange={patient.handleBirthdayChange}
-                onEditClick={patient.handleEditClick}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <EmergencySection
-                values={emergency.emergencyValues}
-                validation={emergency.emergencyValidation}
-                doctors={doctors}
-                availableRooms={availableRooms}
-                roomSelected={emergency.roomSelected}
-                patientReady={patient.patientAge > 0}
-                onFieldChange={emergency.handleEmergencyFieldChange}
-                onRoomChange={emergency.handleRoomChange}
-              />
-            </Grid>
-          </Grid>
+          <Stepper activeStep={activeStep} sx={{ mt: 2, mb: 3 }}>
+            {STEPS.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+
+          {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
+
+          {activeStep === 0 && (
+            <PatientSection
+              values={patient.patientValues}
+              locked={patient.locked}
+              validation={patient.patientValidation}
+              onCiChange={patient.handleCiChange}
+              onFieldChange={patient.handlePatientFieldChange}
+              onBirthdayChange={patient.handleBirthdayChange}
+              onEditClick={patient.handleEditClick}
+            />
+          )}
+
+          {activeStep === 1 && (
+            <EmergencySection
+              values={emergency.emergencyValues}
+              validation={emergency.emergencyValidation}
+              doctors={doctors}
+              availableRooms={availableRooms}
+              roomSelected={emergency.roomSelected}
+              patientReady={patient.patientAge > 0}
+              onFieldChange={emergency.handleEmergencyFieldChange}
+              onRoomChange={emergency.handleRoomChange}
+            />
+          )}
+
+          {activeStep === 2 && (
+            <Box>
+              <Alert severity="info">
+                <strong>Paciente:</strong> {patient.patientValues.name} {patient.patientValues.lastname} — CI: {patient.patientValues.ci}
+                <br />
+                <strong>Diagnóstico:</strong> {emergency.emergencyValues.diagnostic}
+                <br />
+                <strong>Clasificación:</strong> {emergency.emergencyValues.classification}
+                <br />
+                <strong>Médico:</strong> {(doctors || []).find((d) => d.id === emergency.emergencyValues.current_doctor)?.name || ''}
+                <br />
+                <strong>Ubicación:</strong> {emergency.roomSelected?.name || 'Sin asignar'}
+              </Alert>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions sx={{ p: '0.75rem 1.25rem' }}>
           <Button onClick={handleClose} variant="outlined" color="error">Cancelar</Button>
-          <Button onClick={handleSubmit} variant="outlined" color="success">Guardar</Button>
+          {activeStep > 0 && activeStep < STEPS.length - 1 && (
+            <Button onClick={handleBack} variant="outlined">Atrás</Button>
+          )}
+          {activeStep < STEPS.length - 1 ? (
+            <Button variant="contained" onClick={handleNext} disabled={!canGoNext()}>
+              Siguiente
+            </Button>
+          ) : (
+            <Button variant="contained" color="success" onClick={handleSubmit}>
+              Guardar Emergencia
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 

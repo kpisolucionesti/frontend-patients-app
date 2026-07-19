@@ -45,7 +45,7 @@ const resolveValue = (row, col) => {
   return '';
 };
 
-const ExportModal = ({ data, columns, filename = 'Reporte', showDateFilter = false }) => {
+const ExportModal = ({ data, columns, filename = 'Reporte', showDateFilter = false, buttonLabel }) => {
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState('xlsx');
   const [startDate, setStartDate] = useState(null);
@@ -132,7 +132,7 @@ const ExportModal = ({ data, columns, filename = 'Reporte', showDateFilter = fal
   return (
     <>
       <Button variant="outlined" onClick={() => setOpen(true)} startIcon={<FileDownloadOutlined />} size="small">
-        Reporte
+        {buttonLabel || 'Reporte'}
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ bgcolor: 'primary.main', textAlign: 'center', color: 'white' }}>

@@ -1,4 +1,4 @@
-import { Box, IconButton, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { Edit } from '@mui/icons-material';
@@ -11,7 +11,7 @@ const PatientSection = ({ values, locked, validation, onCiChange, onFieldChange,
   const isMinor = age !== null && age < 18;
 
   return (
-    <Paper sx={{ boxShadow: 3, borderRadius: 1, p: 2 }}>
+    <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
         <Typography variant="caption" fontWeight={600} color="primary.dark">
           DATOS DEL PACIENTE
@@ -128,7 +128,7 @@ const PatientSection = ({ values, locked, validation, onCiChange, onFieldChange,
           </Stack>
         )}
       </Stack>
-    </Paper>
+    </Box>
   );
 };
 

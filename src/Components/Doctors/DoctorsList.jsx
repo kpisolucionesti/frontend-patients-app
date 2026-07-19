@@ -57,7 +57,7 @@ const DoctorsList = () => {
   const columns = useMemo(
     () => [
       { header: 'Nombre', accessorKey: 'name', grow: true },
-      { header: 'Especialidad', accessorKey: 'speciality', size: 130 },
+      { header: 'Especialidad', accessorKey: 'specialty.name', size: 130 },
       { header: 'Correo', accessorKey: 'email', size: 180, enableClickToCopy: true },
       { header: 'Teléfono', accessorKey: 'phone', size: 140, enableClickToCopy: true },
     ],

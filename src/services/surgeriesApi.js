@@ -16,4 +16,8 @@ export const surgeriesApi = {
   destroy: async (hospitalizationId, id) => {
     await axiosInstance.delete(`/hospitalizations/${hospitalizationId}/surgeries/${id}`);
   },
+  search: async (params = {}) => {
+    const res = await axiosInstance.get('/surgeries/search', { params });
+    return res.data;
+  },
 };

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
-  Box, Typography, Tabs, Tab, Paper, Grid, Chip, Button,
+  Box, Typography, Tabs, Tab, Paper, Grid, Chip, Button, Badge,
   CircularProgress, Alert, TextField, Dialog, DialogTitle,
   DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel,
   Autocomplete
@@ -30,6 +30,7 @@ import InterconsultationsTab from './InterconsultationsTab';
 import ParaclinicalStudiesTab from './ParaclinicalStudiesTab';
 import SurgeriesTab from './SurgeriesTab';
 import NotesSection from './NotesSection';
+import PatientAppointmentsSummary from '../Commons/PatientAppointmentsSummary';
 import usePermissions from '../../hooks/usePermissions';
 
 const TAB_PATIENT_INFO = 0;
@@ -54,8 +55,8 @@ const TAB_LABELS = [
   'Laboratorio',
 ];
 
-const HospitalizationDetail = () => {
-  const { emergencyId } = useParams();
+const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
+  const emergencyId = propEmergencyId;
   const navigate = useNavigate();
   const permissions = usePermissions();
   const [tab, setTab] = useState(0);
@@ -76,6 +77,35 @@ const HospitalizationDetail = () => {
   const [originalDoctorId, setOriginalDoctorId] = useState(null);
 
   const canEdit = permissions.includes('hospitalizacion.edit');
+
+  const goBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/patients/hospitalizacion');
+    }
+  };
+
+  const isRecent = (dateStr) => {
+    if (!dateStr) return false;
+    const diff = Date.now() - new Date(dateStr).getTime();
+    return diff < 3600000; // 1 hour
+  };
+
+  const tabHasRecentActivity = useMemo(() => {
+    const eUpdated = emergency?.updated_at;
+    const hUpdated = hospitalization?.updated_at;
+    return {
+      [TAB_PROGRESS]: isRecent(hUpdated) || isRecent(eUpdated),
+      [TAB_VITALS]: isRecent(eUpdated),
+      [TAB_INTERCONSULT]: isRecent(eUpdated),
+      [TAB_PARACLINICAL]: isRecent(eUpdated),
+      [TAB_FLUID]: isRecent(hUpdated),
+      [TAB_MEDICATION]: isRecent(hUpdated),
+      [TAB_SURGERIES]: isRecent(hUpdated),
+      [TAB_LAB]: isRecent(eUpdated),
+    };
+  }, [emergency?.updated_at, hospitalization?.updated_at]);
 
   const loadData = useCallback(async () => {
     if (!emergencyId) return;
@@ -179,7 +209,7 @@ const HospitalizationDetail = () => {
     return (
       <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: 'calc(100vh - 64px)' }}>
         <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
-        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/patients/hospitalizacion')} sx={{ mt: 2 }}>
+        <Button startIcon={<ArrowBackIcon />} onClick={goBack} sx={{ mt: 2 }}>
           Volver al censo
         </Button>
       </Box>
@@ -190,7 +220,7 @@ const HospitalizationDetail = () => {
     return (
       <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: 'calc(100vh - 64px)' }}>
         <Alert severity="warning">Paciente no encontrado</Alert>
-        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/patients/hospitalizacion')} sx={{ mt: 2 }}>
+        <Button startIcon={<ArrowBackIcon />} onClick={goBack} sx={{ mt: 2 }}>
           Volver al censo
         </Button>
       </Box>
@@ -200,11 +230,11 @@ const HospitalizationDetail = () => {
   const p = emergency.patient || {};
 
   return (
-    <Box sx={{ bgcolor: '#f0f4ff', minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ bgcolor: '#f0f4ff', minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
       <Box sx={{ px: 3, pt: 2 }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/patients/hospitalizacion')}
+          onClick={goBack}
           sx={{ mb: 1.5, fontSize: '0.8rem' }}
         >
           Volver al censo
@@ -263,7 +293,18 @@ const HospitalizationDetail = () => {
             }}
           >
             {TAB_LABELS.map((label, idx) => (
-              <Tab key={idx} label={label} />
+              <Tab
+                key={idx}
+                label={
+                  tabHasRecentActivity[idx] ? (
+                    <Badge color="error" variant="dot" sx={{ '& .MuiBadge-badge': { top: 8, right: -8 } }}>
+                      {label}
+                    </Badge>
+                  ) : (
+                    label
+                  )
+                }
+              />
             ))}
           </Tabs>
         </Box>
@@ -373,7 +414,7 @@ const HospitalizationDetail = () => {
                   </Grid>
                 </Paper>
               )}
-              <LatestVitalSigns vitalSigns={emergency.vital_signs} />
+              <LatestVitalSigns emergencyId={emergency.id} />
               <Paper sx={{ p: 1.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -391,6 +432,7 @@ const HospitalizationDetail = () => {
               {emergencyId && (
                 <NotesSection emergencyId={emergency.id} readOnly={!canEdit} />
               )}
+              <PatientAppointmentsSummary patientId={p.id} />
               <AllergiesSection patientId={p.id} readOnly={!canEdit} />
               <AntecedentsSection patientId={p.id} readOnly={!canEdit} />
             </Box>

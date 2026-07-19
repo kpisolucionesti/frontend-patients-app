@@ -48,7 +48,7 @@ const DoctorHistoryModal = ({ open, doctor, onClose }) => {
               {doctor.name}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Especialidad: {doctor.speciality}
+              Especialidad: {doctor.specialty?.name || ''}
             </Typography>
           </Box>
 

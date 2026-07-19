@@ -21,4 +21,8 @@ export const hospitalizationsApi = {
     const res = await axiosInstance.get('/hospitalizations/census');
     return res.data;
   },
+  historical: async (params = {}) => {
+    const res = await axiosInstance.get('/hospitalizations/historical', { params });
+    return res.data;
+  },
 };

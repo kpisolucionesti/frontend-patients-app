@@ -1,12 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Alert, Box, Typography, Chip, Paper } from '@mui/material';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Alert, Box, Chip, Paper } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { useFetch } from '../../hooks/useFetch';
 import { CLASSIFICATION_OPTIONS } from '../../constants';
 import CaseDetailModal from './CaseDetailModal';
 import AddEmergencyModal from './AddEmergencyModal';
-import ExportModal from '../Commons/ExportModal';
 import usePermissions from '../../hooks/usePermissions';
 import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 
@@ -19,13 +18,23 @@ const STATUS_STYLES = {
   5: { label: 'Fallecido', color: '#212121', textColor: '#ffffff', chipColor: 'default' },
 };
 
-const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey }) => {
+const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey, searchQuery, onCountChange, onEmergenciesChange }) => {
   const [detailEmergencyId, setDetailEmergencyId] = useState(null);
   const { data, loading, error, refetch } = useFetch(
-    () => BackendAPI.emergencies.getAll({ status: 1, per_page: 200 }), [refreshKey],
+    () => {
+      const params = { status: 1, per_page: 200 };
+      if (searchQuery) params.q = searchQuery;
+      return BackendAPI.emergencies.getAll(params);
+    },
+    [refreshKey, searchQuery],
   );
 
   const emergencies = useMemo(() => data?.data || [], [data]);
+
+  useEffect(() => {
+    if (onCountChange) onCountChange(emergencies.length);
+    if (onEmergenciesChange) onEmergenciesChange(emergencies);
+  }, [emergencies.length, emergencies, onCountChange, onEmergenciesChange]);
 
   const permissions = usePermissions();
 
@@ -60,6 +69,16 @@ const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey }) => {
           return <Chip label={st.label || '?'} color={st.chipColor || 'default'} size="small" variant="outlined" />;
         },
       },
+      { header: '', accessorKey: 'updated_at', size: 10,
+        Cell: ({ cell }) => {
+          const updated = cell.getValue();
+          if (!updated) return null;
+          const diff = Date.now() - new Date(updated).getTime();
+          return diff < 3600000
+            ? <Chip label="Nuevo" size="small" color="info" sx={{ fontSize: '0.6rem', height: 20 }} />
+            : null;
+        },
+      },
       { header: 'Clasificación', accessorKey: 'classification', size: 50,
         Cell: ({ cell }) => {
           const cls = CLASSIFICATION_OPTIONS.find((c) => c.key === cell.getValue());
@@ -77,6 +96,11 @@ const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey }) => {
     data: emergencies,
     ...MRT_DEFAULTS,
     enableRowActions: false,
+    enableGlobalFilter: false,
+    enableColumnFilters: false,
+    enablePagination: emergencies.length > 15,
+    enableBottomToolbar: emergencies.length > 15,
+    enableTopToolbar: !embedded,
     getRowId: (row) => row.id?.toString(),
     muiTableBodyRowProps: ({ row }) => {
       const st = STATUS_STYLES[row.original.status] || {};
@@ -98,15 +122,10 @@ const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey }) => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: '0.85rem', color: '#1565c0' }}>
-            EMERGENCIAS ACTIVAS
-          </Typography>
-          <Chip label={emergencies.length} size="small" sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 700, height: 20, fontSize: '0.7rem' }} />
-          <ExportModal data={emergencies} columns={columns} filename="Emergencias_Activas" />
           {!embedded && <AddEmergencyModal onEmergencyCreated={refetch} disabled={!canCreateEmergency} />}
         </div>
       ),
-      [refetch, canCreateEmergency, emergencies, columns, embedded],
+      [refetch, canCreateEmergency, embedded],
     ),
     initialState: { pagination: { pageSize: 25 }, density: 'compact' },
     state: { isLoading: loading },

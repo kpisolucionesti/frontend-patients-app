@@ -10,9 +10,10 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import EmergencyIcon from '@mui/icons-material/LocalHospital';
-import HotelIcon from '@mui/icons-material/Hotel';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import PeopleIcon from '@mui/icons-material/People';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import LockIcon from '@mui/icons-material/Lock';
 import UserSelfPasswordModal from './UserSelfPasswordModal';
@@ -22,8 +23,9 @@ import usePermissions from '../../hooks/usePermissions';
 
 const MENUS = [
   { label: 'Dashboard', path: '/patients/dashboard', icon: <DashboardIcon />, perm: 'emergencia.view' },
-  { label: 'Emergencia', path: '/patients/portal', icon: <EmergencyIcon />, perm: 'emergencia.view' },
-  { label: 'Hospitalización', path: '/patients/hospitalizacion', icon: <HotelIcon />, perm: 'hospitalizacion.view' },
+  { label: 'Pacientes', path: '/patients/pacientes', icon: <PeopleIcon />, perm: 'pacientes.view' },
+  { label: 'Atención', path: '/patients/atencion', icon: <LocalHospitalIcon />, perm: 'emergencia.view' },
+  { label: 'Citas', path: '/patients/citas', icon: <CalendarMonthIcon />, perm: 'citas.view' },
   { label: 'Configuraciones', path: '/patients/configuraciones', icon: <SettingsIcon />, perm: 'configuraciones.view' },
 ];
 

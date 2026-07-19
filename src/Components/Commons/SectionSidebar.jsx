@@ -31,13 +31,18 @@ const SectionSidebar = ({ sections, activeSection, onSectionChange, collapsible,
       }}
     >
       {extraAction && (
-        <Box sx={{ p: isCollapsible && collapsed ? '8px 4px' : 2, display: 'flex', alignItems: 'center', justifyContent: isCollapsible && collapsed ? 'center' : 'space-between', gap: 1 }}>
+        <Box sx={{ p: isCollapsible && collapsed ? '6px 2px' : 2, display: 'flex', alignItems: 'center', justifyContent: isCollapsible && collapsed ? 'center' : 'space-between', gap: 0.5 }}>
           {isCollapsible && collapsed ? (
-            <Tooltip title={extraAction.label} arrow>
-              <IconButton size="small" onClick={extraAction.onClick} sx={{ color: '#1565c0' }}>
-                {extraAction.icon}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Tooltip title={extraAction.label} arrow>
+                <IconButton size="small" onClick={extraAction.onClick} sx={{ color: '#1565c0', p: '4px' }}>
+                  {extraAction.icon}
+                </IconButton>
+              </Tooltip>
+              <IconButton size="small" onClick={handleToggle} sx={{ color: 'text.secondary', p: '4px' }}>
+                <ChevronRightIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            </Box>
           ) : (
             <>
               <Button

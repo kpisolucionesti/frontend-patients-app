@@ -15,6 +15,7 @@ import MedicalPlansDetail from './MedicalPlansDetail';
 import InterconsultationsDetail from './InterconsultationsDetail';
 import ParaclinicalStudiesDetail from './ParaclinicalStudiesDetail';
 import NoteItem from '../Emergency/NoteItem';
+import PatientAppointmentsSummary from '../Commons/PatientAppointmentsSummary';
 
 const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns = [], onVitalSignsCreated, onOpenLabPanel, readOnly }) => {
   const [cases, setCases] = useState([]);
@@ -136,6 +137,7 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns = [], onVita
         </Paper>
       )}
 
+      <PatientAppointmentsSummary patientId={patient?.id} />
       <AllergiesSection patientId={patient?.id} readOnly={effectiveReadOnly} />
       <AntecedentsSection patientId={patient?.id} readOnly={effectiveReadOnly} />
 
