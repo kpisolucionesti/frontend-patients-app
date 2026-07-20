@@ -161,9 +161,11 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
         const updated = await BackendAPI.hospitalizations.update(emergencyId, changes);
         setHospitalization(updated);
       }
-      if (changes.room_id !== undefined && hospitalization.room_id) {
-        const oldRoom = allRooms.find((r) => r.id === hospitalization.room_id);
-        if (oldRoom) await BackendAPI.rooms.update({ ...oldRoom, patient_id: null }).catch(() => {});
+      if (changes.room_id !== undefined) {
+        const currentPatientRoom = allRooms.find((r) => r.patient_id === emergency?.patient?.id);
+        if (currentPatientRoom && currentPatientRoom.id !== (selectedRoomId || null)) {
+          await BackendAPI.rooms.update({ ...currentPatientRoom, patient_id: null }).catch(() => {});
+        }
       }
       if (selectedRoomId) {
         const newRoom = allRooms.find((r) => r.id === selectedRoomId);
@@ -207,7 +209,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
 
   if (error) {
     return (
-      <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: 'calc(100vh - 64px)' }}>
+      <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: '100%' }}>
         <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
         <Button startIcon={<ArrowBackIcon />} onClick={goBack} sx={{ mt: 2 }}>
           Volver al censo
@@ -218,7 +220,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
 
   if (!emergency) {
     return (
-      <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: 'calc(100vh - 64px)' }}>
+      <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: '100%' }}>
         <Alert severity="warning">Paciente no encontrado</Alert>
         <Button startIcon={<ArrowBackIcon />} onClick={goBack} sx={{ mt: 2 }}>
           Volver al censo
@@ -230,7 +232,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
   const p = emergency.patient || {};
 
   return (
-    <Box sx={{ bgcolor: '#f0f4ff', minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+    <Box sx={{ bgcolor: '#f0f4ff', minHeight: '100%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
       <Box sx={{ px: 3, pt: 2 }}>
         <Button
           startIcon={<ArrowBackIcon />}
@@ -288,8 +290,8 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
             scrollButtons="auto"
             sx={{
               '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, fontSize: '0.8rem', minHeight: 36 },
-              '& .Mui-selected': { color: '#1565c0', fontWeight: 700 },
-              '& .MuiTabs-indicator': { bgcolor: '#1565c0', height: 3 },
+              '& .Mui-selected': { color: 'primary.main', fontWeight: 700 },
+              '& .MuiTabs-indicator': { bgcolor: 'primary.main', height: 3 },
             }}
           >
             {TAB_LABELS.map((label, idx) => (
@@ -321,8 +323,8 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
                 <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <InfoIcon sx={{ fontSize: 18, color: '#1565c0' }} />
-                      <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0', fontSize: '0.8rem' }}>
+                      <InfoIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+                      <Typography variant="caption" fontWeight={600} sx={{ color: 'primary.main', fontSize: '0.8rem' }}>
                         DATOS DE HOSPITALIZACIÓN
                       </Typography>
                     </Box>

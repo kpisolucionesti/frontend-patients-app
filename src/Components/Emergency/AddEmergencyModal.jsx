@@ -78,7 +78,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
 
   const canGoNext = () => {
     if (activeStep === 0) {
-      return !!patient.patientValues.ci && !!patient.patientValues.name && !!patient.patientValues.birthday && !!patient.patientValues.gender;
+      return !!patient.patientValues.ci && !!patient.patientValues.name && !!patient.patientValues.birthday && !!patient.patientValues.gender && !!patient.patientValues.medical_history_number;
     }
     if (activeStep === 1) {
       return !!emergency.emergencyValues.diagnostic && !!emergency.emergencyValues.treatment && !!emergency.emergencyValues.current_doctor && !!emergency.roomSelected?.id;
@@ -102,10 +102,10 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
   const handleBack = () => setActiveStep((prev) => Math.max(prev - 1, 0));
 
   const handleSubmit = useCallback(async () => {
-    patient.setPatientValidation(!patient.patientValues.ci || !patient.patientValues.name || !patient.patientValues.birthday || !patient.patientValues.gender);
+    patient.setPatientValidation(!patient.patientValues.ci || !patient.patientValues.name || !patient.patientValues.birthday || !patient.patientValues.gender || !patient.patientValues.medical_history_number);
     emergency.setEmergencyValidation(!emergency.emergencyValues.diagnostic || !emergency.emergencyValues.treatment || !emergency.emergencyValues.current_doctor || !emergency.roomSelected?.id);
 
-    if (!patient.patientValues.ci || !patient.patientValues.name || !patient.patientValues.birthday || !patient.patientValues.gender) {
+    if (!patient.patientValues.ci || !patient.patientValues.name || !patient.patientValues.birthday || !patient.patientValues.gender || !patient.patientValues.medical_history_number) {
       setError("Complete todos los datos del paciente");
       return;
     }
@@ -244,7 +244,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
               Siguiente
             </Button>
           ) : (
-            <Button variant="contained" color="success" onClick={handleSubmit}>
+            <Button variant="outlined" color="success" onClick={handleSubmit}>
               Guardar Emergencia
             </Button>
           )}
@@ -262,6 +262,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
             lastname: patient.patientValues.lastname,
             birthday: patient.patientValues.birthday,
             gender: patient.patientValues.gender,
+            medical_history_number: patient.patientValues.medical_history_number,
           }}
           onSaved={patient.handleEditPatientSaved}
         />

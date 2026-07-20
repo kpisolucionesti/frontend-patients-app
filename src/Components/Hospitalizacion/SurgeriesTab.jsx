@@ -11,7 +11,7 @@ import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import { BackendAPI } from '../../services/BackendApi';
 import usePermissions from '../../hooks/usePermissions';
 
-const SURGERY_TYPES = [
+export const SURGERY_TYPES = [
   { key: 'general', label: 'Cirugía General' },
   { key: 'traumatologia', label: 'Traumatología' },
   { key: 'neurocirugia', label: 'Neurocirugía' },
@@ -27,7 +27,7 @@ const SURGERY_TYPES = [
   { key: 'otros', label: 'Otra' },
 ];
 
-const STATUS_OPTIONS = [
+export const STATUS_OPTIONS = [
   { key: 'scheduled', label: 'Programada', color: 'info' },
   { key: 'completed', label: 'Realizada', color: 'success' },
   { key: 'cancelled', label: 'Cancelada', color: 'default' },
@@ -39,6 +39,7 @@ const EMPTY = {
   surgeon_name: '',
   surgery_date: '',
   status: 'scheduled',
+  preanesthetic_evaluation: '',
   preop_notes: '',
   postop_notes: '',
   result: '',
@@ -81,6 +82,7 @@ const SurgeriesTab = ({ hospitalizationId }) => {
       surgeon_name: s.surgeon_name || '',
       surgery_date: s.surgery_date ? s.surgery_date.slice(0, 16) : '',
       status: s.status || 'scheduled',
+      preanesthetic_evaluation: s.preanesthetic_evaluation || '',
       preop_notes: s.preop_notes || '',
       postop_notes: s.postop_notes || '',
       result: s.result || '',
@@ -119,7 +121,7 @@ const SurgeriesTab = ({ hospitalizationId }) => {
   const scheduledCount = items.filter((s) => s.status === 'scheduled').length;
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #e65100' }}>
+    <Paper sx={{ p: 1.5, borderLeft: '4px solid #e65100', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <LocalHospitalIcon sx={{ fontSize: 18, color: '#e65100' }} />
@@ -142,7 +144,7 @@ const SurgeriesTab = ({ hospitalizationId }) => {
       {loading ? (
         <CircularProgress />
       ) : (
-        <TableContainer sx={{ maxHeight: 400 }}>
+        <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
@@ -216,6 +218,8 @@ const SurgeriesTab = ({ hospitalizationId }) => {
               onChange={(e) => handleChange('status', e.target.value)} fullWidth>
               {STATUS_OPTIONS.map((o) => <MenuItem key={o.key} value={o.key}>{o.label}</MenuItem>)}
             </TextField>
+            <TextField variant="standard" size="small" label="Evaluación Pre-Anestésica" value={form.preanesthetic_evaluation}
+              onChange={(e) => handleChange('preanesthetic_evaluation', e.target.value)} multiline rows={2} fullWidth />
             <TextField variant="standard" size="small" label="Notas Pre-Op" value={form.preop_notes}
               onChange={(e) => handleChange('preop_notes', e.target.value)} multiline rows={2} fullWidth />
             <TextField variant="standard" size="small" label="Notas Post-Op" value={form.postop_notes}

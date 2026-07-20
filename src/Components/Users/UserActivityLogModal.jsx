@@ -103,10 +103,10 @@ const UserActivityLogModal = ({ open, user, onClose }) => {
             No hay actividad registrada para este usuario.
           </Typography>
         ) : (
-          <TableContainer component={Paper} variant="outlined" sx={{ mb: 3, maxHeight: 400 }}>
+          <TableContainer component={Paper} variant="outlined" sx={{ mb: 3, maxHeight: '50vh', minHeight: 200 }}>
             <Table size="small" stickyHeader>
               <TableHead>
-                <TableRow sx={{ bgcolor: 'darkblue' }}>
+                <TableRow sx={{ bgcolor: 'primary.main' }}>
                   <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Fecha / Hora</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Acción</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Detalle</TableCell>

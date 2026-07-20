@@ -146,11 +146,11 @@ const MedicationAdminPanel = ({ hospitalizationId }) => {
   const needsAdmin = records.filter((r) => r.status === 'scheduled').length;
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+    <Paper sx={{ p: 1.5, borderLeft: '4px solid', borderColor: 'primary.main', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <MedicationIcon sx={{ fontSize: 18, color: '#1565c0' }} />
-          <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0', fontSize: '0.8rem' }}>
+          <MedicationIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+          <Typography variant="caption" fontWeight={600} sx={{ color: 'primary.main', fontSize: '0.8rem' }}>
             ADMINISTRACIÓN DE MEDICAMENTOS
           </Typography>
           {needsAdmin > 0 && (
@@ -166,7 +166,7 @@ const MedicationAdminPanel = ({ hospitalizationId }) => {
 
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
-      <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -256,8 +256,8 @@ const MedicationAdminPanel = ({ hospitalizationId }) => {
             onChange={(e) => setForm({ ...form, notes: e.target.value })} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={handleSave} disabled={saving || !form.medication_name}>
+          <Button onClick={() => setDialogOpen(false)} variant="outlined" color="error">Cancelar</Button>
+          <Button variant="outlined" color="success" onClick={handleSave} disabled={saving || !form.medication_name}>
             {saving ? 'Guardando...' : 'Guardar'}
           </Button>
         </DialogActions>

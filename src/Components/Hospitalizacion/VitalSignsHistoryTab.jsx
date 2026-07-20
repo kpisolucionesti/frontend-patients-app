@@ -76,7 +76,7 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
   const latest = vitalSigns[0];
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #c62828' }}>
+    <Paper sx={{ p: 1.5, borderLeft: '4px solid #c62828', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <MonitorHeartIcon sx={{ fontSize: 18, color: '#c62828' }} />
@@ -218,7 +218,7 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
           Sin registros de signos vitales
         </Typography>
       ) : (
-        <TableContainer sx={{ maxHeight: 400 }}>
+        <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>

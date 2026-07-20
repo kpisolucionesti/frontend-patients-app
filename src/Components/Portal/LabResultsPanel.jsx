@@ -11,6 +11,7 @@ import ScienceIcon from '@mui/icons-material/Science';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import RemoveIcon from '@mui/icons-material/Remove';
+import NotesIcon from '@mui/icons-material/Notes';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend,
 } from 'recharts';
@@ -19,6 +20,18 @@ import { useFetch } from '../../hooks/useFetch';
 import LabResultFormModal from './LabResultFormModal';
 import { isOutOfRange } from '../../utils/labUtils';
 import moment from 'moment';
+
+function formatRange(param, gender) {
+  if (!param?.reference_ranges) return '';
+  const ranges = param.reference_ranges;
+  const key = gender === 'F' || gender === 'Femenino' ? 'female' : 'male';
+  const range = ranges[key] || ranges['male'];
+  if (!range) return '';
+  if (range.type === 'range') return `${range.min}-${range.max}`;
+  if (range.type === 'inequality') return `${range.comparator} ${range.value}`;
+  if (range.type === 'categorical') return range.value;
+  return '';
+}
 
 const LabResultsPanel = ({ emergencyId, patientGender, onGoBack }) => {
   const [results, setResults] = useState([]);
@@ -67,17 +80,20 @@ const LabResultsPanel = ({ emergencyId, patientGender, onGoBack }) => {
     }
   }, [allParams, selectedParam]);
 
+  const sortedResults = useMemo(() =>
+    [...results].sort((a, b) => new Date(a.result_date) - new Date(b.result_date)),
+  [results]);
+
   const chartData = useMemo(() => {
     if (!selectedParam) return [];
-    const sorted = [...results].sort((a, b) => new Date(a.result_date) - new Date(b.result_date));
-    return sorted.map((r) => {
+    return sortedResults.map((r) => {
       const found = (r.lab_result_values || []).find((v) => v.parameter_name === selectedParam);
       return {
         date: r.result_date ? moment(r.result_date).format('DD/MM HH:mm') : '—',
         value: found ? parseFloat(found.value) : null,
       };
     }).filter((d) => d.value !== null);
-  }, [results, selectedParam]);
+  }, [sortedResults, selectedParam]);
 
   const handleDelete = useCallback(async (id) => {
     if (!window.confirm('¿Eliminar este resultado de laboratorio?')) return;
@@ -119,7 +135,7 @@ const LabResultsPanel = ({ emergencyId, patientGender, onGoBack }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <ScienceIcon sx={{ color: '#1565c0' }} />
-          <Typography variant="h6" fontWeight={600} sx={{ color: '#1565c0' }}>
+          <Typography variant="subtitle1" fontWeight={600} sx={{ color: '#1565c0', fontSize: '0.85rem' }}>
             Laboratorio
           </Typography>
         </Box>
@@ -130,7 +146,7 @@ const LabResultsPanel = ({ emergencyId, patientGender, onGoBack }) => {
 
       {results.length === 0 && !loading ? (
         <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <ScienceIcon sx={{ fontSize: 48, color: '#bdbdbd', mb: 1 }} />
+          <ScienceIcon sx={{ fontSize: 28, color: '#bdbdbd', mb: 1 }} />
           <Typography color="text.secondary">
             No hay resultados de laboratorio registrados para esta emergencia.
           </Typography>
@@ -142,24 +158,40 @@ const LabResultsPanel = ({ emergencyId, patientGender, onGoBack }) => {
         <>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Tabla de resultados</Typography>
-            <TableContainer>
-              <Table size="small">
+            <TableContainer sx={{ overflowX: 'auto' }}>
+              <Table size="small" sx={{ minWidth: 600 }}>
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>Fecha</TableCell>
-                    {allParams.map((p) => (
-                      <TableCell key={p} sx={{ fontSize: '0.75rem', fontWeight: 600 }}>{p}</TableCell>
+                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', position: 'sticky', left: 0, bgcolor: '#f5f5f5', zIndex: 2, minWidth: 140 }}>Parámetro</TableCell>
+                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', position: 'sticky', left: 140, bgcolor: '#f5f5f5', zIndex: 2, minWidth: 90 }}>Ref</TableCell>
+                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', position: 'sticky', left: 230, bgcolor: '#f5f5f5', zIndex: 2, minWidth: 70 }}>Unidad</TableCell>
+                    {sortedResults.map((r) => (
+                      <TableCell key={r.id} sx={{ fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', textAlign: 'center', minWidth: 130 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.3 }}>
+                          <span>{r.result_date ? moment(r.result_date).format('DD/MM HH:mm') : '—'}</span>
+                          <Box sx={{ display: 'flex', gap: 0.3 }}>
+                            <Tooltip title="Editar resultado" arrow>
+                              <IconButton size="small" sx={{ p: 0.2 }} onClick={() => { setEditResult(r); setFormOpen(true); }}>
+                                <EditIcon sx={{ fontSize: 13 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Eliminar resultado" arrow>
+                              <IconButton size="small" sx={{ p: 0.2 }} onClick={() => handleDelete(r.id)} color="error">
+                                <DeleteIcon sx={{ fontSize: 13 }} />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        </Box>
+                      </TableCell>
                     ))}
-                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600 }}>Notas</TableCell>
-                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600, width: 100 }}>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {(() => {
-                    const sorted = [...results].sort((a, b) => new Date(a.result_date) - new Date(b.result_date));
                     const lastValues = {};
-                    return sorted.map((r) => {
-                      const valMap = {};
+                    const valueMap = {};
+                    sortedResults.forEach((r) => {
+                      valueMap[r.id] = {};
                       (r.lab_result_values || []).forEach((v) => {
                         const prev = lastValues[v.parameter_name];
                         const curr = parseFloat(v.value);
@@ -169,30 +201,41 @@ const LabResultsPanel = ({ emergencyId, patientGender, onGoBack }) => {
                           else if (curr < prev) arrow = 'down';
                           else arrow = 'flat';
                         }
-                        valMap[v.parameter_name] = { value: v.value, arrow };
+                        valueMap[r.id][v.parameter_name] = { value: v.value, arrow };
                         if (!isNaN(curr)) lastValues[v.parameter_name] = curr;
                       });
+                    });
+                    return allParams.map((param) => {
+                      const paramConf = paramMap[param];
+                      const refText = formatRange(paramConf, patientGender);
+                      const unit = paramConf?.unit || '';
                       return (
-                        <TableRow key={r.id}>
-                          <TableCell sx={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
-                            {r.result_date ? moment(r.result_date).format('DD/MM/YYYY HH:mm') : '—'}
+                        <TableRow key={param} hover>
+                          <TableCell sx={{ fontSize: '0.75rem', fontWeight: 500, position: 'sticky', left: 0, bgcolor: 'white', zIndex: 1, whiteSpace: 'nowrap' }}>
+                            {paramConf?.abbreviation ? `${paramConf.abbreviation} (${param})` : param}
                           </TableCell>
-                          {allParams.map((p) => {
-                            const cell = valMap[p];
+                          <TableCell sx={{ fontSize: '0.7rem', color: 'text.secondary', position: 'sticky', left: 140, bgcolor: 'white', zIndex: 1, whiteSpace: 'nowrap' }}>
+                            {refText || '—'}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '0.7rem', color: 'text.secondary', position: 'sticky', left: 230, bgcolor: 'white', zIndex: 1, whiteSpace: 'nowrap' }}>
+                            {unit || '—'}
+                          </TableCell>
+                          {sortedResults.map((r) => {
+                            const cell = valueMap[r.id]?.[param];
                             const raw = cell?.value;
                             const display = raw || '—';
-                            const paramConf = paramMap[p];
                             const outOfRange = raw ? isOutOfRange(raw, paramConf, patientGender) : false;
                             return (
                               <TableCell
-                                key={p}
+                                key={r.id}
                                 sx={{
                                   fontSize: '0.75rem',
+                                  textAlign: 'center',
                                   whiteSpace: 'nowrap',
                                   bgcolor: outOfRange ? '#ffebee' : undefined,
                                 }}
                               >
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                                <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.2 }}>
                                   {outOfRange && (
                                     <WarningAmberIcon sx={{ fontSize: 14, color: '#d32f2f' }} />
                                   )}
@@ -210,22 +253,31 @@ const LabResultsPanel = ({ emergencyId, patientGender, onGoBack }) => {
                               </TableCell>
                             );
                           })}
-                          <TableCell sx={{ fontSize: '0.75rem' }}>{r.notes || '—'}</TableCell>
-                          <TableCell>
-                            <Tooltip title="Editar" arrow>
-                              <IconButton size="small" onClick={() => { setEditResult(r); setFormOpen(true); }}>
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Eliminar" arrow>
-                              <IconButton size="small" onClick={() => handleDelete(r.id)} color="error">
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
                         </TableRow>
                       );
                     });
+                  })()}
+                  {(() => {
+                    const hasNotes = sortedResults.some((r) => r.notes);
+                    const hasActions = true;
+                    if (!hasNotes && !hasActions) return null;
+                    return (
+                      <TableRow sx={{ bgcolor: '#fafafa' }}>
+                        <TableCell sx={{ fontSize: '0.7rem', fontWeight: 500, color: 'text.secondary', position: 'sticky', left: 0, bgcolor: '#fafafa', zIndex: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <NotesIcon sx={{ fontSize: 14 }} />
+                            Notas
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ position: 'sticky', left: 140, bgcolor: '#fafafa', zIndex: 1 }}></TableCell>
+                        <TableCell sx={{ position: 'sticky', left: 230, bgcolor: '#fafafa', zIndex: 1 }}></TableCell>
+                        {sortedResults.map((r) => (
+                          <TableCell key={r.id} sx={{ fontSize: '0.7rem', color: 'text.secondary', textAlign: 'center', maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {r.notes || '—'}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    );
                   })()}
                 </TableBody>
               </Table>

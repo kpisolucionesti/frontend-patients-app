@@ -32,6 +32,10 @@ import { doctorSchedulesApi } from './doctorSchedulesApi';
 import { appointmentsApi } from './appointmentsApi';
 import { appointmentRecordsApi } from './appointmentRecordsApi';
 import { appointmentDisplaysApi } from './appointmentDisplaysApi';
+import { documentsApi } from './documentsApi';
+import { quirofanoApi } from './quirofanoApi';
+import { surgeryTeamApi } from './surgeryTeamApi';
+import { notificationsApi } from './notificationsApi';
 
 export const BackendAPI = {
   auth: authApi,
@@ -68,4 +72,8 @@ export const BackendAPI = {
   appointments: appointmentsApi,
   appointmentRecords: appointmentRecordsApi,
   appointmentDisplays: appointmentDisplaysApi,
+  documents: documentsApi,
+  quirofano: quirofanoApi,
+  surgeryTeam: surgeryTeamApi,
+  notifications: notificationsApi,
 };

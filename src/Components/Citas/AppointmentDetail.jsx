@@ -61,7 +61,7 @@ const ClinicalRecordForm = ({ record, onSave, saving }) => {
         onChange={(e) => handleChange('observations', e.target.value)}
         multiline rows={2} />
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="contained" onClick={() => onSave(form)} disabled={saving}>
+        <Button variant="outlined" color="success" onClick={() => onSave(form)} disabled={saving}>
           {saving ? 'Guardando...' : record ? 'Actualizar Historia Clínica' : 'Guardar Historia Clínica'}
         </Button>
       </Box>
@@ -88,7 +88,7 @@ const PatientHistorySummary = ({ patientId }) => {
     ]).then(([emergenciesRes, apps, census, aller, ant]) => {
       setEmergencies(emergenciesRes?.data || []);
       setAppointments(apps || []);
-      const patientHosp = (census || []).filter((h) => h.emergency?.patient?.id === patientId);
+      const patientHosp = (census?.data || []).filter((h) => h.emergency?.patient?.id === patientId);
       setHospitalizations(patientHosp);
       setAllergies(aller || []);
       setAntecedents(ant || []);

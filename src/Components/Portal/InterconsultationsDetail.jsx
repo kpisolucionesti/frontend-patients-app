@@ -95,7 +95,7 @@ const InterconsultationsDetail = ({ emergencyId, readOnly }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#1565c0', color: 'white' }}>{editing ? 'Editar Interconsulta' : 'Agregar Interconsulta'}</DialogTitle>
+        <DialogTitle sx={{ fontSize: '0.85rem' }}>{editing ? 'Editar Interconsulta' : 'Agregar Interconsulta'}</DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <Autocomplete

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
-import NavBar from './Components/Navbar/NavBar';
+import { Box } from '@mui/material';
+import GlobalSidebar from './Components/Navbar/GlobalSidebar';
 import { BackendAPI } from './services/BackendApi';
 import EmergencyPortal from './Components/Portal/EmergencyPortal';
 import DoctorsList from './Components/Doctors/DoctorsList';
@@ -52,13 +53,15 @@ function ProtectedLayout() {
   }
 
   return (
-    <>
-      <NavBar />
-      <ErrorBoundary>
-        <Outlet context={{ permissions }} />
-      </ErrorBoundary>
+    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      <GlobalSidebar />
+      <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <ErrorBoundary>
+          <Outlet context={{ permissions }} />
+        </ErrorBoundary>
+      </Box>
       <SessionTimeoutModal open={warning} onContinue={resetTimer} />
-    </>
+    </Box>
   );
 }
 

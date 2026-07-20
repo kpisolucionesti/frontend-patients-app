@@ -7,6 +7,12 @@ export const MRT_DEFAULTS = {
   enableHiding: false,
   enableGlobalFilter: true,
   enableDensityToggle: false,
+  muiTablePaperProps: {
+    sx: { display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 },
+  },
+  muiTableContainerProps: {
+    sx: { flex: 1, overflow: 'auto' },
+  },
   initialState: {
     pagination: { pageSize: 25 },
     density: 'compact',

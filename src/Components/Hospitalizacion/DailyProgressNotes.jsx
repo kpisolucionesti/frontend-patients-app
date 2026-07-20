@@ -222,8 +222,8 @@ const DailyProgressNotes = ({ hospitalizationId }) => {
             onChange={(e) => setForm({ ...form, plan: e.target.value })} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={handleSave} disabled={saving}>
+          <Button onClick={() => setDialogOpen(false)} variant="outlined" color="error">Cancelar</Button>
+          <Button variant="outlined" color="success" onClick={handleSave} disabled={saving}>
             {saving ? 'Guardando...' : 'Guardar'}
           </Button>
         </DialogActions>

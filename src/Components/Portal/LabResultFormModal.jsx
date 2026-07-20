@@ -157,7 +157,7 @@ const LabResultFormModal = ({ open, onClose, onSave, saving, emergencyId, editRe
 
   return (
     <Dialog fullWidth maxWidth="lg" open={open} onClose={onClose}>
-      <DialogTitle sx={{ bgcolor: '#1565c0', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+      <DialogTitle>
         {editResult ? 'EDITAR RESULTADO DE LABORATORIO' : 'NUEVO RESULTADO DE LABORATORIO'}
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>

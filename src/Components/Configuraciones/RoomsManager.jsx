@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Box, Chip, IconButton, Paper, Tooltip } from '@mui/material';
-import { Add, Delete, Edit } from '@mui/icons-material';
+import { Add, Delete, Edit, LockOpen } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
@@ -33,6 +33,17 @@ const RoomsManager = () => {
       refetch();
     } catch (err) {
       show(err.response?.data?.error || 'Error al eliminar sala', 'error');
+    }
+  }, [refetch, show]);
+
+  const handleFree = useCallback(async (room) => {
+    if (!window.confirm(`Liberar la sala "${room.name}"?`)) return;
+    try {
+      await BackendAPI.rooms.update({ ...room, patient_id: null });
+      show(`Sala "${room.name}" liberada`, 'success');
+      refetch();
+    } catch (err) {
+      show(err.response?.data?.error || 'Error al liberar sala', 'error');
     }
   }, [refetch, show]);
 
@@ -87,6 +98,13 @@ const RoomsManager = () => {
       const room = row.original;
       return (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
+          {room.patient_id && (
+            <Tooltip title="Liberar cama" arrow>
+              <IconButton color="success" size="small" onClick={() => handleFree(room)}>
+                <LockOpen fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title="Editar" arrow>
             <IconButton color="warning" size="small" onClick={() => setFormModal(room)}>
               <Edit fontSize="small" />

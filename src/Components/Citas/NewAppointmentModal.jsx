@@ -273,13 +273,13 @@ const NewAppointmentModal = ({ open, onClose, onSaved, doctors: doctorsProp }) =
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={handleClose} variant="outlined">Cancelar</Button>
+        <Button onClick={handleClose} variant="outlined" color="error">Cancelar</Button>
         {activeStep < STEPS.length - 1 ? (
           <Button variant="contained" onClick={handleNext} disabled={!canGoNext()}>
             Siguiente
           </Button>
         ) : (
-          <Button variant="contained" color="primary" onClick={handleSubmit} disabled={saving}>
+          <Button variant="outlined" color="success" onClick={handleSubmit} disabled={saving}>
             {saving ? 'Guardando...' : 'Guardar Cita'}
           </Button>
         )}

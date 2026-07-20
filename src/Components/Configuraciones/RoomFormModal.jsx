@@ -99,7 +99,7 @@ const RoomFormModal = ({ open, onClose, room, onSaved }) => {
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
-        <Button onClick={handleSubmit} variant="outlined" color="info">Guardar</Button>
+        <Button onClick={handleSubmit} variant="outlined" color="success">Guardar</Button>
       </DialogActions>
     </Dialog>
   );

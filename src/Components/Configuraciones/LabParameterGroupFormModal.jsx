@@ -97,7 +97,7 @@ const LabParameterGroupFormModal = ({ open, onClose, group, onSaved }) => {
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
-      <DialogTitle sx={{ bgcolor: '#1565c0', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+      <DialogTitle>
         {isEdit ? 'EDITAR GRUPO' : 'AGREGAR GRUPO'}
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>

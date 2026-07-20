@@ -86,7 +86,7 @@ const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
         </DialogContent>
         <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
           <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
-          <Button type="submit" variant="outlined" color="primary" disabled={saving}>Guardar</Button>
+          <Button type="submit" variant="outlined" color="success" disabled={saving}>Guardar</Button>
         </DialogActions>
       </form>
     </Dialog>

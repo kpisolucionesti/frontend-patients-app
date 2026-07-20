@@ -44,7 +44,7 @@ const KpiCard = ({ icon, label, value, color }) => (
         </Box>
         <Box>
           <Typography variant="caption" color="white" sx={{ opacity: 0.8, fontSize: '0.65rem' }}>{label}</Typography>
-          <Typography variant="h5" fontWeight={700} color="white">{value ?? 'N/A'}</Typography>
+          <Typography variant="h6" fontWeight={700} color="white" sx={{ fontSize: '1rem' }}>{value ?? 'N/A'}</Typography>
         </Box>
       </Box>
     </CardContent>
@@ -178,9 +178,9 @@ const Dashboard = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 5, p: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 5, p: 2, flex: 1, minHeight: 0, overflow: 'auto' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6" fontWeight={700}>Dashboard</Typography>
+        <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.9rem' }}>Dashboard</Typography>
         <FormControl size="small" sx={{ minWidth: 80 }}>
           <Select
             variant="standard"
@@ -226,7 +226,7 @@ const Dashboard = () => {
                   <Typography variant="caption" color="text.secondary">Verificando...</Typography>
                 ) : healthStatus.status === 'ok' ? (
                   <>
-                    <CheckCircleIcon sx={{ color: '#2e7d32', fontSize: 28 }} />
+                    <CheckCircleIcon sx={{ color: '#2e7d32', fontSize: 20 }} />
                     <Box>
                       <Typography variant="body2" fontWeight={600} sx={{ color: '#2e7d32', fontSize: '0.75rem' }}>Operativo</Typography>
                       <Typography variant="caption" color="text.secondary">{healthStatus.latency}ms</Typography>
@@ -234,7 +234,7 @@ const Dashboard = () => {
                   </>
                 ) : (
                   <>
-                    <ErrorIcon sx={{ color: '#e53935', fontSize: 28 }} />
+                    <ErrorIcon sx={{ color: '#e53935', fontSize: 20 }} />
                     <Box>
                       <Typography variant="body2" fontWeight={600} sx={{ color: '#e53935', fontSize: '0.75rem' }}>Fallando</Typography>
                     </Box>
@@ -257,7 +257,7 @@ const Dashboard = () => {
                   Tiempo Promedio
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight={700} color="#1565c0">
+              <Typography variant="h6" fontWeight={700} color="#1565c0" sx={{ fontSize: '1.1rem' }}>
                 {(data.avg_wait_time / 60).toFixed(1)} <Typography component="span" variant="caption" color="text.secondary">hrs</Typography>
               </Typography>
               <Typography variant="caption" color="text.secondary">Tiempo promedio en emergencia</Typography>
@@ -266,7 +266,7 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <ChartCard title="Últimas 24 horas">
-            <TableContainer sx={{ maxHeight: 180 }}>
+            <TableContainer sx={{ maxHeight: 260 }}>
               <Table size="small" stickyHeader>
                 <TableHead>
                   <TableRow>

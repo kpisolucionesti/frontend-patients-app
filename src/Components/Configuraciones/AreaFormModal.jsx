@@ -87,6 +87,9 @@ const AreaFormModal = ({ open, onClose, area, onSaved }) => {
           >
             <MenuItem value="adulto">Adultos</MenuItem>
             <MenuItem value="pediatria">Pediatría</MenuItem>
+            <MenuItem value="quirofano">Quirófano</MenuItem>
+            <MenuItem value="hospitalizacion">Hospitalización</MenuItem>
+            <MenuItem value="uci">UCI</MenuItem>
           </Select>
         </FormControl>
         <FormControlLabel
@@ -108,7 +111,7 @@ const AreaFormModal = ({ open, onClose, area, onSaved }) => {
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
-        <Button onClick={handleSubmit} variant="outlined" color="info">Guardar</Button>
+        <Button onClick={handleSubmit} variant="outlined" color="success">Guardar</Button>
       </DialogActions>
     </Dialog>
   );

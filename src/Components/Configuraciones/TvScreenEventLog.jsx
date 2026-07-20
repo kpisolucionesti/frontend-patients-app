@@ -77,6 +77,7 @@ const TvScreenEventLog = ({ open, onClose, screen }) => {
     state: { isLoading: loading },
     enableSorting: true,
     enableColumnActions: false,
+    muiTableContainerProps: { sx: { flex: 1, overflow: 'auto' } },
   });
 
   return (

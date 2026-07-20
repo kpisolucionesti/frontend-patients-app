@@ -45,7 +45,7 @@ const PermissionTable = ({ groups, permissions, onToggle, readOnly }) => {
   };
 
   return (
-    <TableContainer sx={{ maxHeight: '55vh', overflowX: 'auto' }}>
+    <TableContainer sx={{ maxHeight: '65vh', overflowX: 'auto' }}>
       <Table size="small" stickyHeader sx={{ minWidth: 900 }}>
         <TableHead>
           <TableRow>

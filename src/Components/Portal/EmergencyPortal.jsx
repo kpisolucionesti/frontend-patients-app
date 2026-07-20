@@ -107,7 +107,7 @@ const EmergencyPortal = () => {
   }, [handleClearSelection]);
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: '#f0f4ff' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: 'background.default' }}>
       <BreadcrumbNav
         crumbs={[
           ...(selectedPatient
@@ -126,8 +126,8 @@ const EmergencyPortal = () => {
               <Tabs
                 value={activePanel}
                 onChange={(_, v) => setActivePanel(v)}
-                sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, fontSize: '0.8rem', minHeight: 36 }, '& .Mui-selected': { color: '#1565c0', fontWeight: 700 } }}
-                TabIndicatorProps={{ sx: { bgcolor: '#1565c0', height: 3 } }}
+                sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, fontSize: '0.8rem', minHeight: 36 }, '& .Mui-selected': { color: 'primary.main', fontWeight: 700 } }}
+                TabIndicatorProps={{ sx: { bgcolor: 'primary.main', height: 3 } }}
               >
                 <Tab label="Resumen" value="resumen" />
                 <Tab label="Historial de Casos" value="historial_casos" />
@@ -136,23 +136,23 @@ const EmergencyPortal = () => {
             </Box>
           )}
           {activePanel === 'historial_casos' ? (
-            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: '#f0f4ff' }}>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default' }}>
               <HistoricalCasePanel patient={selectedPatient} currentEmergencyId={selectedEmergency?.id} />
             </Box>
           ) : activePanel === 'laboratorio' ? (
-            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: '#f0f4ff' }}>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default' }}>
               <LabResultsPanel emergencyId={selectedEmergency?.id} patientGender={selectedPatient?.gender} />
             </Box>
           ) : (
           <Box sx={{
             display: 'flex', flexDirection: 'column', gap: 1.5, flex: 1, minHeight: 0, overflow: 'auto', px: 2, pt: 1,
-            '& .MuiInputLabel-root': { color: '#212121 !important', fontWeight: 600, transform: 'translate(0, -1.5px) scale(0.75) !important' },
-            '& .MuiInputLabel-root.Mui-focused': { color: '#212121 !important' },
-            '& .MuiInputLabel-root.Mui-disabled': { color: '#757575 !important' },
+          '& .MuiInputLabel-root': { color: 'text.primary', fontWeight: 600, transform: 'translate(0, -1.5px) scale(0.75) !important' },
+                '& .MuiInputLabel-root.Mui-focused': { color: 'text.primary' },
+                '& .MuiInputLabel-root.Mui-disabled': { color: 'text.disabled' },
             '& .MuiInputLabel-shrink': { transform: 'translate(0, -1.5px) scale(0.75) !important' },
           }}>
             {selectedPatient?.disabled && (
-              <Paper sx={{ p: 1, bgcolor: '#212121', color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Paper sx={{ p: 1, bgcolor: 'text.primary', color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
                 <WarningIcon sx={{ fontSize: 20 }} />
                 <Typography variant="body2" fontWeight={700}>PACIENTE FALLECIDO — Solo lectura</Typography>
               </Paper>
@@ -160,35 +160,35 @@ const EmergencyPortal = () => {
 
             <Box sx={{ display: 'flex', gap: 1.5, flexShrink: 0 }}>
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Paper sx={{ p: 1.5, bgcolor: '#e3f2fd', borderLeft: '4px solid #1565c0' }}>
-                  <Typography variant="caption" fontWeight={700} sx={{ mb: 0.75, display: 'block', color: '#1565c0', fontSize: '0.8rem' }}>
+                <Paper sx={{ p: 1.5, bgcolor: 'primary.light', borderLeft: '4px solid', borderColor: 'primary.main' }}>
+                  <Typography variant="caption" fontWeight={700} sx={{ mb: 0.75, display: 'block', color: 'primary.main', fontSize: '0.8rem' }}>
                     DATOS DEL PACIENTE
                   </Typography>
                   <Grid container spacing={1}>
                     <Grid item xs={4}>
-                      <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Nombre</Typography>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Nombre</Typography>
                       <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{selectedPatient.name} {selectedPatient.lastname}</Typography>
                     </Grid>
                     <Grid item xs={3}>
-                      <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>CI</Typography>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>CI</Typography>
                       <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{selectedPatient.ci || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Edad</Typography>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Edad</Typography>
                       <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{selectedPatient.age || '?'} años</Typography>
                     </Grid>
                     <Grid item xs={3}>
-                      <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Sexo</Typography>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Sexo</Typography>
                       <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{GENDER_MAP[selectedPatient.gender] || selectedPatient.gender || 'N/A'}</Typography>
                     </Grid>
                     {selectedPatient.representante && (
                       <>
                         <Grid item xs={6}>
-                          <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Representante</Typography>
+                          <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Representante</Typography>
                           <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{selectedPatient.representante}</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                          <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>CI Representante</Typography>
+                          <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>CI Representante</Typography>
                           <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{selectedPatient.representante_ci || 'N/A'}</Typography>
                         </Grid>
                       </>
@@ -199,7 +199,7 @@ const EmergencyPortal = () => {
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Grid container spacing={1}>
                   <Grid item xs={6}>
-                    <Paper sx={{ bgcolor: '#e3f2fd', p: 1 }}>
+                    <Paper sx={{ bgcolor: 'primary.light', p: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                         <CalendarTodayIcon color="primary" sx={{ fontSize: 18 }} />
                         <Box>
@@ -210,7 +210,7 @@ const EmergencyPortal = () => {
                     </Paper>
                   </Grid>
                   <Grid item xs={6}>
-                    <Paper sx={{ bgcolor: '#f3e5f5', p: 1 }}>
+                    <Paper sx={{ bgcolor: 'secondary.light', p: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                         <RepeatIcon color="secondary" sx={{ fontSize: 18 }} />
                         <Box>
@@ -249,10 +249,10 @@ const EmergencyPortal = () => {
         <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5, flexShrink: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="h6" fontWeight={600}>
+              <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.85rem' }}>
                 Emergencias Activas
               </Typography>
-              <Chip label={emergencyCount} size="small" sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 700, height: 20, fontSize: '0.7rem' }} />
+              <Chip label={emergencyCount} size="small" color="primary" sx={{ fontWeight: 700, height: 20, fontSize: '0.7rem' }} />
             </Box>
             <Button variant="contained" startIcon={<AddCircleIcon />} onClick={() => setNewIngresoOpen(true)} sx={{ fontSize: '0.8rem' }}>
               Nuevo Ingreso
@@ -271,7 +271,7 @@ const EmergencyPortal = () => {
             />
             <ExportModal data={emergenciesData} columns={EMERGENCY_EXPORT_COLUMNS} filename="Emergencias_Activas" buttonLabel="Descarga" />
           </Box>
-          <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', px: 2, pb: 2 }}>
+          <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', px: 2, pb: 2, display: 'flex', flexDirection: 'column' }}>
             <CurrentPatients refreshKey={refreshKey} searchQuery={searchQuery} onSelectEmergency={handleSelectEmergency} embedded onCountChange={setEmergencyCount} onEmergenciesChange={setEmergenciesData} />
           </Box>
         </Box>

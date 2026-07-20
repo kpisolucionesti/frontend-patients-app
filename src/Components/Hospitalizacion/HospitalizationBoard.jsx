@@ -82,14 +82,14 @@ const HospitalizationBoard = ({ onSelectPatient }) => {
   const canEdit = permissions.includes('hospitalizacion.edit');
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: '#f0f4ff' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: 'background.default' }}>
       <BreadcrumbNav crumbs={[{ label: 'Hospitalización' }]} />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5, flexShrink: 0 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="h6" fontWeight={600}>
+          <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.85rem' }}>
             Pacientes Hospitalizados
           </Typography>
-          <Chip label={filtered.length} size="small" sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 700, height: 20, fontSize: '0.7rem' }} />
+          <Chip label={filtered.length} size="small" color="primary" sx={{ fontWeight: 700, height: 20, fontSize: '0.7rem' }} />
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button variant="contained" startIcon={<PersonAddIcon />} onClick={() => setDirectAdmissionOpen(true)} sx={{ fontSize: '0.8rem' }}>
@@ -127,15 +127,15 @@ const HospitalizationBoard = ({ onSelectPatient }) => {
             <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cama</TableCell>
-                  <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
-                  <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Edad</TableCell>
-                  <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Diagnóstico Ingreso</TableCell>
-                  <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Médico</TableCell>
-                  <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Ingreso</TableCell>
-                  <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Días</TableCell>
-                  <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
-                  <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, width: 70, fontSize: '0.75rem' }}></TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cama</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Edad</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Diagnóstico Ingreso</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Médico</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Ingreso</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Días</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, width: 70, fontSize: '0.75rem' }}></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

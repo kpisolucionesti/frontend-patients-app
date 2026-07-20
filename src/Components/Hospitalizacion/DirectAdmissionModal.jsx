@@ -14,7 +14,7 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
 
   const [searchCi, setSearchCi] = useState('');
   const [foundPatient, setFoundPatient] = useState(null);
-  const [patientForm, setPatientForm] = useState({ ci: '', name: '', lastname: '', gender: '', birthday: '' });
+  const [patientForm, setPatientForm] = useState({ ci: '', name: '', lastname: '', gender: '', birthday: '', medical_history_number: '' });
   const [emergencyForm, setEmergencyForm] = useState({
     diagnostic: '', treatment: '', classification: '',
     reason_for_consultation: '', current_illness: '', admission_note: '',
@@ -45,10 +45,10 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
           return;
         }
         setFoundPatient(res);
-        setPatientForm({ ci: res.ci || '', name: res.name || '', lastname: res.lastname || '', gender: res.gender || '', birthday: res.birthday || '' });
+        setPatientForm({ ci: res.ci || '', name: res.name || '', lastname: res.lastname || '', gender: res.gender || '', birthday: res.birthday || '', medical_history_number: res.medical_history_number || '' });
       } else {
         setFoundPatient(null);
-        setPatientForm({ ci: searchCi, name: '', lastname: '', gender: '', birthday: '' });
+        setPatientForm({ ci: searchCi, name: '', lastname: '', gender: '', birthday: '', medical_history_number: '' });
       }
     } catch {
       setError('Error al buscar paciente');
@@ -58,7 +58,7 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
   const canGoNext = () => {
     if (activeStep === 0) {
       if (!foundPatient) {
-        return patientForm.name && patientForm.lastname && patientForm.gender;
+        return patientForm.name && patientForm.lastname && patientForm.gender && patientForm.birthday && patientForm.medical_history_number;
       }
       return !!foundPatient;
     }
@@ -106,7 +106,7 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
     setActiveStep(0);
     setSearchCi('');
     setFoundPatient(null);
-    setPatientForm({ ci: '', name: '', lastname: '', gender: '', birthday: '' });
+    setPatientForm({ ci: '', name: '', lastname: '', gender: '', birthday: '', medical_history_number: '' });
     setEmergencyForm({ diagnostic: '', treatment: '', classification: '', reason_for_consultation: '', current_illness: '', admission_note: '' });
     setSelectedDoctor(null);
     setSelectedRoom('');
@@ -116,7 +116,7 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ bgcolor: '#1565c0', color: 'white', fontSize: '0.9rem', fontWeight: 700 }}>
+      <DialogTitle sx={{ fontSize: '0.9rem' }}>
         Nuevo Ingreso Directo a Hospitalización
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
@@ -147,6 +147,7 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
                 <TextField variant="standard" size="small" label="Nombre" value={patientForm.name} onChange={(e) => setPatientForm({ ...patientForm, name: e.target.value })} required />
                 <TextField variant="standard" size="small" label="Apellido" value={patientForm.lastname} onChange={(e) => setPatientForm({ ...patientForm, lastname: e.target.value })} required />
+                <TextField variant="standard" size="small" label="Nro. Historia Médica" value={patientForm.medical_history_number} onChange={(e) => setPatientForm({ ...patientForm, medical_history_number: e.target.value })} required />
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <FormControl variant="standard" size="small" sx={{ minWidth: 120 }}>
                     <InputLabel>Género</InputLabel>
@@ -209,7 +210,7 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
             Siguiente
           </Button>
         ) : (
-          <Button variant="contained" color="primary" onClick={handleSubmit} disabled={saving}>
+          <Button variant="outlined" color="success" onClick={handleSubmit} disabled={saving}>
             {saving ? <CircularProgress size={20} /> : 'Confirmar Ingreso'}
           </Button>
         )}

@@ -12,6 +12,7 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
         lastname: patient.lastname || '',
         birthday: patient.birthday || '',
         gender: patient.gender || '',
+        medical_history_number: patient.medical_history_number || '',
         representante: patient.representante || '',
         representante_ci: patient.representante_ci || '',
     });
@@ -34,7 +35,7 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
     }, []);
 
     const handleSubmit = useCallback(async () => {
-        if (!values.name || !values.birthday || !values.gender) {
+        if (!values.name || !values.birthday || !values.gender || !values.medical_history_number) {
             alert("FALTAN DATOS POR LLENAR");
             setValidation(true);
             return;
@@ -58,6 +59,14 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
                   variant="standard"
                     disabled fullWidth label="Cédula" value={patient.ci || ''}
                     sx={{ mt: 2, mb: 1 }}
+                />
+                <TextField
+                  variant="standard"
+                    error={validation && !values.medical_history_number} fullWidth required
+                    helperText={validation && !values.medical_history_number ? 'Requerido' : ''}
+                    label="Nro. Historia Médica" name="medical_history_number" value={values.medical_history_number}
+                    onChange={({ target }) => handleValueChange(target)}
+                    sx={{ mb: 1 }}
                 />
                 <TextField
                   variant="standard"

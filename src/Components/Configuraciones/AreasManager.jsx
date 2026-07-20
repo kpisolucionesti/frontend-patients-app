@@ -11,6 +11,9 @@ import AreaFormModal from './AreaFormModal';
 const ROOM_TYPE_LABELS = {
   adulto: 'Adultos',
   pediatria: 'Pediatría',
+  quirofano: 'Quirófano',
+  hospitalizacion: 'Hospitalización',
+  uci: 'UCI',
 };
 
 const AreasManager = () => {

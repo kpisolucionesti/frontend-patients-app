@@ -58,6 +58,7 @@ const PatientsList = ({ onSelectPatient, embedded }) => {
   const columns = useMemo(
     () => [
       { header: 'Cedula', accessorKey: 'ci', size: 30 },
+      { header: 'Nro. Historia', accessorKey: 'medical_history_number', size: 50 },
       {
         header: 'Apellido', accessorKey: 'lastname', size: 100,
         Cell: ({ cell, row }) => row.original.disabled

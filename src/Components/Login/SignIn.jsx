@@ -73,7 +73,7 @@ const SignIn = () => {
       <Card sx={{ maxWidth: 400, width: "100%", mx: 2 }}>
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
-            <Typography variant="h4" fontWeight="bold" color="darkblue">
+            <Typography variant="h4" fontWeight="bold" color="primary">
               EMERBOARD
             </Typography>
             <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
@@ -111,9 +111,9 @@ const SignIn = () => {
             />
             <Button
               fullWidth
-              variant="outlined"
+              variant="contained"
               type="submit"
-              sx={{ bgcolor: "darkblue", "&:hover": { bgcolor: "navy" } }}
+              color="primary"
             >
               Entrar
             </Button>

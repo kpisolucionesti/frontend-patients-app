@@ -14,20 +14,20 @@ import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
 
 const EXPECTED_COLUMNS = [
-  { field: 'parameter_name', label: 'Nombre del Parámetro', required: true, aliases: ['parameter_name', 'nombre', 'parametro', 'parameter', 'name'] },
+  { field: 'parameter_name', label: 'Nombre del Parámetro', required: true, aliases: ['parameter_name', 'nombre', 'parametro', 'parameter', 'name', 'nombre del parámetro'] },
   { field: 'abbreviation', label: 'Abreviatura', required: false, aliases: ['abbreviation', 'abreviatura', 'abrev', 'abbr'] },
   { field: 'unit', label: 'Unidad', required: false, aliases: ['unit', 'unidad'] },
   { field: 'group_name', label: 'Grupo', required: false, aliases: ['group_name', 'grupo', 'group'] },
-  { field: 'ref_male_type', label: 'Ref. Masculino - Tipo', required: false, aliases: ['ref_male_type', 'ref_hombre_type', 'male_type', 'm_type'] },
-  { field: 'ref_male_min', label: 'Ref. Masculino - Mín', required: false, aliases: ['ref_male_min', 'ref_hombre_min', 'male_min', 'm_min'] },
-  { field: 'ref_male_max', label: 'Ref. Masculino - Máx', required: false, aliases: ['ref_male_max', 'ref_hombre_max', 'male_max', 'm_max'] },
-  { field: 'ref_male_comparator', label: 'Ref. Masculino - Comparador', required: false, aliases: ['ref_male_comparator', 'ref_hombre_comparator', 'male_comparator', 'm_comp'] },
-  { field: 'ref_male_value', label: 'Ref. Masculino - Valor', required: false, aliases: ['ref_male_value', 'ref_hombre_value', 'male_value', 'm_val'] },
-  { field: 'ref_female_type', label: 'Ref. Femenino - Tipo', required: false, aliases: ['ref_female_type', 'ref_mujer_type', 'female_type', 'f_type'] },
-  { field: 'ref_female_min', label: 'Ref. Femenino - Mín', required: false, aliases: ['ref_female_min', 'ref_mujer_min', 'female_min', 'f_min'] },
-  { field: 'ref_female_max', label: 'Ref. Femenino - Máx', required: false, aliases: ['ref_female_max', 'ref_mujer_max', 'female_max', 'f_max'] },
-  { field: 'ref_female_comparator', label: 'Ref. Femenino - Comparador', required: false, aliases: ['ref_female_comparator', 'ref_mujer_comparator', 'female_comparator', 'f_comp'] },
-  { field: 'ref_female_value', label: 'Ref. Femenino - Valor', required: false, aliases: ['ref_female_value', 'ref_mujer_value', 'female_value', 'f_val'] },
+  { field: 'ref_male_type', label: 'Ref. Masculino - Tipo', required: false, aliases: ['ref_male_type', 'ref_hombre_type', 'male_type', 'm_type', 'ref. masculino - tipo'] },
+  { field: 'ref_male_min', label: 'Ref. Masculino - Mín', required: false, aliases: ['ref_male_min', 'ref_hombre_min', 'male_min', 'm_min', 'ref. masculino - mín'] },
+  { field: 'ref_male_max', label: 'Ref. Masculino - Máx', required: false, aliases: ['ref_male_max', 'ref_hombre_max', 'male_max', 'm_max', 'ref. masculino - máx'] },
+  { field: 'ref_male_comparator', label: 'Ref. Masculino - Comparador', required: false, aliases: ['ref_male_comparator', 'ref_hombre_comparator', 'male_comparator', 'm_comp', 'ref. masculino - comparador'] },
+  { field: 'ref_male_value', label: 'Ref. Masculino - Valor', required: false, aliases: ['ref_male_value', 'ref_hombre_value', 'male_value', 'm_val', 'ref. masculino - valor'] },
+  { field: 'ref_female_type', label: 'Ref. Femenino - Tipo', required: false, aliases: ['ref_female_type', 'ref_mujer_type', 'female_type', 'f_type', 'ref. femenino - tipo'] },
+  { field: 'ref_female_min', label: 'Ref. Femenino - Mín', required: false, aliases: ['ref_female_min', 'ref_mujer_min', 'female_min', 'f_min', 'ref. femenino - mín'] },
+  { field: 'ref_female_max', label: 'Ref. Femenino - Máx', required: false, aliases: ['ref_female_max', 'ref_mujer_max', 'female_max', 'f_max', 'ref. femenino - máx'] },
+  { field: 'ref_female_comparator', label: 'Ref. Femenino - Comparador', required: false, aliases: ['ref_female_comparator', 'ref_mujer_comparator', 'female_comparator', 'f_comp', 'ref. femenino - comparador'] },
+  { field: 'ref_female_value', label: 'Ref. Femenino - Valor', required: false, aliases: ['ref_female_value', 'ref_mujer_value', 'female_value', 'f_val', 'ref. femenino - valor'] },
 ];
 
 function buildReferenceRanges(row) {
@@ -283,7 +283,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
     try {
       const result = await BackendAPI.labParameters.import({ data: validRows });
       setImportResult(result);
-      show(`${result.created} parámetros importados${result.errors?.length ? `, ${result.errors.length} errores` : ''}`, result.errors?.length ? 'warning' : 'success');
+      show(`${result.created} creados, ${result.updated} actualizados${result.errors?.length ? `, ${result.errors.length} errores` : ''}`, result.errors?.length ? 'warning' : 'success');
       onImported?.();
     } catch {
       show('Error al importar', 'error');
@@ -307,7 +307,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={handleClose}>
-      <DialogTitle sx={{ bgcolor: '#1565c0', color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: '0.95rem', pb: 1.5 }}>
+      <DialogTitle sx={{ pb: 1.5 }}>
         IMPORTAR PARÁMETROS
       </DialogTitle>
       <DialogContent sx={{ pt: 0, px: 3 }}>
@@ -338,7 +338,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
                 onChange={handleFileSelect}
                 style={{ display: 'none' }}
               />
-              <CloudUploadIcon sx={{ fontSize: 40, color: '#1565c0', mb: 1 }} />
+              <CloudUploadIcon sx={{ fontSize: 28, color: '#1565c0', mb: 1 }} />
               <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
                 Arrastra tu archivo Excel aquí o haz clic para seleccionar
               </Typography>
@@ -441,7 +441,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
                   {invalidRows.length > 0 ? `, ${invalidRows.length} sin parámetro` : ''})
                 </Typography>
 
-                <TableContainer sx={{ maxHeight: 300 }}>
+                <TableContainer sx={{ maxHeight: '40vh', minHeight: 200 }}>
                   <Table size="small" stickyHeader>
                     <TableHead>
                       <TableRow>

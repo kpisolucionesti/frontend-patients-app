@@ -96,7 +96,7 @@ const IngressPatientModal = ({ row, onStatusChange }) => {
                 </span>
             </Tooltip>
             <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-                <DialogTitle sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>
+                <DialogTitle sx={{ fontSize: '0.9rem' }}>
                     NUEVO INGRESO
                 </DialogTitle>
                 <DialogContent sx={{ pt: 3 }}>
@@ -155,13 +155,13 @@ const IngressPatientModal = ({ row, onStatusChange }) => {
                     )}
                 </DialogContent>
                 <DialogActions sx={{ p: 2 }}>
-                    <Button onClick={handleClose} variant="outlined" disabled={ingressing}>Cancelar</Button>
+                    <Button onClick={handleClose} variant="outlined" color="error" disabled={ingressing}>Cancelar</Button>
                     {activeStep === 0 ? (
                         <Button variant="contained" onClick={handleNext}>
                             Siguiente
                         </Button>
                     ) : (
-                        <Button variant="contained" color="primary" onClick={handleIngressPatient} disabled={ingressing || !transfer}>
+                        <Button variant="outlined" color="success" onClick={handleIngressPatient} disabled={ingressing || !transfer}>
                             {ingressing ? <CircularProgress size={20} /> : 'Confirmar Ingreso'}
                         </Button>
                     )}

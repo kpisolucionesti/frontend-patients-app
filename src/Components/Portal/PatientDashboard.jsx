@@ -95,8 +95,8 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns = [], onVita
         <Paper sx={{ p: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <SubjectIcon sx={{ fontSize: 18, color: '#7b1fa2' }} />
-              <Typography variant="caption" fontWeight={600} sx={{ color: '#7b1fa2' }}>
+              <SubjectIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+              <Typography variant="caption" fontWeight={600} sx={{ color: 'secondary.main' }}>
                 NOTAS
               </Typography>
             </Box>
@@ -123,7 +123,7 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns = [], onVita
           )}
 
           <Dialog open={noteDialogOpen} onClose={() => setNoteDialogOpen(false)} maxWidth="sm" fullWidth>
-            <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#7b1fa2', color: 'white' }}>Agregar Nota</DialogTitle>
+            <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: 'secondary.main' }}>Agregar Nota</DialogTitle>
             <DialogContent style={{ paddingTop: 24 }}>
               <TextField variant="standard" size="small" label="Nota" value={noteText} onChange={(e) => setNoteText(e.target.value)} multiline rows={3} required fullWidth />
             </DialogContent>

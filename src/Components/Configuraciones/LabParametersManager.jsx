@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Box, Chip, IconButton, Paper, Tab, Tabs, Tooltip, Typography } from '@mui/material';
-import { Add, Delete, Edit, FileUpload } from '@mui/icons-material';
+import { Box, Chip, FormControlLabel, IconButton, Paper, Switch, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+import { Add, Delete, Edit, FileUpload, RestoreFromTrash } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
@@ -11,8 +11,9 @@ import LabParameterGroupFormModal from './LabParameterGroupFormModal';
 import ImportExcelModal from './ImportExcelModal';
 
 const LabParametersManager = () => {
-  const { data: params, loading, refetch } = useFetch(() => BackendAPI.labParameters.getAll(), []);
-  const { data: groups, loading: loadingGroups, refetch: refetchGroups } = useFetch(() => BackendAPI.labParameters.getGroups(), []);
+  const [showInactive, setShowInactive] = useState(false);
+  const { data: params, loading, refetch } = useFetch(() => BackendAPI.labParameters.getAll(showInactive), [showInactive]);
+  const { data: groups, loading: loadingGroups, refetch: refetchGroups } = useFetch(() => BackendAPI.labParameters.getGroups(showInactive), [showInactive]);
   const { show } = useSnackbar();
 
   const [tab, setTab] = useState('params');
@@ -26,24 +27,44 @@ const LabParametersManager = () => {
   }, [refetch, refetchGroups]);
 
   const handleDeleteParam = useCallback(async (p) => {
-    if (!window.confirm(`Eliminar el parámetro "${p.name}"?`)) return;
+    if (!window.confirm(`Suspender el parámetro "${p.name}"?`)) return;
     try {
       await BackendAPI.labParameters.delete(p.id);
-      show('Parámetro eliminado', 'success');
+      show('Parámetro suspendido', 'success');
       refetch();
     } catch {
-      show('Error al eliminar', 'error');
+      show('Error al suspender', 'error');
+    }
+  }, [refetch, show]);
+
+  const handleRestoreParam = useCallback(async (p) => {
+    try {
+      await BackendAPI.labParameters.restore(p.id);
+      show('Parámetro restaurado', 'success');
+      refetch();
+    } catch {
+      show('Error al restaurar', 'error');
     }
   }, [refetch, show]);
 
   const handleDeleteGroup = useCallback(async (g) => {
-    if (!window.confirm(`Eliminar el grupo "${g.name}"?`)) return;
+    if (!window.confirm(`Suspender el grupo "${g.name}"?`)) return;
     try {
       await BackendAPI.labParameters.deleteGroup(g.id);
-      show('Grupo eliminado', 'success');
+      show('Grupo suspendido', 'success');
       refetchGroups();
     } catch {
-      show('Error al eliminar', 'error');
+      show('Error al suspender', 'error');
+    }
+  }, [refetchGroups, show]);
+
+  const handleRestoreGroup = useCallback(async (g) => {
+    try {
+      await BackendAPI.labParameters.restoreGroup(g.id);
+      show('Grupo restaurado', 'success');
+      refetchGroups();
+    } catch {
+      show('Error al restaurar', 'error');
     }
   }, [refetchGroups, show]);
 
@@ -60,6 +81,17 @@ const LabParametersManager = () => {
         return g ? <Chip label={g.name} size="small" color="info" variant="outlined" /> : '—';
       },
     },
+    {
+      header: 'Activo',
+      accessorKey: 'is_active',
+      size: 80,
+      Cell: ({ cell }) => {
+        const active = cell.getValue();
+        return active !== false
+          ? <Chip label="Sí" size="small" color="success" variant="outlined" />
+          : <Chip label="No" size="small" color="error" variant="outlined" />;
+      },
+    },
   ], []);
 
   const paramTable = useMaterialReactTable({
@@ -72,6 +104,7 @@ const LabParametersManager = () => {
     positionActionsColumn: 'last',
     renderRowActions: ({ row }) => {
       const p = row.original;
+      const isActive = p.is_active !== false;
       return (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title="Editar" arrow>
@@ -79,17 +112,25 @@ const LabParametersManager = () => {
               <Edit fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Eliminar" arrow>
-            <IconButton color="error" size="small" onClick={() => handleDeleteParam(p)}>
-              <Delete fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          {isActive ? (
+            <Tooltip title="Suspender" arrow>
+              <IconButton color="error" size="small" onClick={() => handleDeleteParam(p)}>
+                <Delete fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Restaurar" arrow>
+              <IconButton color="success" size="small" onClick={() => handleRestoreParam(p)}>
+                <RestoreFromTrash fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       );
     },
     renderTopToolbarCustomActions: useCallback(
       () => (
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
+        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
           <Tooltip title="Agregar parámetro" arrow>
             <IconButton color="primary" onClick={() => setParamModal({})}>
               <Add />
@@ -100,9 +141,14 @@ const LabParametersManager = () => {
               <FileUpload />
             </IconButton>
           </Tooltip>
+          <FormControlLabel
+            control={<Switch checked={showInactive} onChange={(_, v) => setShowInactive(v)} size="small" />}
+            label="Mostrar suspendidos"
+            sx={{ ml: 2, '& .MuiTypography-root': { fontSize: '0.75rem' } }}
+          />
         </Box>
       ),
-      [],
+      [showInactive],
     ),
     getRowId: (row) => row.id?.toString(),
     initialState: { pagination: { pageSize: 25 }, density: 'compact' },
@@ -115,7 +161,7 @@ const LabParametersManager = () => {
     {
       header: 'Parámetros',
       accessorKey: 'lab_parameters',
-      size: 400,
+      size: 200,
       Cell: ({ cell }) => {
         const items = cell.getValue() || [];
         return (
@@ -124,11 +170,25 @@ const LabParametersManager = () => {
               <Typography variant="caption" color="text.secondary">Sin parámetros</Typography>
             ) : (
               items.map((p) => (
-                <Chip key={p.id} label={p.name} size="small" variant="outlined" sx={{ fontSize: '0.65rem' }} />
+                <Chip key={p.id} label={p.name} size="small" variant="outlined" sx={{ fontSize: '0.65rem' }}
+                  color={p.is_active === false ? 'default' : 'primary'}
+                />
               ))
             )}
           </Box>
         );
+      },
+      grow: true,
+    },
+    {
+      header: 'Activo',
+      accessorKey: 'is_active',
+      size: 80,
+      Cell: ({ cell }) => {
+        const active = cell.getValue();
+        return active !== false
+          ? <Chip label="Sí" size="small" color="success" variant="outlined" />
+          : <Chip label="No" size="small" color="error" variant="outlined" />;
       },
     },
   ], []);
@@ -143,6 +203,7 @@ const LabParametersManager = () => {
     positionActionsColumn: 'last',
     renderRowActions: ({ row }) => {
       const g = row.original;
+      const isActive = g.is_active !== false;
       return (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title="Editar" arrow>
@@ -150,23 +211,38 @@ const LabParametersManager = () => {
               <Edit fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Eliminar" arrow>
-            <IconButton color="error" size="small" onClick={() => handleDeleteGroup(g)}>
-              <Delete fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          {isActive ? (
+            <Tooltip title="Suspender" arrow>
+              <IconButton color="error" size="small" onClick={() => handleDeleteGroup(g)}>
+                <Delete fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Restaurar" arrow>
+              <IconButton color="success" size="small" onClick={() => handleRestoreGroup(g)}>
+                <RestoreFromTrash fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       );
     },
     renderTopToolbarCustomActions: useCallback(
       () => (
-        <Tooltip title="Agregar grupo" arrow>
-          <IconButton color="primary" onClick={() => setGroupModal({})}>
-            <Add />
-          </IconButton>
-        </Tooltip>
+        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+          <Tooltip title="Agregar grupo" arrow>
+            <IconButton color="primary" onClick={() => setGroupModal({})}>
+              <Add />
+            </IconButton>
+          </Tooltip>
+          <FormControlLabel
+            control={<Switch checked={showInactive} onChange={(_, v) => setShowInactive(v)} size="small" />}
+            label="Mostrar suspendidos"
+            sx={{ ml: 2, '& .MuiTypography-root': { fontSize: '0.75rem' } }}
+          />
+        </Box>
       ),
-      [],
+      [showInactive],
     ),
     getRowId: (row) => row.id?.toString(),
     initialState: { pagination: { pageSize: 25 }, density: 'compact' },
@@ -187,7 +263,7 @@ const LabParametersManager = () => {
         </Tabs>
       </Box>
       <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', p: 1 }}>
-        <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
           {tab === 'params' ? <MaterialReactTable table={paramTable} /> : <MaterialReactTable table={groupTable} />}
         </Paper>
       </Box>

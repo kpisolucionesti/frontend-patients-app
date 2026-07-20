@@ -94,11 +94,11 @@ const InterconsultationsTab = ({ emergencyId }) => {
   if (!emergencyId) return null;
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+    <Paper sx={{ p: 1.5, borderLeft: '4px solid', borderColor: 'primary.main', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <GroupIcon sx={{ fontSize: 18, color: '#1565c0' }} />
-          <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0', fontSize: '0.8rem' }}>
+          <GroupIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+          <Typography variant="caption" fontWeight={600} sx={{ color: 'primary.main', fontSize: '0.8rem' }}>
             INTERCONSULTAS
           </Typography>
           {items.filter((i) => i.status === 'pending').length > 0 && (
@@ -117,7 +117,7 @@ const InterconsultationsTab = ({ emergencyId }) => {
       {loading ? (
         <CircularProgress />
       ) : (
-        <TableContainer sx={{ maxHeight: 400 }}>
+        <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
@@ -165,7 +165,7 @@ const InterconsultationsTab = ({ emergencyId }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#1565c0', color: 'white' }}>
+        <DialogTitle sx={{ fontSize: '0.85rem' }}>
           {editing ? 'Editar Interconsulta' : 'Nueva Interconsulta'}
         </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>

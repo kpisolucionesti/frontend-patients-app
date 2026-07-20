@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Box, Button, List, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Tooltip } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-const COLLAPSED_WIDTH = 64;
-const EXPANDED_WIDTH = 220;
+const COLLAPSED_WIDTH = 48;
+const EXPANDED_WIDTH = 180;
 
 const SectionSidebar = ({ sections, activeSection, onSectionChange, collapsible, extraAction }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -31,7 +31,7 @@ const SectionSidebar = ({ sections, activeSection, onSectionChange, collapsible,
       }}
     >
       {extraAction && (
-        <Box sx={{ p: isCollapsible && collapsed ? '6px 2px' : 2, display: 'flex', alignItems: 'center', justifyContent: isCollapsible && collapsed ? 'center' : 'space-between', gap: 0.5 }}>
+        <Box sx={{ p: isCollapsible && collapsed ? '4px 2px' : 1, display: 'flex', alignItems: 'center', justifyContent: isCollapsible && collapsed ? 'center' : 'space-between', gap: 0.5 }}>
           {isCollapsible && collapsed ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Tooltip title={extraAction.label} arrow>
@@ -79,13 +79,13 @@ const SectionSidebar = ({ sections, activeSection, onSectionChange, collapsible,
               key={section.key}
               selected={isSelected}
               onClick={() => onSectionChange(section.key)}
-              sx={{
-                mx: 1,
-                borderRadius: 1,
-                mb: 0.5,
-                justifyContent: isCollapsible && collapsed ? 'center' : 'initial',
-                px: isCollapsible && collapsed ? 0.5 : 1.5,
-                minHeight: 40,
+                sx={{
+                  mx: 0.5,
+                  borderRadius: 0.5,
+                  mb: 0.25,
+                  justifyContent: isCollapsible && collapsed ? 'center' : 'initial',
+                  px: isCollapsible && collapsed ? 0.5 : 1,
+                  minHeight: 32,
                 '&.Mui-selected': {
                   bgcolor: 'primary.main',
                   color: 'white',
@@ -95,13 +95,13 @@ const SectionSidebar = ({ sections, activeSection, onSectionChange, collapsible,
                 '&:not(.Mui-selected):hover': { bgcolor: 'action.hover' },
               }}
             >
-              <ListItemIcon sx={{ minWidth: isCollapsible && collapsed ? 'auto' : 40, justifyContent: 'center', color: isSelected ? 'inherit' : 'text.secondary' }}>
-                {section.icon}
+              <ListItemIcon sx={{ minWidth: isCollapsible && collapsed ? 'auto' : 32, justifyContent: 'center', color: isSelected ? 'inherit' : 'text.secondary' }}>
+                {React.cloneElement(section.icon, { fontSize: 'small' })}
               </ListItemIcon>
               {(!isCollapsible || !collapsed) && (
                 <ListItemText
                   primary={section.label}
-                  primaryTypographyProps={{ fontSize: 14, fontWeight: isSelected ? 600 : 400, noWrap: true }}
+                  primaryTypographyProps={{ fontSize: 12, fontWeight: isSelected ? 600 : 400, noWrap: true }}
                 />
               )}
             </ListItemButton>

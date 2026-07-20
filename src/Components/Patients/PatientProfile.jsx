@@ -160,11 +160,11 @@ const PatientProfile = ({ patient, onBack }) => {
         <Paper sx={{ p: 2, mb: 2, bgcolor: '#e3f2fd', borderLeft: '4px solid #1565c0' }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <Box>
-              <Typography variant="h6" fontWeight={700}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.95rem' }}>
                 {patient.name} {patient.lastname}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                CI: {patient.ci || 'N/A'} &nbsp;|&nbsp; {patient.age || '?'} años &nbsp;|&nbsp; {GENDER_MAP[patient.gender] || patient.gender || 'N/A'}
+                CI: {patient.ci || 'N/A'} &nbsp;|&nbsp; Nro. Historia: {patient.medical_history_number || 'N/A'} &nbsp;|&nbsp; {patient.age || '?'} años &nbsp;|&nbsp; {GENDER_MAP[patient.gender] || patient.gender || 'N/A'}
               </Typography>
               <Box sx={{ display: 'flex', gap: 3, mt: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -210,25 +210,25 @@ const PatientProfile = ({ patient, onBack }) => {
               <Grid item xs={12} sm={6} md={3}>
                 <Paper sx={{ p: 1.5, textAlign: 'center', bgcolor: '#e3f2fd' }}>
                   <Typography variant="caption" color="text.secondary">Emergencias</Typography>
-                  <Typography variant="h5" fontWeight={700}>{stats?.total_visits || 0}</Typography>
+                  <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1rem' }}>{stats?.total_visits || 0}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <Paper sx={{ p: 1.5, textAlign: 'center', bgcolor: '#fce4ec' }}>
                   <Typography variant="caption" color="text.secondary">Hospitalizaciones</Typography>
-                  <Typography variant="h5" fontWeight={700}>{stats?.hospitalizations || 0}</Typography>
+                  <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1rem' }}>{stats?.hospitalizations || 0}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <Paper sx={{ p: 1.5, textAlign: 'center', bgcolor: '#e8f5e9' }}>
                   <Typography variant="caption" color="text.secondary">Citas</Typography>
-                  <Typography variant="h5" fontWeight={700}>{stats?.appointments || 0}</Typography>
+                  <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1rem' }}>{stats?.appointments || 0}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <Paper sx={{ p: 1.5, textAlign: 'center', bgcolor: '#e8eaf6' }}>
                   <Typography variant="caption" color="text.secondary">Cirugías</Typography>
-                  <Typography variant="h5" fontWeight={700}>{stats?.surgeries || 0}</Typography>
+                  <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1rem' }}>{stats?.surgeries || 0}</Typography>
                 </Paper>
               </Grid>
             </Grid>

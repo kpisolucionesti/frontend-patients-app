@@ -48,16 +48,16 @@ const PatientsModule = () => {
 
   if (view === 'profile' && selectedPatient) {
     return (
-      <Box sx={{ height: 'calc(100vh - 64px)', overflow: 'hidden', bgcolor: '#f0f4ff' }}>
+      <Box sx={{ height: '100%', overflow: 'hidden', bgcolor: '#f0f4ff' }}>
         <PatientProfile patient={selectedPatient} onBack={handleBack} />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ height: 'calc(100vh - 64px)', overflow: 'hidden', bgcolor: '#f0f4ff', p: 2, display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: '100%', overflow: 'hidden', bgcolor: '#f0f4ff', p: 2, display: 'flex', flexDirection: 'column' }}>
       <Paper sx={{ p: 2, mb: 2, display: 'flex', flexDirection: 'column', gap: 1.5, flexShrink: 0 }}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.85rem' }}>
           Buscar Paciente
         </Typography>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -90,7 +90,7 @@ const PatientsModule = () => {
       </Paper>
 
       {showList && (
-        <Box sx={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
           <PatientsList onSelectPatient={handleSelectPatient} embedded />
         </Box>
       )}

@@ -1,8 +1,9 @@
 import axiosInstance from './axiosInstance';
 
 export const labParametersApi = {
-  getAll: async () => {
-    const res = await axiosInstance.get('/lab_parameters');
+  getAll: async (includeInactive = false) => {
+    const params = includeInactive ? '?include_inactive=true' : '';
+    const res = await axiosInstance.get(`/lab_parameters${params}`);
     return res.data;
   },
   create: async (data) => {
@@ -16,12 +17,17 @@ export const labParametersApi = {
   delete: async (id) => {
     await axiosInstance.delete(`/lab_parameters/${id}`);
   },
+  restore: async (id) => {
+    const res = await axiosInstance.put(`/lab_parameters/${id}/restore`);
+    return res.data;
+  },
   import: async (data) => {
     const res = await axiosInstance.post('/lab_parameters/import', data);
     return res.data;
   },
-  getGroups: async () => {
-    const res = await axiosInstance.get('/lab_parameter_groups');
+  getGroups: async (includeInactive = false) => {
+    const params = includeInactive ? '?include_inactive=true' : '';
+    const res = await axiosInstance.get(`/lab_parameter_groups${params}`);
     return res.data;
   },
   createGroup: async (data) => {
@@ -34,5 +40,9 @@ export const labParametersApi = {
   },
   deleteGroup: async (id) => {
     await axiosInstance.delete(`/lab_parameter_groups/${id}`);
+  },
+  restoreGroup: async (id) => {
+    const res = await axiosInstance.put(`/lab_parameter_groups/${id}/restore`);
+    return res.data;
   },
 };

@@ -84,7 +84,7 @@ const DoctorSchedulePanel = () => {
   }, []);
 
   const handleAddBlock = useCallback(() => {
-    setBlocks((prev) => [...prev, { ...EMPTY_BLOCK, day_of_week: prev.length > 0 ? prev[prev.length - 1].day_of_week : 1, _key: Date.now() + Math.random() }]);
+    setBlocks((prev) => [...prev, { ...EMPTY_BLOCK, _key: Date.now() + Math.random() }]);
   }, []);
 
   const handleRemoveBlock = useCallback((key) => {
@@ -112,7 +112,7 @@ const DoctorSchedulePanel = () => {
     setSaving(false);
   }, [selectedDoctorId, blocks, show]);
 
-  const getDayBlocks = (dayOfWeek) => blocks.filter((b) => b.day_of_week === dayOfWeek);
+
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, p: 2 }}>
@@ -143,7 +143,7 @@ const DoctorSchedulePanel = () => {
                   <Add />
                 </IconButton>
               </Tooltip>
-              <Button variant="contained" startIcon={<Save />} onClick={handleSave} disabled={saving || blocks.length === 0}>
+              <Button variant="outlined" color="success" startIcon={<Save />} onClick={handleSave} disabled={saving || blocks.length === 0}>
                 {saving ? 'Guardando...' : 'Guardar'}
               </Button>
             </Box>
@@ -170,94 +170,91 @@ const DoctorSchedulePanel = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  DAYS.map((day) => {
-                    const dayBlocks = getDayBlocks(day.value);
-                    return dayBlocks.length > 0 ? (
-                      dayBlocks.map((block, idx) => (
-                        <TableRow key={block._key} hover>
-                          {idx === 0 && (
-                            <TableCell rowSpan={dayBlocks.length} sx={{ fontWeight: 600, verticalAlign: 'top', bgcolor: '#fafafa' }}>
-                              {day.label}
-                            </TableCell>
-                          )}
-                          <TableCell sx={{ p: 0.5 }}>
-                            <TextField
-                              variant="standard"
-                              type="time"
-                              size="small"
-                              value={block.start_time}
-                              onChange={(e) => handleBlockChange(block._key, 'start_time', e.target.value)}
-                              inputProps={{ step: 300 }}
-                              sx={{ width: 90 }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ p: 0.5 }}>
-                            <TextField
-                              variant="standard"
-                              type="time"
-                              size="small"
-                              value={block.end_time}
-                              onChange={(e) => handleBlockChange(block._key, 'end_time', e.target.value)}
-                              inputProps={{ step: 300 }}
-                              sx={{ width: 90 }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ p: 0.5 }}>
-                            <TextField
-                              variant="standard"
-                              type="number"
-                              size="small"
-                              value={block.appointment_duration}
-                              onChange={(e) => handleBlockChange(block._key, 'appointment_duration', parseInt(e.target.value) || 30)}
-                              inputProps={{ min: 5, max: 240 }}
-                              sx={{ width: 80 }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ p: 0.5 }}>
-                            <FormControl size="small" sx={{ minWidth: 130 }}>
-                              <Select
-                                value={block.appointment_mode}
-                                onChange={(e) => handleBlockChange(block._key, 'appointment_mode', e.target.value)}
-                              >
-                                {MODE_OPTIONS.map((opt) => (
-                                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          </TableCell>
-                          <TableCell sx={{ p: 0.5 }}>
-                            <TextField
-                              variant="standard"
-                              type="number"
-                              size="small"
-                              value={block.max_patients}
-                              onChange={(e) => handleBlockChange(block._key, 'max_patients', parseInt(e.target.value) || 0)}
-                              inputProps={{ min: 0, max: 999 }}
-                              sx={{ width: 60 }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ p: 0.5 }}>
-                            <input
-                              type="checkbox"
-                              checked={block.is_active}
-                              onChange={(e) => handleBlockChange(block._key, 'is_active', e.target.checked)}
-                              style={{ width: 20, height: 20, cursor: 'pointer' }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ p: 0.5 }}>
-                            <IconButton size="small" color="error" onClick={() => handleRemoveBlock(block._key)}>
-                              <Delete fontSize="small" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow key={`empty-${day.value}`}>
-                        <TableCell sx={{ color: '#999', fontStyle: 'italic' }}>{day.label}</TableCell>
-                        <TableCell colSpan={7} sx={{ color: '#bbb', fontStyle: 'italic' }}>Sin horario</TableCell>
-                      </TableRow>
-                    );
-                  })
+                  blocks.map((block) => (
+                    <TableRow key={block._key} hover>
+                      <TableCell sx={{ p: 0.5, minWidth: 100 }}>
+                        <FormControl size="small" fullWidth>
+                          <Select
+                            value={block.day_of_week}
+                            onChange={(e) => handleBlockChange(block._key, 'day_of_week', e.target.value)}
+                          >
+                            {DAYS.map((d) => (
+                              <MenuItem key={d.value} value={d.value}>{d.label}</MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </TableCell>
+                      <TableCell sx={{ p: 0.5 }}>
+                        <TextField
+                          variant="standard"
+                          type="time"
+                          size="small"
+                          value={block.start_time}
+                          onChange={(e) => handleBlockChange(block._key, 'start_time', e.target.value)}
+                          inputProps={{ step: 300 }}
+                          sx={{ width: 90 }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ p: 0.5 }}>
+                        <TextField
+                          variant="standard"
+                          type="time"
+                          size="small"
+                          value={block.end_time}
+                          onChange={(e) => handleBlockChange(block._key, 'end_time', e.target.value)}
+                          inputProps={{ step: 300 }}
+                          sx={{ width: 90 }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ p: 0.5 }}>
+                        <TextField
+                          variant="standard"
+                          type="number"
+                          size="small"
+                          value={block.appointment_duration}
+                          onChange={(e) => handleBlockChange(block._key, 'appointment_duration', parseInt(e.target.value) || 30)}
+                          inputProps={{ min: 5, max: 240 }}
+                          sx={{ width: 80 }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ p: 0.5 }}>
+                        <FormControl size="small" sx={{ minWidth: 130 }}>
+                          <Select
+                            value={block.appointment_mode}
+                            onChange={(e) => handleBlockChange(block._key, 'appointment_mode', e.target.value)}
+                          >
+                            {MODE_OPTIONS.map((opt) => (
+                              <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </TableCell>
+                      <TableCell sx={{ p: 0.5 }}>
+                        <TextField
+                          variant="standard"
+                          type="number"
+                          size="small"
+                          value={block.max_patients}
+                          onChange={(e) => handleBlockChange(block._key, 'max_patients', parseInt(e.target.value) || 0)}
+                          inputProps={{ min: 0, max: 999 }}
+                          sx={{ width: 60 }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ p: 0.5 }}>
+                        <input
+                          type="checkbox"
+                          checked={block.is_active}
+                          onChange={(e) => handleBlockChange(block._key, 'is_active', e.target.checked)}
+                          style={{ width: 20, height: 20, cursor: 'pointer' }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ p: 0.5 }}>
+                        <IconButton size="small" color="error" onClick={() => handleRemoveBlock(block._key)}>
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>

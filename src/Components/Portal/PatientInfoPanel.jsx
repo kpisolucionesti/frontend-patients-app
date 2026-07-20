@@ -366,7 +366,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
               />
             </DialogContent>
             <DialogActions>
-              <Button size="small" variant="outlined" onClick={() => setCancelDialogOpen(false)}>Cancelar</Button>
+              <Button size="small" variant="outlined" color="error" onClick={() => setCancelDialogOpen(false)}>Cancelar</Button>
               <Button size="small" variant="outlined" color="error" onClick={handleCancelEmergency}
                 disabled={saving || !cancelReason}>
                 {saving ? 'Anulando...' : 'Anular Emergencia'}
@@ -393,7 +393,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button size="small" variant="outlined" onClick={() => setDeathDialogOpen(false)}>Cancelar</Button>
+              <Button size="small" variant="outlined" color="error" onClick={() => setDeathDialogOpen(false)}>Cancelar</Button>
               <Button size="small" variant="outlined" color="error" onClick={handleDeath}
                 disabled={saving || !deathCause}>
                 {saving ? 'Guardando...' : 'Confirmar Fallecimiento'}
@@ -402,7 +402,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
           </Dialog>
 
           <Dialog open={evolutiveDialogOpen} onClose={() => { setEvolutiveDialogOpen(false); setStatus(emergency.status); }} maxWidth="sm" fullWidth>
-            <DialogTitle sx={{ bgcolor: evolutiveType === 'discharge' ? '#2e7d32' : '#1565c0', color: 'white', fontSize: '0.85rem' }}>
+            <DialogTitle sx={{ bgcolor: evolutiveType === 'discharge' ? 'success.main' : 'primary.main', fontSize: '0.85rem' }}>
               {evolutiveType === 'discharge' ? 'NOTA EVOLUTIVA DE EGRESO' : 'NOTA EVOLUTIVA DE INGRESO'}
             </DialogTitle>
             <DialogContent style={{ paddingTop: 24 }}>
@@ -415,8 +415,8 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
               />
             </DialogContent>
             <DialogActions>
-              <Button size="small" variant="outlined" onClick={() => { setEvolutiveDialogOpen(false); setStatus(emergency.status); }}>Cancelar</Button>
-              <Button size="small" variant="outlined" onClick={handleEvolutiveSave}
+              <Button size="small" variant="outlined" color="error" onClick={() => { setEvolutiveDialogOpen(false); setStatus(emergency.status); }}>Cancelar</Button>
+              <Button size="small" variant="outlined" color="success" onClick={handleEvolutiveSave}
                 disabled={saving || !evolutiveNote}>
                 {saving ? 'Guardando...' : 'Confirmar'}
               </Button>

@@ -58,7 +58,7 @@ const TodayAppointments = () => {
   return (
     <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5" fontWeight={600}>
+        <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.9rem' }}>
           Citas de Hoy — {moment().format('DD/MM/YYYY')}
         </Typography>
       </Box>

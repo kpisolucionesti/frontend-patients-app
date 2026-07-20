@@ -91,7 +91,7 @@ const MedicalPlansDetail = ({ emergencyId, readOnly }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#2e7d32', color: 'white' }}>{editing ? 'Editar Indicación' : 'Agregar Indicación'}</DialogTitle>
+        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: 'success.main' }}>{editing ? 'Editar Indicación' : 'Agregar Indicación'}</DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <TextField select variant="standard" size="small" label="Tipo" value={form.indication_type} onChange={(e) => handleChange('indication_type', e.target.value)} fullWidth>

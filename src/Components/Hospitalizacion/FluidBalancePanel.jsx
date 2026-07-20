@@ -104,11 +104,11 @@ const FluidBalancePanel = ({ hospitalizationId }) => {
   if (loading) return <CircularProgress />;
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+    <Paper sx={{ p: 1.5, borderLeft: '4px solid', borderColor: 'primary.main', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <WaterIcon sx={{ fontSize: 18, color: '#1565c0' }} />
-          <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0', fontSize: '0.8rem' }}>
+          <WaterIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+          <Typography variant="caption" fontWeight={600} sx={{ color: 'primary.main', fontSize: '0.8rem' }}>
             BALANCE HÍDRICO
           </Typography>
         </Box>
@@ -140,7 +140,7 @@ const FluidBalancePanel = ({ hospitalizationId }) => {
             </Card>
           </Grid>
           <Grid item xs={4}>
-            <Card sx={{ bgcolor: (summary.total_net || 0) >= 0 ? '#e3f2fd' : '#fff3e0' }}>
+            <Card sx={{ bgcolor: (summary.total_net || 0) >= 0 ? 'primary.light' : 'warning.light' }}>
               <CardContent sx={{ py: 1, textAlign: 'center' }}>
                 <Typography variant="caption" color="text.secondary">Balance Neto</Typography>
                 <Typography variant="h6" color={summary.total_net >= 0 ? 'primary.main' : 'warning.main'}>
@@ -152,7 +152,7 @@ const FluidBalancePanel = ({ hospitalizationId }) => {
         </Grid>
       )}
 
-      <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -233,8 +233,8 @@ const FluidBalancePanel = ({ hospitalizationId }) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={handleCreate} disabled={saving || !form.amount}>
+          <Button onClick={() => setDialogOpen(false)} variant="outlined" color="error">Cancelar</Button>
+          <Button variant="outlined" color="success" onClick={handleCreate} disabled={saving || !form.amount}>
             {saving ? 'Guardando...' : 'Guardar'}
           </Button>
         </DialogActions>

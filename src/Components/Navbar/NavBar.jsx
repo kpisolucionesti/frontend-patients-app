@@ -50,11 +50,11 @@ const NavBar = () => {
   return (
     <>
       <AppBar position="static" sx={{ bgcolor: 'darkblue', width: '100%', mx: 0 }}>
-        <Toolbar sx={{ px: { xs: 2, sm: 3 } }}>
-          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', mr: 1 }}>
+        <Toolbar variant="dense" sx={{ px: { xs: 1, sm: 1.5 } }}>
+          <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold', mr: 0.5, fontSize: '0.9rem' }}>
             Emerboard
           </Typography>
-          <Typography variant="caption" color="rgba(255,255,255,0.5)" sx={{ mr: 2 }}>
+          <Typography variant="caption" color="rgba(255,255,255,0.5)" sx={{ mr: 1, fontSize: '0.65rem' }}>
             v{APP_VERSION}
           </Typography>
           {visibleMenus.map((m) => {
@@ -65,8 +65,10 @@ const NavBar = () => {
                 startIcon={m.icon}
                 onClick={() => navigate(m.path)}
                 variant={active ? 'contained' : 'text'}
+                size="small"
                 sx={{
-                  mr: 0.5,
+                  mr: 0.3, py: 0.25, px: 0.75, fontSize: '0.75rem', minWidth: 0,
+                  '& .MuiButton-startIcon': { mr: 0.25, '& > svg': { fontSize: '1rem' } },
                   ...(active
                     ? { bgcolor: 'white', color: 'darkblue', '&:hover': { bgcolor: '#f0f0f0' } }
                     : { color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }
@@ -77,12 +79,12 @@ const NavBar = () => {
               </Button>
             );
           })}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} />
-          <Typography variant="h6" component="div" sx={{ mr: 2 }}>
+          <Typography variant="body2" component="div" sx={{ flexGrow: 1 }} />
+          <Typography variant="body2" component="div" sx={{ mr: 1, fontSize: '0.8rem' }}>
             {(user.name || '') + (user.lastname ? ' ' + user.lastname : '') || 'Usuario'}
           </Typography>
-          <IconButton color="inherit" onClick={(e) => setAnchorEl(e.currentTarget)}>
-            <AccountCircle />
+          <IconButton color="inherit" size="small" onClick={(e) => setAnchorEl(e.currentTarget)}>
+            <AccountCircle fontSize="small" />
           </IconButton>
           <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
             <MenuItem onClick={() => { setAnchorEl(null); setPasswordOpen(true); }}>

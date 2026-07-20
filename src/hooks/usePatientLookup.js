@@ -36,6 +36,7 @@ const usePatientLookup = () => {
           lastname: found.lastname || '',
           birthday: found.birthday || '',
           gender: found.gender || '',
+          medical_history_number: found.medical_history_number || '',
         });
         setPatientAge(found.age || calculateAge(found.birthday));
         setLocked(true);
@@ -67,6 +68,7 @@ const usePatientLookup = () => {
           lastname: found.lastname || '',
           birthday: found.birthday || '',
           gender: found.gender || '',
+          medical_history_number: found.medical_history_number || '',
         });
         setPatientAge(found.age || calculateAge(found.birthday));
       }
@@ -81,6 +83,7 @@ const usePatientLookup = () => {
       lastname: patient.lastname || '',
       birthday: patient.birthday || '',
       gender: patient.gender || '',
+      medical_history_number: patient.medical_history_number || '',
     });
     setPatientAge(patient.age || calculateAge(patient.birthday));
     setLocked(true);

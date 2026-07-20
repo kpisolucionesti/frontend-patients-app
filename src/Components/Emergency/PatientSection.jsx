@@ -43,6 +43,19 @@ const PatientSection = ({ values, locked, validation, onCiChange, onFieldChange,
           value={values.ci || ''}
           onChange={onCiChange}
         />
+        <TextField
+          variant="standard"
+          size="small"
+          disabled={locked}
+          error={validation && !values.medical_history_number}
+          fullWidth
+          helperText={validation && !values.medical_history_number ? 'Requerido' : ''}
+          required
+          label="Nro. Historia Médica"
+          name="medical_history_number"
+          value={values.medical_history_number || ''}
+          onChange={({ target }) => onFieldChange(target)}
+        />
         <Stack direction="row" spacing={1}>
           <LocalizationProvider dateAdapter={AdapterMoment}>
             <DatePicker

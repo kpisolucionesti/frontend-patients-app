@@ -83,7 +83,7 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
           {success ? 'Cerrar' : 'Cancelar'}
         </Button>
         {!success && (
-          <Button onClick={handleSave} variant="outlined" color="primary" disabled={saving || !selectedProfileId}>
+          <Button onClick={handleSave} variant="outlined" color="success" disabled={saving || !selectedProfileId}>
             Guardar
           </Button>
         )}
