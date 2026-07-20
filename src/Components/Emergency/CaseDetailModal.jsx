@@ -1,5 +1,6 @@
 import { Autocomplete, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from "@mui/material";
 import { ArrowBack, Cancel, Edit, MedicalServices } from "@mui/icons-material";
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import WarningIcon from '@mui/icons-material/Warning';
 import MedicalPlanSection from "./MedicalPlanSection";
 import NoteItem from "./NoteItem";
@@ -8,13 +9,16 @@ import EmergencyEditButton from "./EmergencyEditButton";
 import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { useFetch } from "../../hooks/useFetch";
+import { useSnackbar } from "../../hooks/useSnackbar";
 import AsignRoom from "../Board/asignRoomModal";
 import EditPatientData from "../Patients/editPatientDataModal";
 import IngressPatientModal from "../Board/IngressPatientModal";
 import ReleasePatient from "../Board/releasePatientModal";
 import StatusChip from "../Commons/StatusChip";
+import ReportsPanel from "../Commons/ReportsPanel";
 import usePermissions from "../../hooks/usePermissions";
 import { CLASSIFICATION_OPTIONS } from '../../constants';
+import { generateTriageReport } from '../../services/pdfReportGenerator';
 import moment from 'moment';
 
 const FieldItem = ({ label, value }) => (
@@ -45,6 +49,8 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
     const [interconsultaInput, setInterconsultaInput] = useState('');
     const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
+    const [generatingTriage, setGeneratingTriage] = useState(false);
+    const { show: showSnackbar } = useSnackbar();
 
     const activeEmergencyId = historyEmergencyId || emergencyId;
     const isViewingHistory = !!historyEmergencyId;
@@ -159,6 +165,39 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
         if (eid === activeEmergencyId) return;
         setHistoryEmergencyId(eid);
     }, [activeEmergencyId]);
+
+    const handleGenerateTriage = useCallback(async () => {
+        setGeneratingTriage(true);
+        try {
+            const userData = JSON.parse(localStorage.getItem('user') || '{}');
+            let doctor = null;
+            if (userData.doctor_id) {
+                doctor = await BackendAPI.doctors.getById(userData.doctor_id);
+            }
+
+            const pdfBlob = await generateTriageReport({
+                emergency: row,
+                patient: patient,
+                doctor: doctor,
+            });
+
+            const fd = new FormData();
+            fd.append('file', pdfBlob, `informe_triaje_${row.id}_${moment().format('YYYYMMDD_HHmmss')}.pdf`);
+            fd.append('attachable_type', 'Emergency');
+            fd.append('attachable_id', row.id);
+            fd.append('file_type', 'application/pdf');
+            fd.append('report_type', 'triage');
+            fd.append('description', 'Informe de Triaje');
+            await BackendAPI.documents.create(fd);
+
+            showSnackbar('Informe de Triaje generado correctamente', 'success');
+            refetch();
+        } catch (err) {
+            showSnackbar('Error al generar el informe: ' + (err.message || 'desconocido'), 'error');
+        } finally {
+            setGeneratingTriage(false);
+        }
+    }, [row, patient, refetch, showSnackbar]);
 
     const effectiveReadOnly = readOnly || isViewingHistory || patient?.disabled;
 
@@ -320,6 +359,24 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                                 </Tooltip>
                             </Stack>
                         )}
+                    </Box>
+
+                    {/* Reports */}
+                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <SectionHeader title="INFORMES" />
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                            <Button
+                                size="small"
+                                variant="contained"
+                                startIcon={<PictureAsPdfIcon />}
+                                onClick={handleGenerateTriage}
+                                disabled={generatingTriage || effectiveReadOnly || !hasPerm('emergencia.generar_informe')}
+                                sx={{ fontSize: '0.7rem', py: 0.3 }}
+                            >
+                                {generatingTriage ? 'Generando...' : 'Generar Informe de Triaje'}
+                            </Button>
+                        </Box>
+                        <ReportsPanel attachableType="Emergency" attachableId={row.id} />
                     </Box>
 
                     {/* Medical Plan */}
