@@ -364,18 +364,20 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                     {/* Reports */}
                     <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
                         <SectionHeader title="INFORMES" />
-                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
-                            <Button
-                                size="small"
-                                variant="contained"
-                                startIcon={<PictureAsPdfIcon />}
-                                onClick={handleGenerateTriage}
-                                disabled={generatingTriage || effectiveReadOnly || !hasPerm('emergencia.generar_informe')}
-                                sx={{ fontSize: '0.7rem', py: 0.3 }}
-                            >
-                                {generatingTriage ? 'Generando...' : 'Generar Informe de Triaje'}
-                            </Button>
-                        </Box>
+                        {row.status !== 2 && !effectiveReadOnly && hasPerm('emergencia.generar_informe') && (
+                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                                <Button
+                                    size="small"
+                                    variant="contained"
+                                    startIcon={<PictureAsPdfIcon />}
+                                    onClick={handleGenerateTriage}
+                                    disabled={generatingTriage}
+                                    sx={{ fontSize: '0.7rem', py: 0.3 }}
+                                >
+                                    {generatingTriage ? 'Generando...' : 'Generar Informe de Triaje'}
+                                </Button>
+                            </Box>
+                        )}
                         <ReportsPanel attachableType="Emergency" attachableId={row.id} />
                     </Box>
 

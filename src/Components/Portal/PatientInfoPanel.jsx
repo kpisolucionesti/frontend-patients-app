@@ -10,13 +10,16 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import WarningIcon from '@mui/icons-material/Warning';
 import EditIcon from '@mui/icons-material/Edit';
 import DescriptionIcon from '@mui/icons-material/Description';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import PhysicalExamTable from './PhysicalExamTable';
+import ReportsPanel from '../Commons/ReportsPanel';
 import AsignRoom from '../Board/asignRoomModal';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
 import { CLASSIFICATION_OPTIONS } from '../../constants';
 import { useSnackbar } from '../../hooks/useSnackbar';
+import { generateTriageReport } from '../../services/pdfReportGenerator';
 
 const STATUS_MAP = {
   0: { label: 'Esperando', color: 'warning' },
@@ -64,6 +67,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
   const [evolutiveNote, setEvolutiveNote] = useState('');
   const [dischargeNote, setDischargeNote] = useState(emergency?.discharge_note || '');
   const [admissionNote, setAdmissionNote] = useState(emergency?.admission_note || '');
+  const [generatingTriage, setGeneratingTriage] = useState(false);
   const { show: showSnackbar } = useSnackbar();
 
   const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
@@ -156,6 +160,38 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
       setSaving(false);
     }
   };
+
+  const handleGenerateTriage = useCallback(async () => {
+    setGeneratingTriage(true);
+    try {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      let doctor = null;
+      if (userData.doctor_id) {
+        doctor = await BackendAPI.doctors.getById(userData.doctor_id);
+      }
+
+      const pdfBlob = await generateTriageReport({
+        emergency,
+        patient: patient || {},
+        doctor,
+      });
+
+      const fd = new FormData();
+      fd.append('file', pdfBlob, `informe_triaje_${emergency.id}_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.pdf`);
+      fd.append('attachable_type', 'Emergency');
+      fd.append('attachable_id', emergency.id);
+      fd.append('file_type', 'application/pdf');
+      fd.append('report_type', 'triage');
+      fd.append('description', 'Informe de Triaje');
+      await BackendAPI.documents.create(fd);
+
+      showSnackbar('Informe de Triaje generado correctamente', 'success');
+    } catch (err) {
+      showSnackbar('Error al generar el informe: ' + (err.message || 'desconocido'), 'error');
+    } finally {
+      setGeneratingTriage(false);
+    }
+  }, [emergency, patient, showSnackbar]);
 
   const handleStatusChange = (newStatus) => {
     setStatus(Number(newStatus));
@@ -502,6 +538,30 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
           </Paper>
 
           <PhysicalExamTable emergencyId={emergency.id} readOnly={effectiveReadOnly} />
+
+          <Paper sx={{ p: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+              <PictureAsPdfIcon sx={{ fontSize: 18, color: '#d32f2f' }} />
+              <Typography variant="caption" fontWeight={600} sx={{ color: '#d32f2f' }}>
+                INFORMES
+              </Typography>
+            </Box>
+            {emergency.status !== 2 && !effectiveReadOnly && (
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={<PictureAsPdfIcon />}
+                  onClick={handleGenerateTriage}
+                  disabled={generatingTriage}
+                  sx={{ fontSize: '0.7rem', py: 0.3 }}
+                >
+                  {generatingTriage ? 'Generando...' : 'Generar Informe de Triaje'}
+                </Button>
+              </Box>
+            )}
+            <ReportsPanel attachableType="Emergency" attachableId={emergency.id} />
+          </Paper>
         </>
       )}
     </Box>
