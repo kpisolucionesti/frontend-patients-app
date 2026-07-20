@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, Alert } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
-import PermissionTable from '../Commons/PermissionTable';
+import PermissionSelector from '../Commons/PermissionSelector';
 
 const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
   const [name, setName] = useState('');
@@ -81,7 +81,7 @@ const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
           ) : groups.length === 0 ? (
             <Typography variant="body2" color="text.secondary">No se pudieron cargar los permisos</Typography>
           ) : (
-            <PermissionTable groups={groups} permissions={permissions} onToggle={togglePermission} />
+            <PermissionSelector groups={groups} permissions={permissions} onToggle={togglePermission} />
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2, justifyContent: 'center' }}>

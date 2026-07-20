@@ -8,9 +8,11 @@ import {
   PieChart, Pie, Cell,
 } from 'recharts';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-import PeopleIcon from '@mui/icons-material/People';
 import TodayIcon from '@mui/icons-material/Today';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import BiotechIcon from '@mui/icons-material/Biotech';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -33,6 +35,38 @@ const STATUS_CHIP = {
   3: { color: 'secondary', label: 'Ingreso a Hospitalización' },
   4: { color: 'default', label: 'Anulada' },
   5: { color: 'default', label: 'Fallecido' },
+};
+
+const SURGERY_STATUS_COLORS = {
+  scheduled: '#1565c0',
+  in_progress: '#fb8c00',
+  completed: '#2e7d32',
+  cancelled: '#9e9e9e',
+};
+
+const SURGERY_STATUS_LABELS = {
+  scheduled: 'Programada',
+  in_progress: 'En Progreso',
+  completed: 'Realizada',
+  cancelled: 'Cancelada',
+};
+
+const APPT_STATUS_COLORS = {
+  scheduled: '#1565c0',
+  confirmed: '#43a047',
+  in_consultation: '#fb8c00',
+  completed: '#2e7d32',
+  cancelled: '#9e9e9e',
+  no_show: '#e53935',
+};
+
+const APPT_STATUS_LABELS = {
+  scheduled: 'Programada',
+  confirmed: 'Confirmada',
+  in_consultation: 'En Consulta',
+  completed: 'Completada',
+  cancelled: 'Cancelada',
+  no_show: 'No Asistió',
 };
 
 const KpiCard = ({ icon, label, value, color }) => (
@@ -59,6 +93,19 @@ const ChartCard = ({ title, extra, children }) => (
     </Box>
     {children}
   </Paper>
+);
+
+const PieLegend = ({ data }) => (
+  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 1 }}>
+    {data.map((entry, i) => (
+      <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: entry.color, flexShrink: 0 }} />
+        <Typography variant="caption" sx={{ fontSize: '0.65rem', lineHeight: 1.2 }}>
+          {entry.name}: {entry.value} ({((entry.value / Math.max(data.reduce((s, d) => s + d.value, 0), 1)) * 100).toFixed(0)}%)
+        </Typography>
+      </Box>
+    ))}
+  </Box>
 );
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -100,7 +147,17 @@ const Dashboard = () => {
     return y;
   }, [currentYear]);
 
-  const byMonth = useMemo(() => (data?.by_month || []).map((m) => ({
+  const emergenciesByMonth = useMemo(() => (data?.emergencies_by_month || []).map((m) => ({
+    month: m.month?.slice(5),
+    count: m.count,
+  })), [data]);
+
+  const surgeriesByMonth = useMemo(() => (data?.surgeries_by_month || []).map((m) => ({
+    month: m.month?.slice(5),
+    count: m.count,
+  })), [data]);
+
+  const appointmentsByMonth = useMemo(() => (data?.appointments_by_month || []).map((m) => ({
     month: m.month?.slice(5),
     count: m.count,
   })), [data]);
@@ -114,6 +171,24 @@ const Dashboard = () => {
         value: v,
         color: STATUS_COLORS[k] || '#ccc',
       }));
+  }, [data]);
+
+  const surgeryStatusPieData = useMemo(() => {
+    const map = data?.surgeries_by_status || {};
+    return Object.entries(map).map(([k, v]) => ({
+      name: SURGERY_STATUS_LABELS[k] || k,
+      value: v,
+      color: SURGERY_STATUS_COLORS[k] || '#ccc',
+    }));
+  }, [data]);
+
+  const apptStatusPieData = useMemo(() => {
+    const map = data?.appointments_by_status || {};
+    return Object.entries(map).map(([k, v]) => ({
+      name: APPT_STATUS_LABELS[k] || k,
+      value: v,
+      color: APPT_STATUS_COLORS[k] || '#ccc',
+    }));
   }, [data]);
 
   const classificationColors = useMemo(() => {
@@ -195,6 +270,7 @@ const Dashboard = () => {
         </FormControl>
       </Box>
 
+      {/* KPI Cards */}
       <Grid container spacing={1.5}>
         <Grid item xs={6} sm={3}>
           <KpiCard icon={<LocalHospitalIcon sx={{ fontSize: 20 }} />}
@@ -205,15 +281,16 @@ const Dashboard = () => {
             label="Total Emergencias" value={data.total_emergencies} color="#2e7d32" />
         </Grid>
         <Grid item xs={6} sm={3}>
-          <KpiCard icon={<PeopleIcon sx={{ fontSize: 20 }} />}
-            label="Pacientes Registrados" value={data.total_patients} color="#6a1b9a" />
+          <KpiCard icon={<BiotechIcon sx={{ fontSize: 20 }} />}
+            label="Cirugías del Año" value={data.surgeries_total} color="#00695c" />
         </Grid>
         <Grid item xs={6} sm={3}>
-          <KpiCard icon={<TodayIcon sx={{ fontSize: 20 }} />}
-            label="Casos Hoy" value={data.today_count} color="#e65100" />
+          <KpiCard icon={<CalendarMonthIcon sx={{ fontSize: 20 }} />}
+            label="Citas Hoy" value={data.appointments_today} color="#e65100" />
         </Grid>
       </Grid>
 
+      {/* Info Cards */}
       <Grid container spacing={1.5}>
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ boxShadow: 3, height: '100%' }}>
@@ -243,8 +320,24 @@ const Dashboard = () => {
               </Box>
               <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 <Chip label={`${data.total_emergencies} casos`} size="small" variant="outlined" sx={{ fontSize: '0.6rem', height: 20 }} />
-                <Chip label={`${data.total_patients} pacientes`} size="small" variant="outlined" sx={{ fontSize: '0.6rem', height: 20 }} />
+                <Chip label={`${data.surgeries_total} cirugías`} size="small" variant="outlined" sx={{ fontSize: '0.6rem', height: 20 }} />
               </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ boxShadow: 3, height: '100%' }}>
+            <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <EventNoteIcon sx={{ color: '#e65100', fontSize: 20 }} />
+                <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.8rem' }}>
+                  Próximas Citas
+                </Typography>
+              </Box>
+              <Typography variant="h6" fontWeight={700} color="#e65100" sx={{ fontSize: '1.1rem' }}>
+                {data.appointments_upcoming}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">Citas programadas/confirmadas pendientes</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -264,30 +357,26 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <ChartCard title="Últimas 24 horas">
-            <TableContainer sx={{ maxHeight: 260 }}>
+        <Grid item xs={12} md={3}>
+          <ChartCard title="Últimas 24h">
+            <TableContainer sx={{ maxHeight: 165 }}>
               <Table size="small" stickyHeader>
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', p: 0.5 }}>Nombre</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', p: 0.5 }}>Apellido</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', p: 0.5 }}>Médico</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', p: 0.5 }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', p: 0.5 }}>Estado</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {recentEmergencies.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} sx={{ fontSize: '0.65rem', p: 0.5, textAlign: 'center', color: 'text.secondary' }}>
-                        Sin emergencias en las últimas 24h
+                      <TableCell colSpan={2} sx={{ fontSize: '0.65rem', p: 0.5, textAlign: 'center', color: 'text.secondary' }}>
+                        Sin emergencias recientes
                       </TableCell>
                     </TableRow>
-                  ) : recentEmergencies.map((e, i) => (
+                  ) : recentEmergencies.slice(0, 6).map((e, i) => (
                     <TableRow key={i}>
-                      <TableCell sx={{ fontSize: '0.65rem', p: 0.5 }}>{e.patient_name || '-'}</TableCell>
-                      <TableCell sx={{ fontSize: '0.65rem', p: 0.5 }}>{e.patient_lastname || '-'}</TableCell>
-                      <TableCell sx={{ fontSize: '0.65rem', p: 0.5 }}>{e.doctor_name || '-'}</TableCell>
+                      <TableCell sx={{ fontSize: '0.65rem', p: 0.5 }}>{(e.patient_name || '') + ' ' + (e.patient_lastname || '')}</TableCell>
                       <TableCell sx={{ fontSize: '0.65rem', p: 0.5 }}>
                         <Chip
                           label={STATUS_CHIP[e.status]?.label || '?'}
@@ -305,37 +394,115 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
+      {/* Charts Row 1: Emergency + Surgery by Month */}
       <Grid container spacing={1.5}>
         <Grid item xs={12} md={6}>
-          <ChartCard title="Casos por Mes">
+          <ChartCard title="Emergencias por Mes">
             <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={byMonth}>
+              <BarChart data={emergenciesByMonth}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="count" fill="#1565c0" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" fill="#1565c0" radius={[4, 4, 0, 0]} name="Emergencias" />
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
         </Grid>
         <Grid item xs={12} md={6}>
-          <ChartCard title="Distribución por Estado">
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={statusPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                  {statusPieData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
+          <ChartCard title="Cirugías por Mes">
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={surgeriesByMonth}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip content={<CustomTooltip />} />
-              </PieChart>
+                <Bar dataKey="count" fill="#00695c" radius={[4, 4, 0, 0]} name="Cirugías" />
+              </BarChart>
             </ResponsiveContainer>
           </ChartCard>
         </Grid>
       </Grid>
 
+      {/* Charts Row 2: Appointments by Month + Surgery Status Pie */}
+      <Grid container spacing={1.5}>
+        <Grid item xs={12} md={6}>
+          <ChartCard title="Citas por Mes">
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={appointmentsByMonth}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="count" fill="#e65100" radius={[4, 4, 0, 0]} name="Citas" />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <ChartCard title="Estado de Cirugías">
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <ResponsiveContainer width="55%" height={200}>
+                <PieChart>
+                  <Pie data={surgeryStatusPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={30}>
+                    {surgeryStatusPieData.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <Box sx={{ flex: 1 }}>
+                <PieLegend data={surgeryStatusPieData} />
+              </Box>
+            </Box>
+          </ChartCard>
+        </Grid>
+      </Grid>
+
+      {/* Charts Row 3: Distribution by Status + Appointments by Status */}
+      <Grid container spacing={1.5}>
+        <Grid item xs={12} md={6}>
+          <ChartCard title="Distribución de Emergencias por Estado">
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <ResponsiveContainer width="55%" height={200}>
+                <PieChart>
+                  <Pie data={statusPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={30}>
+                    {statusPieData.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <Box sx={{ flex: 1 }}>
+                <PieLegend data={statusPieData} />
+              </Box>
+            </Box>
+          </ChartCard>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <ChartCard title="Distribución de Citas por Estado">
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <ResponsiveContainer width="55%" height={200}>
+                <PieChart>
+                  <Pie data={apptStatusPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={30}>
+                    {apptStatusPieData.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <Box sx={{ flex: 1 }}>
+                <PieLegend data={apptStatusPieData} />
+              </Box>
+            </Box>
+          </ChartCard>
+        </Grid>
+      </Grid>
+
+      {/* Charts Row 4: Avg Wait Time + Saturation Peaks */}
       <Grid container spacing={1.5}>
         <Grid item xs={12} md={6}>
           <ChartCard title="Tiempo Promedio de Espera (horas)">
@@ -345,7 +512,7 @@ const Dashboard = () => {
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                 <YAxis domain={[0, 'auto']} width={35} tick={{ fontSize: 11 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Line type="monotone" dataKey="avg_hr" stroke="#1565c0" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="avg_hr" stroke="#1565c0" strokeWidth={2} dot={{ r: 3 }} name="Horas" />
               </LineChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -358,7 +525,7 @@ const Dashboard = () => {
                 <XAxis dataKey="hour" tick={{ fontSize: 10 }} interval={2} />
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="count" radius={[2, 2, 0, 0]}>
+                <Bar dataKey="count" radius={[2, 2, 0, 0]} name="Casos">
                   {saturationData.map((entry, i) => (
                     <Cell key={i} fill={getSaturationColor(entry.count)} />
                   ))}
@@ -369,6 +536,7 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
+      {/* Charts Row 5: Classification */}
       <Grid container spacing={1.5}>
         <Grid item xs={12} md={6}>
           <ChartCard title="Casos por Clasificación (Triage)">
@@ -387,7 +555,19 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </ChartCard>
         </Grid>
-        <Grid item xs={12} md={6} />
+        <Grid item xs={12} md={6}>
+          <ChartCard title="Cirugías por Tipo">
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={(data?.surgeries_by_type || []).slice(0, 10)} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" tick={{ fontSize: 11 }} />
+                <YAxis type="category" dataKey="type" tick={{ fontSize: 10 }} width={110} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="count" fill="#00695c" radius={[0, 4, 4, 0]} name="Cirugías" />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </Grid>
       </Grid>
     </Box>
   );

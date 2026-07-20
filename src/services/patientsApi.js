@@ -40,4 +40,10 @@ export const patientsApi = {
     const res = await axiosInstance.get(`/patients/${id}/stats`);
     return res.data;
   },
+
+  getSurgeries: async (patientId, params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    const res = await axiosInstance.get(`/patients/${patientId}/surgeries?${query}`);
+    return res.data;
+  },
 };

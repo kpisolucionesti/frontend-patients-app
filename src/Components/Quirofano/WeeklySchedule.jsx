@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Paper, Grid, Chip, Button, IconButton
+  Box, Typography, Paper, Grid, Chip, IconButton
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import EditIcon from '@mui/icons-material/Edit';
 import { BackendAPI } from '../../services/BackendApi';
 
 const DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-export default function WeeklySchedule({ onSelectSurgery }) {
+export default function WeeklySchedule({ onSelectSurgery, onEditSurgery }) {
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - d.getDay());
@@ -69,14 +70,24 @@ export default function WeeklySchedule({ onSelectSurgery }) {
                   {d.getDate()}
                 </Typography>
                 {daySurgeries.map(s => (
-                  <Chip
-                    key={s.id}
-                    label={`${s.surgery_type}${s.scheduled_start_time ? ' ' + new Date(s.scheduled_start_time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''}`}
-                    size="small"
-                    color={s.status === 'completed' ? 'success' : s.status === 'cancelled' ? 'default' : 'primary'}
-                    onClick={() => onSelectSurgery?.(s)}
-                    sx={{ mb: 0.5, width: '100%', cursor: 'pointer' }}
-                  />
+                  <Box key={s.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                    <Chip
+                      label={`${s.surgery_type}${s.scheduled_start_time ? ' ' + new Date(s.scheduled_start_time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''}${s.ambulatory ? ' (Amb)' : ''}`}
+                      size="small"
+                      color={s.status === 'completed' ? 'success' : s.status === 'in_progress' ? 'warning' : s.status === 'cancelled' ? 'default' : 'primary'}
+                      onClick={() => onSelectSurgery?.(s)}
+                      sx={{ flex: 1, cursor: 'pointer' }}
+                    />
+                    {onEditSurgery && (
+                      <IconButton
+                        size="small"
+                        onClick={(e) => { e.stopPropagation(); onEditSurgery(s); }}
+                        sx={{ p: 0.3 }}
+                      >
+                        <EditIcon sx={{ fontSize: 14 }} />
+                      </IconButton>
+                    )}
+                  </Box>
                 ))}
               </Paper>
             </Grid>

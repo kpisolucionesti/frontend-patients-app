@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Typography, Alert } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Typography, Alert, Chip } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
-import PermissionTable from '../Commons/PermissionTable';
+import PermissionSelector from '../Commons/PermissionSelector';
 
 const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
   const [profiles, setProfiles] = useState([]);
@@ -51,6 +51,13 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
   const selectedProfile = profiles.find((p) => p.id === selectedProfileId);
   const isAdminProfile = selectedProfile?.name === 'Administrador';
 
+  const profilePermissionLabels = useMemo(() => {
+    if (!selectedProfile || !groups.length) return [];
+    const permKeyToLabel = {};
+    groups.forEach((g) => g.permissions?.forEach((p) => { permKeyToLabel[p.key] = g.section + ' - ' + p.label; }));
+    return (selectedProfile.permissions || []).map((k) => permKeyToLabel[k] || k);
+  }, [selectedProfile, groups]);
+
   return (
     <Dialog fullWidth maxWidth={false} open={open} onClose={onClose}
       sx={{ '& .MuiDialog-paper': { width: { xs: '100%', sm: '90%', md: '85%', lg: '80%' }, maxWidth: 1100 } }}
@@ -60,7 +67,7 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
         {success && <Alert severity="success" sx={{ mb: 2 }}>Permisos actualizados exitosamente</Alert>}
-        <FormControl sx={{ mb: 3, minWidth: 280 }}>
+        <FormControl sx={{ mb: 2, minWidth: 280 }}>
           <InputLabel>Perfil</InputLabel>
           <Select variant="standard" value={selectedProfileId} label="Perfil" onChange={(e) => setSelectedProfileId(e.target.value)}>
             {profiles.map((p) => (
@@ -68,6 +75,20 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
             ))}
           </Select>
         </FormControl>
+
+        {selectedProfile && !isAdminProfile && profilePermissionLabels.length > 0 && (
+          <Box sx={{ mb: 2, p: 1.5, bgcolor: '#f5f5f5', borderRadius: 2 }}>
+            <Typography variant="caption" fontWeight={600} sx={{ mb: 0.5, display: 'block' }}>
+              Permisos del perfil &quot;{selectedProfile.name}&quot;:
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {profilePermissionLabels.map((label, i) => (
+                <Chip key={i} label={label} size="small" variant="outlined" sx={{ fontSize: '0.6rem', height: 18 }} />
+              ))}
+            </Box>
+          </Box>
+        )}
+
         {isAdminProfile ? (
           <Box sx={{ bgcolor: '#e3f2fd', p: 2, borderRadius: 2, mb: 2, textAlign: 'center' }}>
             <Typography variant="body1" color="text.secondary">
@@ -75,7 +96,12 @@ const UserPermissionModal = ({ open, onClose, user: propUser, onSaved }) => {
             </Typography>
           </Box>
         ) : (
-          <PermissionTable groups={groups} permissions={extraPermissions} onToggle={togglePermission} />
+          <Box>
+            <Typography variant="caption" fontWeight={600} sx={{ mb: 1, display: 'block' }}>
+              Permisos adicionales para este usuario:
+            </Typography>
+            <PermissionSelector groups={groups} permissions={extraPermissions} onToggle={togglePermission} />
+          </Box>
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2, justifyContent: 'center' }}>

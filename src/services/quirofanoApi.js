@@ -17,6 +17,10 @@ export const quirofanoApi = {
     return axiosInstance.get('/quirofanos/surgeries').then(r => r.data);
   },
 
+  getById(id) {
+    return axiosInstance.get(`/quirofanos/surgeries/${id}`).then(r => r.data);
+  },
+
   create(data) {
     return axiosInstance.post('/quirofanos/surgeries', data).then(r => r.data);
   },

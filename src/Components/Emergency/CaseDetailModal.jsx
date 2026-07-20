@@ -1,4 +1,4 @@
-import { Autocomplete, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from "@mui/material";
 import { ArrowBack, Cancel, Edit, MedicalServices } from "@mui/icons-material";
 import WarningIcon from '@mui/icons-material/Warning';
 import MedicalPlanSection from "./MedicalPlanSection";
@@ -14,7 +14,28 @@ import IngressPatientModal from "../Board/IngressPatientModal";
 import ReleasePatient from "../Board/releasePatientModal";
 import StatusChip from "../Commons/StatusChip";
 import usePermissions from "../../hooks/usePermissions";
+import { CLASSIFICATION_OPTIONS } from '../../constants';
 import moment from 'moment';
+
+const FieldItem = ({ label, value }) => (
+  <Box sx={{ display: 'flex', gap: 0.5, py: 0.15 }}>
+    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, minWidth: 90, fontSize: '0.68rem' }}>
+      {label}
+    </Typography>
+    <Typography variant="body2" sx={{ fontSize: '0.73rem', color: value ? 'text.primary' : 'text.disabled', wordBreak: 'break-word' }}>
+      {value || '—'}
+    </Typography>
+  </Box>
+);
+
+const SectionHeader = ({ title }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+    <Typography variant="caption" fontWeight={700} sx={{ color: 'text.secondary', fontSize: '0.65rem', letterSpacing: 0.5 }}>
+      {title}
+    </Typography>
+    <Divider sx={{ flex: 1 }} />
+  </Box>
+);
 
 const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, hideHistory }) => {
     const permissions = usePermissions();
@@ -141,6 +162,11 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
 
     const effectiveReadOnly = readOnly || isViewingHistory || patient?.disabled;
 
+    const classificationLabel = useMemo(() => {
+        const found = CLASSIFICATION_OPTIONS.find((c) => c.key === row.classification);
+        return found?.label || row.classification || null;
+    }, [row.classification]);
+
     if (!emergency) return null;
 
     return (
@@ -150,301 +176,247 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                     DETALLE DE EMERGENCIA
                 </DialogTitle>
                 <DialogContent sx={{
-                    '&:first-of-type': { pt: 1.5 },
-                    '& .MuiInputBase-input': { fontSize: '0.75rem' },
-                    '& .MuiInputLabel-root': { fontSize: '0.75rem' },
-                    '& .MuiFormHelperText-root': { fontSize: '0.65rem' },
+                    pt: 2,
+                    '&:first-of-type': { pt: 3 },
                     '& .MuiTypography-root': { fontSize: '0.75rem' },
-                    '& .MuiChip-label': { fontSize: '0.7rem' },
-                    '& .MuiChip-root': { height: 24 },
                 }}>
-                    <Stack spacing={1.5}>
-                        {isViewingHistory && (
-                            <Button variant="outlined" startIcon={<ArrowBack />} size="small" onClick={handleBackToCurrent} sx={{ alignSelf: 'flex-start' }}>
-                                Volver a emergencia actual
-                            </Button>
-                        )}
+                    {isViewingHistory && (
+                        <Button variant="outlined" startIcon={<ArrowBack />} size="small" onClick={handleBackToCurrent} sx={{ mb: 1.5, fontSize: '0.7rem' }}>
+                            Volver a emergencia actual
+                        </Button>
+                    )}
 
-                        <Box sx={{ bgcolor: '#e3f2fd', p: 1.5, borderRadius: 2 }}>
-                            {patient?.disabled && (
-                                <Box sx={{ bgcolor: '#212121', color: 'white', p: 0.5, borderRadius: 1, mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                    <WarningIcon sx={{ fontSize: 16 }} />
-                                    <Typography variant="caption" fontWeight={700}>FALLECIDO — Solo lectura</Typography>
-                                </Box>
-                            )}
-                            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                                <Typography variant="subtitle2" fontWeight="bold" color="primary.dark">
-                                    DATOS DEL PACIENTE
-                                </Typography>
-                                {effectiveReadOnly ? (
-                                    <StatusChip status={row.status} />
-                                ) : (
-                                    <Stack direction="row" spacing={0.5}>
-                                        {hasPerm('pacientes.edit') && (
-                                            <Tooltip title="Editar datos del paciente" arrow>
-                                                <IconButton size="small" color="warning" onClick={() => setShowEditPatient(true)}>
-                                                    <Edit fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-                                        )}
-                                        {hasPerm('emergencia.assign_room') && <AsignRoom row={row} onStatusChange={handleSubActionRefresh} />}
-                                        {hasPerm('emergencia.edit') && <IngressPatientModal row={row} onStatusChange={handleSubActionClose} />}
-                                        {hasPerm('emergencia.discharge') && <ReleasePatient row={row} onStatusChange={handleSubActionClose} />}
-                                        {hasPerm('emergencia.edit') && row.status === 1 && (
-                                            <Tooltip title="Anular Emergencia" arrow>
-                                                <IconButton size="small" color="error" onClick={() => setCancelDialogOpen(true)}>
-                                                    <Cancel fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-                                        )}
-                                    </Stack>
-                                )}
-                            </Stack>
-                            <Typography variant="body2" fontWeight="bold">
+                    {patient?.disabled && (
+                        <Box sx={{ bgcolor: '#212121', color: 'white', p: 0.5, borderRadius: 1, mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <WarningIcon sx={{ fontSize: 16 }} />
+                            <Typography variant="caption" fontWeight={700}>FALLECIDO — Solo lectura</Typography>
+                        </Box>
+                    )}
+
+                    {/* Patient Header */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: '0.85rem' }}>
                                 {patient.name} {patient.lastname || ''}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                CI: {patient.ci} &nbsp;|&nbsp; Edad: {patient.age} &nbsp;|&nbsp;
-                                Genero: {patient.gender} &nbsp;|&nbsp;
-                                F. Nac: {patient.birthday ? moment(patient.birthday, 'YYYY-MM-DD').format('DD/MM/YYYY') : ''}
-                            </Typography>
-                        </Box>
-
-                        <Stack direction="row" spacing={1.5}>
-                            <Box sx={{ bgcolor: '#fff3e0', p: 1.5, borderRadius: 2, flex: 3 }}>
-                                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                                    <Typography variant="subtitle2" fontWeight="bold" color="warning.dark">
-                                        {isViewingHistory ? 'DATOS DEL CASO ANTERIOR' : 'DATOS DE LA EMERGENCIA'}
-                                    </Typography>
-                                    {effectiveReadOnly ? (
-                                        <StatusChip status={row.status} />
-                                    ) : (
-                                        hasPerm('emergencia.edit') && <EmergencyEditButton row={row} onRefresh={refetch} />
-                                    )}
-                                </Stack>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                    <Stack direction="row" spacing={1}>
-                                        <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Diagnostico:</Typography>
-                                        <Typography variant="body2">{row.diagnostic}</Typography>
-                                    </Stack>
-                                    <Stack direction="row" spacing={1}>
-                                        <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Plan:</Typography>
-                                        <Typography variant="body2">{row.treatment}</Typography>
-                                    </Stack>
-                                    <Stack direction="row" spacing={1}>
-                                        <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>F. Ingreso:</Typography>
-                                        <Typography variant="body2">{moment(row.ingress_date).format('DD/MM/YYYY')}</Typography>
-                                    </Stack>
-                                    <Stack direction="row" spacing={1}>
-                                        <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Ubicacion:</Typography>
-                                        <Typography variant="body2">{patientRoom ? patientRoom.name : 'No asignada'}</Typography>
-                                    </Stack>
-                                    {row.observations && (
-                                        <Stack direction="row" spacing={1}>
-                                            <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Observaciones:</Typography>
-                                            <Typography variant="body2">{row.observations}</Typography>
-                                        </Stack>
-                                    )}
-                                    {row.medical_exit && (
-                                        <Stack direction="row" spacing={1}>
-                                            <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Alta Medica:</Typography>
-                                            <Typography variant="body2">{row.medical_exit}</Typography>
-                                        </Stack>
-                                    )}
-                                    {row.transfer && (
-                                        <Stack direction="row" spacing={1}>
-                                            <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Area Ingreso:</Typography>
-                                            <Typography variant="body2">{row.transfer}</Typography>
-                                        </Stack>
-                                    )}
-                                    {row.cause_of_death && (
-                                        <Stack direction="row" spacing={1}>
-                                            <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Causa Muerte:</Typography>
-                                            <Typography variant="body2">{row.cause_of_death}</Typography>
-                                        </Stack>
-                                    )}
-                                    {effectiveReadOnly && row.created_at && (
-                                        <Stack direction="row" spacing={1}>
-                                            <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Hora Ingreso:</Typography>
-                                            <Typography variant="body2">{moment(row.created_at).format('DD/MM/YYYY HH:mm')}</Typography>
-                                        </Stack>
-                                    )}
-                                    {effectiveReadOnly && row.egress_at && (
-                                        <Stack direction="row" spacing={1}>
-                                            <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Hora Egreso:</Typography>
-                                            <Typography variant="body2">{moment(row.egress_at).format('DD/MM/YYYY HH:mm')}</Typography>
-                                        </Stack>
-                                    )}
-                                    {effectiveReadOnly && row.created_by?.name && (
-                                        <Stack direction="row" spacing={1}>
-                                            <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 110 }}>Creado por:</Typography>
-                                            <Typography variant="body2">{row.created_by.name}</Typography>
-                                        </Stack>
-                                    )}
-                                </Box>
-                            </Box>
-
-                            <Box sx={{ bgcolor: '#e8f5e9', p: 1.5, borderRadius: 2, flex: 2 }}>
-                                <Typography variant="subtitle2" fontWeight="bold" color="success.dark" sx={{ mb: 1 }}>
-                                    MEDICOS
-                                </Typography>
-                                <Typography variant="body2">
-                                    <strong>Principal:</strong> {row.primary_doctor?.name || 'No asignado'}
-                                </Typography>
-                                {consultingDoctors.length > 0 && (
-                                    <Box sx={{ mt: 1 }}>
-                                        <Typography variant="body2"><strong>Interconsultas:</strong></Typography>
-                                        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
-                                            {consultingDoctors.map((d) => (
-                                                <Chip
-                                                    key={d.id}
-                                                    label={d.name}
-                                                    size="small"
-                                                    color="info"
-                                                    onDelete={!effectiveReadOnly && hasPerm('emergencia.edit') ? () => handleRemoveInterconsulta(d.id) : undefined}
-                                                />
-                                            ))}
-                                        </Box>
-                                    </Box>
-                                )}
-                                {!effectiveReadOnly && hasPerm('emergencia.edit') && availableConsultingDoctors.length > 0 && (
-                                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
-                                        <Autocomplete
-                                            size="small"
-                                            fullWidth
-                                            options={availableConsultingDoctors}
-                                            getOptionLabel={(option) => option.name}
-                                            value={availableConsultingDoctors.find((d) => d.id === interconsultaInput) || null}
-                                            onChange={(_event, newValue) => setInterconsultaInput(newValue?.id || '')}
-                                            renderInput={(params) => (
-                                                <TextField variant="standard" {...params} label="Agregar Interconsulta" />
-                                            )}
-                                            sx={{ '& .MuiAutocomplete-option': { fontSize: '0.75rem' } }}
-                                        />
-                                        <Tooltip title="Agregar Interconsulta" arrow>
-                                            <span>
-                                                <IconButton color="primary" onClick={handleAddInterconsulta} disabled={!interconsultaInput}>
-                                                    <MedicalServices />
-                                                </IconButton>
-                                            </span>
-                                        </Tooltip>
-                                    </Stack>
-                                )}
-                            </Box>
-                        </Stack>
-
-                        <Box sx={{ bgcolor: '#fff8e1', p: 1.5, borderRadius: 2 }}>
-                            <MedicalPlanSection emergencyId={activeEmergencyId} readOnly={effectiveReadOnly} />
-                        </Box>
-
-                        <Box sx={{ bgcolor: '#f3e5f5', p: 1.5, borderRadius: 2 }}>
-                            <Typography variant="subtitle2" fontWeight="bold" color="secondary.dark" sx={{ mb: 1 }}>
-                                NOTAS
-                            </Typography>
-                            {patientNotes.length === 0 ? (
-                                <Typography variant="body2" color="text.secondary">Sin notas</Typography>
-                            ) : effectiveReadOnly ? (
-                                patientNotes.map((note) => (
-                                    <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'rgba(255,255,255,0.6)', borderRadius: 1 }}>
-                                        <Typography variant="body2">{note.note}</Typography>
-                                    </Box>
-                                ))
-                            ) : (
-                                patientNotes.map((note) => (
-                                    <NoteItem key={note.id} note={note} onRefresh={refetchNotes} canEdit={hasPerm('notes.edit')} canDelete={hasPerm('notes.delete')} />
-                                ))
-                            )}
-                            {!effectiveReadOnly && hasPerm('notes.create') && (
-                                <Box sx={{ mt: 1 }}>
-                                    <AddNoteInline emergencyId={activeEmergencyId} patientId={patientId} onAdded={refetchNotes} />
-                                </Box>
+                            <StatusChip status={row.status} />
+                            {classificationLabel && (
+                                <Chip label={classificationLabel} size="small" sx={{
+                                    height: 20, fontSize: '0.6rem',
+                                    bgcolor: CLASSIFICATION_OPTIONS.find((c) => c.key === row.classification)?.color || '#999',
+                                    color: 'white', fontWeight: 600,
+                                }} />
                             )}
                         </Box>
-
-                        {!hideHistory && allEmergencies.length > 1 && (
-                            <Box sx={{ bgcolor: '#f5f5f5', p: 1.5, borderRadius: 2 }}>
-                                <Typography variant="subtitle2" fontWeight="bold" color="text.secondary" sx={{ mb: 1 }}>
-                                    HISTORIAL DE CASOS
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                Ingreso: {row.ingress_date ? moment(row.ingress_date).format('DD/MM/YYYY HH:mm') : moment(row.created_at).format('DD/MM/YYYY HH:mm')}
+                            </Typography>
+                            {effectiveReadOnly && row.created_by?.name && (
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                    Creado por: {row.created_by.name}
                                 </Typography>
-                                <TableContainer component={Paper} variant="outlined">
-                                    <Table size="small">
-                                        <TableHead>
-                                            <TableRow sx={{ bgcolor: 'grey.700' }}>
-                                                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.7rem' }}>F. Ingreso</TableCell>
-                                                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.7rem' }}>Medico Tratante</TableCell>
-                                                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.7rem' }}>Diagnostico</TableCell>
-                                                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.7rem' }}>Estatus</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {allEmergencies.map((e) => {
-                                                const isCurrentEmergency = e.id === emergencyId;
-                                                const isActiveView = e.id === activeEmergencyId;
-                                                return (
-                                                    <TableRow
-                                                        key={e.id}
-                                                        hover
-                                                        onClick={() => handleHistoryRowClick(e.id)}
-                                                        sx={{
-                                                            cursor: 'pointer',
-                                                            bgcolor: isActiveView ? 'action.selected' : 'inherit',
-                                                            '&:hover': { bgcolor: 'action.hover' },
-                                                        }}
-                                                    >
-                                                        <TableCell sx={{ fontSize: '0.7rem' }}>
-                                                            {moment(e.ingress_date).format('DD/MM/YYYY')}
-                                                            {isCurrentEmergency && (
-                                                                <Chip label="ACTUAL" size="small" color="primary" sx={{ ml: 1, height: 18, '& .MuiChip-label': { fontSize: '0.6rem', px: 0.5 } }} />
-                                                            )}
-                                                        </TableCell>
-                                                        <TableCell sx={{ fontSize: '0.7rem' }}>{e.primary_doctor?.name || '-'}</TableCell>
-                                                        <TableCell sx={{ fontSize: '0.7rem' }}>{e.diagnostic || '-'}</TableCell>
-                                                        <TableCell sx={{ fontSize: '0.7rem' }}>
-                                                            <StatusChip status={e.status} />
-                                                        </TableCell>
-                                                    </TableRow>
-                                                );
-                                            })}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                            )}
+                        </Box>
+                        {!effectiveReadOnly && (
+                            <Box sx={{ display: 'flex', gap: 0.25 }}>
+                                {hasPerm('pacientes.edit') && (
+                                    <Tooltip title="Editar datos del paciente" arrow>
+                                        <IconButton size="small" color="warning" onClick={() => setShowEditPatient(true)} sx={{ p: 0.25 }}>
+                                            <Edit fontSize="small" />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
+                                {hasPerm('emergencia.assign_room') && <AsignRoom row={row} onStatusChange={handleSubActionRefresh} />}
+                                {hasPerm('emergencia.edit') && <IngressPatientModal row={row} onStatusChange={handleSubActionClose} />}
+                                {hasPerm('emergencia.discharge') && <ReleasePatient row={row} onStatusChange={handleSubActionClose} />}
+                                {hasPerm('emergencia.edit') && row.status === 1 && (
+                                    <Tooltip title="Anular Emergencia" arrow>
+                                        <IconButton size="small" color="error" onClick={() => setCancelDialogOpen(true)} sx={{ p: 0.25 }}>
+                                            <Cancel fontSize="small" />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
                             </Box>
                         )}
-                    </Stack>
+                    </Box>
+
+                    {/* Patient Data */}
+                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <SectionHeader title="PACIENTE" />
+                        <Grid container spacing={0}>
+                            <Grid item xs={6}><FieldItem label="CI" value={patient.ci} /></Grid>
+                            <Grid item xs={6}><FieldItem label="Edad" value={patient.age ? `${patient.age} años` : ''} /></Grid>
+                            <Grid item xs={6}><FieldItem label="Género" value={patient.gender} /></Grid>
+                            <Grid item xs={6}><FieldItem label="F. Nac" value={patient.birthday ? moment(patient.birthday, 'YYYY-MM-DD').format('DD/MM/YYYY') : ''} /></Grid>
+                        </Grid>
+                    </Box>
+
+                    {/* Emergency Data */}
+                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <SectionHeader title={isViewingHistory ? 'CASO ANTERIOR' : 'EMERGENCIA'} />
+                        <Grid container spacing={0}>
+                            <Grid item xs={12}><FieldItem label="Diagnóstico" value={row.diagnostic} /></Grid>
+                            <Grid item xs={12}><FieldItem label="Plan" value={row.treatment} /></Grid>
+                            <Grid item xs={6}><FieldItem label="Médico" value={row.primary_doctor?.name || 'No asignado'} /></Grid>
+                            <Grid item xs={6}><FieldItem label="Ubicación" value={patientRoom?.name || 'No asignada'} /></Grid>
+                            {effectiveReadOnly && row.created_at && (
+                                <Grid item xs={6}><FieldItem label="H. Ingreso" value={moment(row.created_at).format('DD/MM/YYYY HH:mm')} /></Grid>
+                            )}
+                            {effectiveReadOnly && row.egress_at && (
+                                <Grid item xs={6}><FieldItem label="H. Egreso" value={moment(row.egress_at).format('DD/MM/YYYY HH:mm')} /></Grid>
+                            )}
+                            <Grid item xs={6}><FieldItem label="Clasificación" value={classificationLabel} /></Grid>
+                            {!effectiveReadOnly && (
+                                <Grid item xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
+                                    {hasPerm('emergencia.edit') && <EmergencyEditButton row={row} onRefresh={refetch} />}
+                                </Grid>
+                            )}
+                        </Grid>
+                        {row.observations && (
+                            <Box sx={{ mt: 0.5, p: 0.75, bgcolor: '#fff8e1', borderRadius: 1 }}>
+                                <Typography variant="caption" fontWeight={600} sx={{ color: '#f57f17', fontSize: '0.65rem' }}>Observaciones</Typography>
+                                <Typography variant="body2" sx={{ fontSize: '0.73rem', mt: 0.25 }}>{row.observations}</Typography>
+                            </Box>
+                        )}
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 0.5 }}>
+                            {row.medical_exit && <FieldItem label="Alta Médica" value={row.medical_exit} />}
+                            {row.transfer && <FieldItem label="Área Ingreso" value={row.transfer} />}
+                            {row.cause_of_death && <FieldItem label="Causa Muerte" value={row.cause_of_death} />}
+                        </Box>
+                    </Box>
+
+                    {/* Doctors */}
+                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <SectionHeader title="MÉDICOS" />
+                        <Grid container spacing={0}>
+                            <Grid item xs={6}><FieldItem label="Principal" value={row.primary_doctor?.name || 'No asignado'} /></Grid>
+                            {consultingDoctors.length > 0 && (
+                                <Grid item xs={6}>
+                                    <Box sx={{ display: 'flex', gap: 0.25, flexWrap: 'wrap', py: 0.15 }}>
+                                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.68rem', mr: 0.5 }}>
+                                            Interconsultas:
+                                        </Typography>
+                                        {consultingDoctors.map((d) => (
+                                            <Chip key={d.id} label={d.name} size="small" color="info"
+                                                onDelete={!effectiveReadOnly && hasPerm('emergencia.edit') ? () => handleRemoveInterconsulta(d.id) : undefined}
+                                                sx={{ height: 18, '& .MuiChip-label': { fontSize: '0.6rem', px: 0.5 } }} />
+                                        ))}
+                                    </Box>
+                                </Grid>
+                            )}
+                        </Grid>
+                        {!effectiveReadOnly && hasPerm('emergencia.edit') && availableConsultingDoctors.length > 0 && (
+                            <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
+                                <Autocomplete size="small" fullWidth
+                                    options={availableConsultingDoctors}
+                                    getOptionLabel={(option) => option.name}
+                                    value={availableConsultingDoctors.find((d) => d.id === interconsultaInput) || null}
+                                    onChange={(_event, newValue) => setInterconsultaInput(newValue?.id || '')}
+                                    renderInput={(params) => (<TextField variant="standard" {...params} label="Agregar Interconsulta" sx={{ '& .MuiInputBase-input': { fontSize: '0.7rem' } }} />)}
+                                    sx={{ '& .MuiAutocomplete-option': { fontSize: '0.7rem' } }} />
+                                <Tooltip title="Agregar Interconsulta" arrow>
+                                    <span><IconButton color="primary" onClick={handleAddInterconsulta} disabled={!interconsultaInput}><MedicalServices /></IconButton></span>
+                                </Tooltip>
+                            </Stack>
+                        )}
+                    </Box>
+
+                    {/* Medical Plan */}
+                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <SectionHeader title="PLAN MÉDICO" />
+                        <MedicalPlanSection emergencyId={activeEmergencyId} readOnly={effectiveReadOnly} />
+                    </Box>
+
+                    {/* Notes */}
+                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <SectionHeader title="NOTAS" />
+                        {patientNotes.length === 0 ? (
+                            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.73rem' }}>Sin notas</Typography>
+                        ) : (
+                            patientNotes.map((note) => (
+                                effectiveReadOnly ? (
+                                    <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'white', borderRadius: 1, border: '1px solid #eee' }}>
+                                        <Typography variant="body2" sx={{ fontSize: '0.73rem', whiteSpace: 'pre-wrap' }}>{note.note}</Typography>
+                                        {note.created_by?.name && (
+                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', mt: 0.25, display: 'block' }}>
+                                                — {note.created_by.name} {note.created_at ? moment(note.created_at).format('DD/MM/YYYY HH:mm') : ''}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                ) : (
+                                    <NoteItem key={note.id} note={note} onRefresh={refetchNotes} canEdit={hasPerm('notes.edit')} canDelete={hasPerm('notes.delete')} />
+                                )
+                            ))
+                        )}
+                        {!effectiveReadOnly && hasPerm('notes.create') && (
+                            <Box sx={{ mt: 1 }}><AddNoteInline emergencyId={activeEmergencyId} patientId={patientId} onAdded={refetchNotes} /></Box>
+                        )}
+                    </Box>
+
+                    {/* Case History */}
+                    {!hideHistory && allEmergencies.length > 1 && (
+                        <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                            <SectionHeader title="HISTORIAL DE CASOS" />
+                            <TableContainer component={Paper} variant="outlined">
+                                <Table size="small">
+                                    <TableHead>
+                                        <TableRow sx={{ bgcolor: 'grey.700' }}>
+                                            <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.65rem', py: 0.5 }}>F. Ingreso</TableCell>
+                                            <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.65rem', py: 0.5 }}>Médico Tratante</TableCell>
+                                            <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.65rem', py: 0.5 }}>Diagnóstico</TableCell>
+                                            <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.65rem', py: 0.5 }}>Estatus</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {allEmergencies.map((e) => {
+                                            const isCurrentEmergency = e.id === emergencyId;
+                                            const isActiveView = e.id === activeEmergencyId;
+                                            return (
+                                                <TableRow key={e.id} hover onClick={() => handleHistoryRowClick(e.id)}
+                                                    sx={{ cursor: 'pointer', bgcolor: isActiveView ? 'action.selected' : 'inherit', '&:hover': { bgcolor: 'action.hover' } }}>
+                                                    <TableCell sx={{ fontSize: '0.65rem', py: 0.5 }}>
+                                                        {moment(e.ingress_date).format('DD/MM/YYYY')}
+                                                        {isCurrentEmergency && <Chip label="ACTUAL" size="small" color="primary" sx={{ ml: 0.5, height: 16, '& .MuiChip-label': { fontSize: '0.55rem', px: 0.5 } }} />}
+                                                    </TableCell>
+                                                    <TableCell sx={{ fontSize: '0.65rem', py: 0.5 }}>{e.primary_doctor?.name || '-'}</TableCell>
+                                                    <TableCell sx={{ fontSize: '0.65rem', py: 0.5 }}>{e.diagnostic || '-'}</TableCell>
+                                                    <TableCell sx={{ fontSize: '0.65rem', py: 0.5 }}><StatusChip status={e.status} /></TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Box>
+                    )}
                 </DialogContent>
-                <DialogActions sx={{ p: '0.75rem 1.25rem' }}>
-                    <Button onClick={onClose} variant="outlined" color="error">Cerrar</Button>
+                <DialogActions sx={{ p: '0.5rem 1rem' }}>
+                    <Button onClick={onClose} variant="outlined" color="error" sx={{ fontSize: '0.7rem' }}>Cerrar</Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={cancelDialogOpen} onClose={() => { setCancelDialogOpen(false); setCancelReason(''); }} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ bgcolor: '#616161', color: 'white', fontSize: '0.85rem' }}>
+                <DialogTitle sx={{ bgcolor: '#616161', color: 'white', fontSize: '0.8rem' }}>
                     ANULAR EMERGENCIA
                 </DialogTitle>
                 <DialogContent style={{ paddingTop: 24 }}>
                     <TextField variant="standard" fullWidth size="small" required multiline rows={3}
                         label="Motivo de anulación" value={cancelReason}
                         onChange={(e) => setCancelReason(e.target.value)}
-                        error={!cancelReason}
-                        helperText={!cancelReason ? 'Requerido' : ''}
-                    />
+                        error={!cancelReason} helperText={!cancelReason ? 'Requerido' : ''}
+                        sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
                 </DialogContent>
                 <DialogActions>
                     <Button size="small" variant="outlined" onClick={() => { setCancelDialogOpen(false); setCancelReason(''); }}>Cancelar</Button>
-                    <Button size="small" variant="outlined" color="error" onClick={handleCancelEmergency}
-                        disabled={!cancelReason}>
+                    <Button size="small" variant="outlined" color="error" onClick={handleCancelEmergency} disabled={!cancelReason}>
                         Anular Emergencia
                     </Button>
                 </DialogActions>
             </Dialog>
 
             {!readOnly && showEditPatient && (
-                <EditPatientData
-                    open={showEditPatient}
-                    onClose={() => setShowEditPatient(false)}
-                    patient={patient}
-                    onSaved={handlePatientSaved}
-                />
+                <EditPatientData open={showEditPatient} onClose={() => setShowEditPatient(false)} patient={patient} onSaved={handlePatientSaved} />
             )}
         </>
     );

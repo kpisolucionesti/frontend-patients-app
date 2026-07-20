@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Button, MenuItem, Grid, Alert, Autocomplete
+  TextField, Button, MenuItem, Grid, Alert, Autocomplete,
+  FormControlLabel, Checkbox, Typography, Divider
 } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
 import { SURGERY_TYPES, STATUS_OPTIONS } from '../Hospitalizacion/SurgeriesTab';
@@ -10,23 +11,28 @@ const ANESTHESIA_TYPES = [
   'General', 'Regional', 'Local', 'Sedación', 'Bloqueo', 'Mixta'
 ];
 
+const EXTENDED_STATUS_OPTIONS = [
+  ...STATUS_OPTIONS,
+  { key: 'in_progress', label: 'En Progreso', color: 'warning' },
+];
+
 export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }) {
   const [form, setForm] = useState({
     surgery_type: '', description: '', surgeon_name: '', patient_id: '',
     surgery_date: '', scheduled_start_time: '', scheduled_end_time: '',
+    actual_start_time: '', actual_end_time: '',
     area_id: '', anesthesiologist: '', anesthesia_type: '',
-    preanesthetic_evaluation: '', status: 'scheduled', hospitalization_id: ''
+    preanesthetic_evaluation: '', preop_notes: '', postop_notes: '', result: '',
+    status: 'scheduled', hospitalization_id: '', ambulatory: false
   });
   const [areas, setAreas] = useState([]);
   const [patientOptions, setPatientOptions] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [doctors, setDoctors] = useState([]);
   const [error, setError] = useState(null);
   const searchTimer = useRef(null);
 
   useEffect(() => {
     BackendAPI.areas.getAll().then(setAreas).catch(() => setError('Error al cargar quirófanos'));
-    BackendAPI.doctors.getAll().then(setDoctors).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -46,17 +52,23 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
         surgery_date: surgery.surgery_date?.split('T')[0] || '',
         scheduled_start_time: surgery.scheduled_start_time || '',
         scheduled_end_time: surgery.scheduled_end_time || '',
+        actual_start_time: surgery.actual_start_time || '',
+        actual_end_time: surgery.actual_end_time || '',
         area_id: surgery.area_id || '',
         anesthesiologist: surgery.anesthesiologist || '',
         anesthesia_type: surgery.anesthesia_type || '',
         preanesthetic_evaluation: surgery.preanesthetic_evaluation || '',
+        preop_notes: surgery.preop_notes || '',
+        postop_notes: surgery.postop_notes || '',
+        result: surgery.result || '',
         status: surgery.status || 'scheduled',
-        hospitalization_id: surgery.hospitalization_id || ''
+        hospitalization_id: surgery.hospitalization_id || '',
+        ambulatory: surgery.ambulatory === true || (!surgery.hospitalization_id && surgery.patient_id != null)
       });
     } else {
       setSelectedPatient(null);
       const today = new Date().toISOString().split('T')[0];
-      setForm(prev => ({ ...prev, surgery_date: today }));
+      setForm(prev => ({ ...prev, surgery_date: today, ambulatory: false }));
     }
   }, [surgery, open]);
 
@@ -78,11 +90,15 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
 
   const handleSubmit = async () => {
     setError(null);
+    const payload = { ...form };
+    if (form.ambulatory) {
+      delete payload.hospitalization_id;
+    }
     try {
       if (surgery) {
-        await BackendAPI.quirofano.update(surgery.id, form);
+        await BackendAPI.quirofano.update(surgery.id, payload);
       } else {
-        await BackendAPI.quirofano.create(form);
+        await BackendAPI.quirofano.create(payload);
       }
       onSaved();
       onClose();
@@ -92,15 +108,34 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
   };
 
   const handleChange = (field) => (e) => {
-    setForm(prev => ({ ...prev, [field]: e.target.value }));
+    const value = e.target.value;
+    setForm(prev => ({ ...prev, [field]: value }));
   };
+
+  const statusIsPast = form.status === 'completed' || form.status === 'cancelled';
+  const statusIsActive = form.status === 'in_progress';
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ bgcolor: '#00695c', color: 'white', fontWeight: 'bold' }}>{surgery ? 'Editar Cirugía' : 'Planificar Cirugía'}</DialogTitle>
+      <DialogTitle sx={{ bgcolor: '#00695c', color: 'white', fontWeight: 'bold' }}>
+        {surgery ? 'Editar Cirugía' : 'Planificar Cirugía'}
+      </DialogTitle>
       <DialogContent>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={form.ambulatory}
+                  onChange={(e) => setForm(prev => ({ ...prev, ambulatory: e.target.checked, hospitalization_id: e.target.checked ? '' : prev.hospitalization_id }))}
+                  color="primary"
+                />
+              }
+              label={<Typography variant="body2" fontWeight={600}>Paciente ambulatorio (sin hospitalización)</Typography>}
+            />
+          </Grid>
+
           <Grid item xs={6}>
             <TextField select variant="standard" size="small" fullWidth label="Tipo de Cirugía" value={form.surgery_type}
               onChange={handleChange('surgery_type')} required>
@@ -111,16 +146,24 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
             <TextField variant="standard" size="small" fullWidth label="Nombre del Cirujano" value={form.surgeon_name}
               onChange={handleChange('surgeon_name')} />
           </Grid>
-          <Grid item xs={6}>
-            <TextField variant="standard" size="small" fullWidth label="Anestesiólogo" value={form.anesthesiologist}
-              onChange={handleChange('anesthesiologist')} />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField select variant="standard" size="small" fullWidth label="Tipo de Anestesia" value={form.anesthesia_type}
-              onChange={handleChange('anesthesia_type')}>
-              {ANESTHESIA_TYPES.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
-            </TextField>
-          </Grid>
+
+          {form.ambulatory && (
+            <Grid item xs={12}>
+              <Autocomplete
+                options={patientOptions}
+                getOptionLabel={(p) => `${p.name} ${p.lastname || ''} - CI: ${p.ci}`}
+                value={selectedPatient}
+                onChange={handlePatientSelect}
+                onInputChange={(_e, v) => handlePatientSearch(v)}
+                renderInput={(params) => (
+                  <TextField {...params} label="Buscar Paciente" placeholder="CI, nombre o apellido" variant="standard" />
+                )}
+                noOptionsText="Escriba al menos 2 caracteres"
+                isOptionEqualToValue={(o, v) => o.id === v.id}
+              />
+            </Grid>
+          )}
+
           <Grid item xs={6}>
             <TextField variant="standard" size="small" fullWidth type="date" label="Fecha de Cirugía" value={form.surgery_date}
               onChange={handleChange('surgery_date')} InputLabelProps={{ shrink: true }} required />
@@ -135,6 +178,22 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
               value={form.scheduled_end_time}
               onChange={handleChange('scheduled_end_time')} InputLabelProps={{ shrink: true }} />
           </Grid>
+
+          {(statusIsActive || statusIsPast) && (
+            <>
+              <Grid item xs={6}>
+                <TextField variant="standard" size="small" fullWidth type="datetime-local" label="Inicio Real"
+                  value={form.actual_start_time}
+                  onChange={handleChange('actual_start_time')} InputLabelProps={{ shrink: true }} />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField variant="standard" size="small" fullWidth type="datetime-local" label="Fin Real"
+                  value={form.actual_end_time}
+                  onChange={handleChange('actual_end_time')} InputLabelProps={{ shrink: true }} />
+              </Grid>
+            </>
+          )}
+
           <Grid item xs={6}>
             <TextField select variant="standard" size="small" fullWidth label="Quirófano" value={form.area_id}
               onChange={handleChange('area_id')}>
@@ -150,30 +209,45 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
           <Grid item xs={6}>
             <TextField select variant="standard" size="small" fullWidth label="Estado" value={form.status}
               onChange={handleChange('status')}>
-              {STATUS_OPTIONS.map(s => <MenuItem key={s.key} value={s.key}>{s.label}</MenuItem>)}
+              {EXTENDED_STATUS_OPTIONS.map(s => <MenuItem key={s.key} value={s.key}>{s.label}</MenuItem>)}
             </TextField>
           </Grid>
-          <Grid item xs={12}>
-            <Autocomplete
-              options={patientOptions}
-              getOptionLabel={(p) => `${p.name} ${p.lastname || ''} - CI: ${p.ci}`}
-              value={selectedPatient}
-              onChange={handlePatientSelect}
-              onInputChange={(_e, v) => handlePatientSearch(v)}
-              renderInput={(params) => (
-                <TextField {...params} label="Buscar Paciente" placeholder="CI, nombre o apellido" variant="standard" />
-              )}
-              noOptionsText="Escriba al menos 2 caracteres"
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-            />
+
+          <Grid item xs={6}>
+            <TextField variant="standard" size="small" fullWidth label="Anestesiólogo" value={form.anesthesiologist}
+              onChange={handleChange('anesthesiologist')} />
           </Grid>
+          <Grid item xs={6}>
+            <TextField select variant="standard" size="small" fullWidth label="Tipo de Anestesia" value={form.anesthesia_type}
+              onChange={handleChange('anesthesia_type')}>
+              {ANESTHESIA_TYPES.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+            </TextField>
+          </Grid>
+
           <Grid item xs={12}>
-            <TextField variant="standard" size="small" fullWidth multiline rows={3} label="Descripción" value={form.description}
+            <Divider sx={{ my: 1 }} />
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>Notas y Evaluaciones</Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField variant="standard" size="small" fullWidth multiline rows={2} label="Descripción" value={form.description}
               onChange={handleChange('description')} />
           </Grid>
           <Grid item xs={12}>
-            <TextField variant="standard" size="small" fullWidth multiline rows={4} label="Evaluación Pre-Anestésica"
+            <TextField variant="standard" size="small" fullWidth multiline rows={3} label="Evaluación Pre-Anestésica"
               value={form.preanesthetic_evaluation} onChange={handleChange('preanesthetic_evaluation')} />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField variant="standard" size="small" fullWidth multiline rows={3} label="Notas Pre-Op"
+              value={form.preop_notes} onChange={handleChange('preop_notes')} />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField variant="standard" size="small" fullWidth multiline rows={3} label="Notas Post-Op"
+              value={form.postop_notes} onChange={handleChange('postop_notes')} />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField variant="standard" size="small" fullWidth multiline rows={3} label="Resultado"
+              value={form.result} onChange={handleChange('result')} />
           </Grid>
         </Grid>
       </DialogContent>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Chip, IconButton, Paper, Tooltip } from '@mui/material';
-import { Edit, History } from '@mui/icons-material';
+import { Box, Chip, IconButton, Paper, TextField, Tooltip } from '@mui/material';
+import { Edit, History, Search as SearchIcon } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import moment from 'moment';
@@ -10,7 +10,7 @@ import ExportModal from '../Commons/ExportModal';
 import usePermissions from '../../hooks/usePermissions';
 import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 
-const PatientsList = ({ onSelectPatient, embedded }) => {
+const PatientsList = ({ onSelectPatient, embedded, initialSearch }) => {
   const permissions = usePermissions();
   const [editPatient, setEditPatient] = useState(null);
   const [historyPatient, setHistoryPatient] = useState(null);
@@ -19,8 +19,8 @@ const PatientsList = ({ onSelectPatient, embedded }) => {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 25 });
   const [fetchTrigger, setFetchTrigger] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch || '');
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch || '');
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchQuery), 400);
@@ -93,10 +93,18 @@ const PatientsList = ({ onSelectPatient, embedded }) => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flex: 1 }}>
+          <TextField
+            size="small"
+            placeholder="Buscar por cédula, nombre o apellido..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{ startAdornment: <SearchIcon sx={{ mr: 0.5, fontSize: 18, color: 'action.active' }} /> }}
+            sx={{ minWidth: 300, '& .MuiInputBase-input': { fontSize: '0.75rem' } }}
+          />
           <ExportModal data={tableData} columns={columns} filename="Pacientes" buttonLabel="Descargar" />
         </Box>
       ),
-      [tableData, columns],
+      [tableData, columns, searchQuery],
     ),
     renderRowActions: !embedded ? ({ row }) => (
       <>

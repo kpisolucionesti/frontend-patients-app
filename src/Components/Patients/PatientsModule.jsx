@@ -10,29 +10,36 @@ import PatientProfile from './PatientProfile';
 const PatientsModule = () => {
   const [view, setView] = useState('search');
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [searchCi, setSearchCi] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchError, setSearchError] = useState(null);
   const [showList, setShowList] = useState(false);
+  const [searchResults, setSearchResults] = useState(null);
   const { show: showSnackbar } = useSnackbar();
 
-  const handleSearchCi = async () => {
-    if (!searchCi.trim()) return;
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
     setSearchError(null);
+    setSearchResults(null);
     try {
-      const found = await BackendAPI.patients.findByCi(searchCi.trim());
-      if (found) {
-        setSelectedPatient(found);
+      const res = await BackendAPI.patients.getAll({ q: searchQuery.trim(), page: 1, per_page: 50 });
+      const patients = res.data || [];
+      if (patients.length === 0) {
+        setSearchError('No se encontraron pacientes con ese criterio de búsqueda');
+      } else if (patients.length === 1) {
+        setSelectedPatient(patients[0]);
         setView('profile');
       } else {
-        setSearchError('Paciente no encontrado con esa cédula');
+        setSearchResults(patients);
+        setShowList(true);
+        showSnackbar(`Se encontraron ${res.total} pacientes`, 'info');
       }
     } catch {
-      setSearchError('Error al buscar paciente');
+      setSearchError('Error al buscar pacientes');
     }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSearchCi();
+    if (e.key === 'Enter') handleSearch();
   };
 
   const handleSelectPatient = (patient) => {
@@ -44,6 +51,7 @@ const PatientsModule = () => {
     setSelectedPatient(null);
     setView('search');
     setSearchError(null);
+    setSearchResults(null);
   };
 
   if (view === 'profile' && selectedPatient) {
@@ -63,16 +71,21 @@ const PatientsModule = () => {
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <TextField
             size="small"
-            label="Cédula"
-            value={searchCi}
-            onChange={(e) => { setSearchCi(e.target.value); setSearchError(null); }}
+            label="Cédula, Nombre o Apellido"
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setSearchError(null); }}
             onKeyDown={handleKeyDown}
-            sx={{ flex: 1, maxWidth: 300 }}
+            sx={{ flex: 1, maxWidth: 350 }}
           />
-          <Button variant="contained" startIcon={<SearchIcon />} onClick={handleSearchCi}>
+          <Button variant="contained" startIcon={<SearchIcon />} onClick={handleSearch}>
             Buscar
           </Button>
         </Box>
+        {searchResults && (
+          <Typography variant="caption" color="text.secondary">
+            {searchResults.length} resultados
+          </Typography>
+        )}
         {searchError && <Alert severity="warning" onClose={() => setSearchError(null)}>{searchError}</Alert>}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ flex: 1, height: '1px', bgcolor: '#e0e0e0' }} />
@@ -91,7 +104,7 @@ const PatientsModule = () => {
 
       {showList && (
         <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-          <PatientsList onSelectPatient={handleSelectPatient} embedded />
+          <PatientsList onSelectPatient={handleSelectPatient} embedded initialSearch={searchQuery} />
         </Box>
       )}
     </Box>

@@ -4,9 +4,10 @@ import {
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import EditIcon from '@mui/icons-material/Edit';
 import { BackendAPI } from '../../services/BackendApi';
 
-export default function ScheduleBoard({ onSelectSurgery }) {
+export default function ScheduleBoard({ onSelectSurgery, onEditSurgery }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [schedule, setSchedule] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,7 @@ export default function ScheduleBoard({ onSelectSurgery }) {
 
   const statusColor = {
     scheduled: 'primary',
+    in_progress: 'warning',
     completed: 'success',
     cancelled: 'default'
   };
@@ -68,10 +70,22 @@ export default function ScheduleBoard({ onSelectSurgery }) {
                           <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                             {s.surgery_type}
                           </Typography>
-                          <Chip label={s.status} size="small" color={statusColor[s.status] || 'default'} />
+                          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                            <Chip label={s.status} size="small" color={statusColor[s.status] || 'default'} />
+                            {onEditSurgery && (
+                              <IconButton
+                                size="small"
+                                onClick={(e) => { e.stopPropagation(); onEditSurgery(s); }}
+                                sx={{ p: 0.5 }}
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
                         </Box>
                         <Typography variant="caption" display="block">
                           {s.patient?.name} {s.patient?.lastname}
+                          {s.ambulatory && <Chip label="Ambulatorio" size="small" color="info" sx={{ ml: 1, height: 18, fontSize: '0.55rem' }} />}
                         </Typography>
                         {s.scheduled_start_time && (
                           <Typography variant="caption" color="text.secondary">

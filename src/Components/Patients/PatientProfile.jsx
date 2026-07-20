@@ -24,6 +24,7 @@ import AntecedentsSection from '../Portal/AntecedentsSection';
 import PatientAppointmentsSummary from '../Commons/PatientAppointmentsSummary';
 import EditPatientData from './editPatientDataModal';
 import HistoryDetailModal from '../History/HistoryDetailModal';
+import HospitalizationDetailModal from '../Hospitalizacion/HospitalizationDetailModal';
 
 const TABS = [
   { key: 'resumen', label: 'Resumen', icon: <SummarizeIcon /> },
@@ -34,6 +35,7 @@ const TABS = [
   { key: 'notas', label: 'Notas', icon: <SubjectIcon /> },
   { key: 'alergias', label: 'Alergias', icon: <WarningIcon /> },
   { key: 'antecedentes', label: 'Antecedentes', icon: <HistoryIcon /> },
+  { key: 'cirugias', label: 'Cirugías', icon: <ScienceIcon /> },
 ];
 
 const GENDER_MAP = { M: 'Masculino', F: 'Femenino' };
@@ -57,8 +59,15 @@ const PatientProfile = ({ patient, onBack }) => {
   const [loadingLab, setLoadingLab] = useState(false);
   const [notesData, setNotesData] = useState([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
+  const [hospitalizations, setHospitalizations] = useState([]);
+  const [loadingHospitalizations, setLoadingHospitalizations] = useState(false);
+  const [hospitalizationsPage, setHospitalizationsPage] = useState(0);
+  const [hospitalizationsTotal, setHospitalizationsTotal] = useState(0);
   const [editOpen, setEditOpen] = useState(false);
   const [detailEmerg, setDetailEmerg] = useState(null);
+  const [detailHosp, setDetailHosp] = useState(null);
+  const [surgeries, setSurgeries] = useState([]);
+  const [loadingSurgeries, setLoadingSurgeries] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const { show: showSnackbar } = useSnackbar();
 
@@ -94,6 +103,33 @@ const PatientProfile = ({ patient, onBack }) => {
       fetchNotesData();
     }
   }, [activeTab]);
+
+  const fetchSurgeries = useCallback(async () => {
+    setLoadingSurgeries(true);
+    try {
+      const res = await BackendAPI.patients.getSurgeries(patient.id);
+      setSurgeries(res.data || []);
+    } catch { setSurgeries([]); }
+    setLoadingSurgeries(false);
+  }, [patient.id]);
+
+  const fetchHospitalizations = useCallback(async (page = 0) => {
+    setLoadingHospitalizations(true);
+    try {
+      const res = await BackendAPI.hospitalizations.historical({ patient_id: patient.id, page: page + 1, per_page: 10 });
+      setHospitalizations(res.data || []);
+      setHospitalizationsTotal(res.total || 0);
+    } catch { setHospitalizations([]); }
+    setLoadingHospitalizations(false);
+  }, [patient.id]);
+
+  useEffect(() => {
+    if (activeTab === 'hospitalizaciones') fetchHospitalizations(hospitalizationsPage);
+  }, [activeTab, hospitalizationsPage, fetchHospitalizations]);
+
+  useEffect(() => {
+    if (activeTab === 'cirugias') fetchSurgeries();
+  }, [activeTab, fetchSurgeries]);
 
   const fetchLabData = async () => {
     setLoadingLab(true);
@@ -140,6 +176,7 @@ const PatientProfile = ({ patient, onBack }) => {
   };
 
   const handleEmergenciesPageChange = (_e, newPage) => setEmergenciesPage(newPage);
+  const handleHospitalizationsPageChange = (_e, newPage) => setHospitalizationsPage(newPage);
 
   const recentEmergency = emergencies[0];
   const isDeceased = patient?.disabled;
@@ -319,10 +356,60 @@ const PatientProfile = ({ patient, onBack }) => {
         )}
 
         {activeTab === 'hospitalizaciones' && (
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              Las hospitalizaciones se muestran en el detalle de cada emergencia (sección Emergencias → Ver detalle).
-            </Typography>
+          <Paper>
+            {loadingHospitalizations ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}><CircularProgress /></Box>
+            ) : hospitalizations.length === 0 ? (
+              <Box sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin hospitalizaciones registradas</Typography></Box>
+            ) : (
+              <>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 700 }}>F. Ingreso</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>F. Alta</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Diagnóstico</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Médico</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Acciones</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {hospitalizations.map((h) => (
+                        <TableRow key={h.id} hover sx={{ cursor: 'pointer' }} onClick={() => setDetailHosp(h.id)}>
+                          <TableCell>{h.admission_date ? moment(h.admission_date).format('DD/MM/YYYY') : '-'}</TableCell>
+                          <TableCell>{h.discharge_date ? moment(h.discharge_date).format('DD/MM/YYYY') : '-'}</TableCell>
+                          <TableCell>{h.admission_diagnosis || h.emergency?.diagnostic || '-'}</TableCell>
+                          <TableCell>{h.attending_doctor?.name || h.admitting_doctor?.name || '-'}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={h.status === 'active' ? 'Activo' : 'Alta'}
+                              size="small"
+                              color={h.status === 'active' ? 'warning' : 'success'}
+                              sx={{ height: 18, '& .MuiChip-label': { fontSize: '0.6rem', px: 0.5 } }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Button size="small" onClick={(ev) => { ev.stopPropagation(); setDetailHosp(h.id); }}>
+                              Ver detalle
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <TablePagination
+                  component="div"
+                  count={hospitalizationsTotal}
+                  page={hospitalizationsPage}
+                  onPageChange={handleHospitalizationsPageChange}
+                  rowsPerPage={10}
+                  rowsPerPageOptions={[10]}
+                />
+              </>
+            )}
           </Paper>
         )}
 
@@ -390,6 +477,58 @@ const PatientProfile = ({ patient, onBack }) => {
         {activeTab === 'antecedentes' && (
           <AntecedentsSection patientId={patient.id} readOnly={isDeceased} />
         )}
+
+        {activeTab === 'cirugias' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {loadingSurgeries ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}><CircularProgress /></Box>
+            ) : surgeries.length === 0 ? (
+              <Paper sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin cirugías registradas</Typography></Paper>
+            ) : (
+              surgeries.map((s) => (
+                <Paper key={s.id} sx={{ p: 1.5, borderLeft: '4px solid #00695c', bgcolor: '#f0faf8' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip
+                        label={s.surgery_type}
+                        size="small"
+                        sx={{ bgcolor: '#00695c', color: 'white', fontSize: '0.7rem', fontWeight: 600 }}
+                      />
+                      {s.ambulatory && (
+                        <Chip label="Ambulatorio" size="small" color="info" sx={{ height: 20, fontSize: '0.6rem' }} />
+                      )}
+                      <Chip
+                        label={s.status === 'scheduled' ? 'Programada' : s.status === 'in_progress' ? 'En Progreso' : s.status === 'completed' ? 'Realizada' : 'Cancelada'}
+                        size="small"
+                        color={s.status === 'completed' ? 'success' : s.status === 'in_progress' ? 'warning' : s.status === 'scheduled' ? 'primary' : 'default'}
+                        sx={{ height: 20, fontSize: '0.6rem' }}
+                      />
+                    </Box>
+                    <Typography variant="caption" color="text.secondary">
+                      {s.surgery_date ? moment(s.surgery_date).format('DD/MM/YYYY') : ''}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                    {s.description || ''}
+                    {s.surgeon_name && <Box component="span" sx={{ color: 'text.secondary' }}> — Cirujano: {s.surgeon_name}</Box>}
+                  </Typography>
+                  {(s.scheduled_start_time || s.actual_start_time) && (
+                    <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.3 }}>
+                      {s.scheduled_start_time && <>Programado: {moment(s.scheduled_start_time).format('DD/MM/YYYY HH:mm')}</>}
+                      {s.actual_start_time && <> | Inicio Real: {moment(s.actual_start_time).format('DD/MM/YYYY HH:mm')}</>}
+                      {s.actual_end_time && <> | Fin Real: {moment(s.actual_end_time).format('DD/MM/YYYY HH:mm')}</>}
+                    </Typography>
+                  )}
+                  {s.result && (
+                    <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.5, fontStyle: 'italic', color: 'text.secondary' }}>
+                      Resultado: {s.result}
+                    </Typography>
+                  )}
+                </Paper>
+              ))
+            )}
+          </Box>
+        )}
       </Box>
 
       <EditPatientData open={editOpen} onClose={() => setEditOpen(false)} patient={patient} onSaved={handleEditSaved} />
@@ -399,6 +538,13 @@ const PatientProfile = ({ patient, onBack }) => {
           open={!!detailEmerg}
           emergencyId={detailEmerg}
           onClose={() => setDetailEmerg(null)}
+        />
+      )}
+      {detailHosp && (
+        <HospitalizationDetailModal
+          open={!!detailHosp}
+          hospitalizationId={detailHosp}
+          onClose={() => setDetailHosp(null)}
         />
       )}
     </Box>

@@ -1,6 +1,10 @@
 import axiosInstance from './axiosInstance';
 
 export const hospitalizationsApi = {
+  getById: async (id) => {
+    const res = await axiosInstance.get(`/hospitalizations/${id}`);
+    return res.data;
+  },
   getByEmergency: async (emergencyId) => {
     const res = await axiosInstance.get(`/emergencies/${emergencyId}/hospitalization`);
     return res.data;

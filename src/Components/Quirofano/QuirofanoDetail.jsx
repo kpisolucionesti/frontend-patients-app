@@ -3,11 +3,12 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button,
   Typography, Grid, Chip, Box, Divider
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import { BackendAPI } from '../../services/BackendApi';
 import SurgeryTeamForm from './SurgeryTeamForm';
 import DocumentsPanel from '../Commons/DocumentsPanel';
 
-export default function QuirofanoDetail({ open, onClose, surgery, onSaved }) {
+export default function QuirofanoDetail({ open, onClose, surgery, onSaved, onEdit }) {
   const [surgeryData, setSurgeryData] = useState(null);
 
   useEffect(() => {
@@ -20,20 +21,44 @@ export default function QuirofanoDetail({ open, onClose, surgery, onSaved }) {
 
   const statusColor = {
     scheduled: 'primary',
+    in_progress: 'warning',
     completed: 'success',
     cancelled: 'default'
+  };
+
+  const formatDateTime = (dt) => {
+    if (!dt) return null;
+    return new Date(dt).toLocaleString('es-ES');
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ bgcolor: '#00695c', color: 'white', fontWeight: 'bold' }}>
-        Detalle de Cirugía
-        <Chip
-          label={surgeryData.surgery_type}
-          color={statusColor[surgeryData.status] || 'default'}
-          size="small"
-          sx={{ ml: 2, color: 'white' }}
-        />
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box>
+            Detalle de Cirugía
+            <Chip
+              label={surgeryData.surgery_type}
+              color={statusColor[surgeryData.status] || 'default'}
+              size="small"
+              sx={{ ml: 2, color: 'white' }}
+            />
+            {surgeryData.ambulatory && (
+              <Chip label="Ambulatorio" size="small" color="info" sx={{ ml: 1, color: 'white' }} />
+            )}
+          </Box>
+          {onEdit && (
+            <Button
+              size="small"
+              variant="contained"
+              color="warning"
+              startIcon={<EditIcon />}
+              onClick={() => { onClose(); onEdit(surgeryData); }}
+            >
+              Editar
+            </Button>
+          )}
+        </Box>
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>
@@ -52,18 +77,34 @@ export default function QuirofanoDetail({ open, onClose, surgery, onSaved }) {
           </Grid>
           <Grid item xs={6}>
             <Typography variant="caption" color="text.secondary">Estado</Typography>
-            <Typography>{surgeryData.status}</Typography>
+            <Chip
+              label={surgeryData.status}
+              size="small"
+              color={statusColor[surgeryData.status] || 'default'}
+            />
           </Grid>
           {surgeryData.scheduled_start_time && (
             <Grid item xs={6}>
               <Typography variant="caption" color="text.secondary">Inicio Programado</Typography>
-              <Typography>{new Date(surgeryData.scheduled_start_time).toLocaleString('es-ES')}</Typography>
+              <Typography>{formatDateTime(surgeryData.scheduled_start_time)}</Typography>
             </Grid>
           )}
           {surgeryData.scheduled_end_time && (
             <Grid item xs={6}>
               <Typography variant="caption" color="text.secondary">Fin Programado</Typography>
-              <Typography>{new Date(surgeryData.scheduled_end_time).toLocaleString('es-ES')}</Typography>
+              <Typography>{formatDateTime(surgeryData.scheduled_end_time)}</Typography>
+            </Grid>
+          )}
+          {surgeryData.actual_start_time && (
+            <Grid item xs={6}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, color: 'success.main' }}>Inicio Real</Typography>
+              <Typography>{formatDateTime(surgeryData.actual_start_time)}</Typography>
+            </Grid>
+          )}
+          {surgeryData.actual_end_time && (
+            <Grid item xs={6}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, color: 'error.main' }}>Fin Real</Typography>
+              <Typography>{formatDateTime(surgeryData.actual_end_time)}</Typography>
             </Grid>
           )}
           {surgeryData.anesthesiologist && (
@@ -84,18 +125,41 @@ export default function QuirofanoDetail({ open, onClose, surgery, onSaved }) {
               <Typography>{surgeryData.area.name}</Typography>
             </Grid>
           )}
-          {surgeryData.description && (
-            <Grid item xs={12}>
-              <Typography variant="caption" color="text.secondary">Descripción</Typography>
-              <Typography>{surgeryData.description}</Typography>
-            </Grid>
-          )}
-          {surgeryData.preanesthetic_evaluation && (
-            <Grid item xs={12}>
-              <Typography variant="caption" color="text.secondary">Evaluación Pre-Anestésica</Typography>
-              <Typography>{surgeryData.preanesthetic_evaluation}</Typography>
-            </Grid>
-          )}
+
+          <Grid item xs={12}>
+            <Divider sx={{ my: 1 }} />
+          </Grid>
+
+            {surgeryData.description && (
+              <Grid item xs={12}>
+                <Typography variant="caption" color="text.secondary">Descripción</Typography>
+                <Typography>{surgeryData.description}</Typography>
+              </Grid>
+            )}
+            {surgeryData.preanesthetic_evaluation && (
+              <Grid item xs={12}>
+                <Typography variant="caption" color="text.secondary">Evaluación Pre-Anestésica</Typography>
+                <Typography>{surgeryData.preanesthetic_evaluation}</Typography>
+              </Grid>
+            )}
+            {surgeryData.preop_notes && (
+              <Grid item xs={6}>
+                <Typography variant="caption" color="text.secondary">Notas Pre-Op</Typography>
+                <Typography>{surgeryData.preop_notes}</Typography>
+              </Grid>
+            )}
+            {surgeryData.postop_notes && (
+              <Grid item xs={6}>
+                <Typography variant="caption" color="text.secondary">Notas Post-Op</Typography>
+                <Typography>{surgeryData.postop_notes}</Typography>
+              </Grid>
+            )}
+            {surgeryData.result && (
+              <Grid item xs={12}>
+                <Typography variant="caption" color="text.secondary">Resultado</Typography>
+                <Typography>{surgeryData.result}</Typography>
+              </Grid>
+            )}
         </Grid>
 
         <Divider sx={{ my: 2 }} />

@@ -13,6 +13,7 @@ export default function QuirofanoBoard() {
   const [planningOpen, setPlanningOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedSurgery, setSelectedSurgery] = useState(null);
+  const [editingSurgery, setEditingSurgery] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleTabChange = (_, newValue) => setTabIndex(newValue);
@@ -26,11 +27,26 @@ export default function QuirofanoBoard() {
     setDetailOpen(true);
   };
 
+  const handleEditSurgery = (surgery) => {
+    setEditingSurgery(surgery);
+    setPlanningOpen(true);
+  };
+
+  const handleClosePlanning = () => {
+    setPlanningOpen(false);
+    setEditingSurgery(null);
+  };
+
+  const handleCloseDetail = () => {
+    setDetailOpen(false);
+    setSelectedSurgery(null);
+  };
+
   return (
     <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.9rem' }}>Módulo Quirófano</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setSelectedSurgery(null); setPlanningOpen(true); }}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setEditingSurgery(null); setPlanningOpen(true); }}>
           Planificar Cirugía
         </Button>
       </Box>
@@ -41,24 +57,25 @@ export default function QuirofanoBoard() {
       </Tabs>
 
       {tabIndex === 0 && (
-        <ScheduleBoard key={`daily-${refreshKey}`} onSelectSurgery={handleSelectSurgery} />
+        <ScheduleBoard key={`daily-${refreshKey}`} onSelectSurgery={handleSelectSurgery} onEditSurgery={handleEditSurgery} />
       )}
       {tabIndex === 1 && (
-        <WeeklySchedule key={`weekly-${refreshKey}`} onSelectSurgery={handleSelectSurgery} />
+        <WeeklySchedule key={`weekly-${refreshKey}`} onSelectSurgery={handleSelectSurgery} onEditSurgery={handleEditSurgery} />
       )}
 
       <SurgeryPlanningModal
         open={planningOpen}
-        onClose={() => setPlanningOpen(false)}
+        onClose={handleClosePlanning}
         onSaved={handleSaved}
-        surgery={null}
+        surgery={editingSurgery}
       />
 
       <QuirofanoDetail
         open={detailOpen}
-        onClose={() => setDetailOpen(false)}
+        onClose={handleCloseDetail}
         surgery={selectedSurgery}
         onSaved={handleSaved}
+        onEdit={handleEditSurgery}
       />
     </Box>
   );
