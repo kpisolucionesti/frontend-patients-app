@@ -4,6 +4,7 @@ import React, { useCallback, useState } from "react";
 import { Button } from "@mui/material";
 import { BackendAPI } from "../../services/BackendApi";
 import DoctorSelect from "../Commons/DoctorSelect";
+import { sanitizeInput } from "../../utils/sanitize";
 
 const EmergencyEditButton = ({ row, onRefresh }) => {
     const [open, setOpen] = useState(false);
@@ -16,7 +17,8 @@ const EmergencyEditButton = ({ row, onRefresh }) => {
     const [validation, setValidation] = useState(false);
 
     const handleValueChange = useCallback((target) => {
-        setValues((prev) => ({ ...prev, [target.name]: target.value }));
+        const sanitized = sanitizeInput(target.value, { maxLength: 2000 });
+        setValues((prev) => ({ ...prev, [target.name]: sanitized }));
     }, []);
 
     const handleSubmit = useCallback(async () => {
@@ -47,10 +49,10 @@ const EmergencyEditButton = ({ row, onRefresh }) => {
                 </DialogTitle>
                 <DialogContent sx={{ pt: 2, '&:first-of-type': { pt: 2 } }}>
                     <Stack spacing={1.5}>
-                        <TextField variant="standard" size="small" fullWidth required label="Diagnostico" name="diagnostic" value={values.diagnostic || ''} onChange={({ target }) => handleValueChange(target)} error={validation && !values.diagnostic} helperText={validation && !values.diagnostic ? 'Requerido' : ''} />
-                        <TextField variant="standard" size="small" fullWidth required label="Plan" name="treatment" value={values.treatment || ''} onChange={({ target }) => handleValueChange(target)} error={validation && !values.treatment} helperText={validation && !values.treatment ? 'Requerido' : ''} />
+                        <TextField variant="standard" size="small" fullWidth required label="Diagnostico" name="diagnostic" value={values.diagnostic || ''} onChange={({ target }) => handleValueChange(target)} error={validation && !values.diagnostic} helperText={validation && !values.diagnostic ? 'Requerido' : ''} inputProps={{ maxLength: 2000 }} />
+                        <TextField variant="standard" size="small" fullWidth required label="Plan" name="treatment" value={values.treatment || ''} onChange={({ target }) => handleValueChange(target)} error={validation && !values.treatment} helperText={validation && !values.treatment ? 'Requerido' : ''} inputProps={{ maxLength: 2000 }} />
                         <DoctorSelect value={values.current_doctor} onChange={({ target }) => handleValueChange(target)} />
-                        <TextField variant="standard" size="small" multiline rows={2} fullWidth label="Observaciones" name="observations" value={values.observations || ''} onChange={({ target }) => handleValueChange(target)} />
+                        <TextField variant="standard" size="small" multiline rows={2} fullWidth label="Observaciones" name="observations" value={values.observations || ''} onChange={({ target }) => handleValueChange(target)} inputProps={{ maxLength: 2000 }} />
                     </Stack>
                 </DialogContent>
                 <DialogActions sx={{ px: '1.25rem', py: 0.75 }}>

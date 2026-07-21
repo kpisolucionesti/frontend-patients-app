@@ -5,6 +5,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import GenderSelect from "../Commons/GenderSelect";
 import moment from 'moment';
+import { sanitizeInput } from "../../utils/sanitize";
 
 const EditPatientData = ({ open, onClose, patient, onSaved }) => {
     const [values, setValues] = useState({
@@ -25,9 +26,10 @@ const EditPatientData = ({ open, onClose, patient, onSaved }) => {
 
     const isMinor = age !== null && age < 18;
 
-    const handleValueChange = useCallback((target) => {
-        setValues((prev) => ({ ...prev, [target.name]: target.value }));
-    }, []);
+  const handleValueChange = useCallback((target) => {
+    const val = sanitizeInput(target.value);
+    setValues((prev) => ({ ...prev, [target.name]: val }));
+  }, []);
 
     const handleBirthdayChange = useCallback((date) => {
         const bday = date ? moment(date).format('YYYY-MM-DD') : '';

@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import moment from 'moment';
+import { sanitizeInput } from "../utils/sanitize";
 
 const useEmergencyForm = () => {
   const [emergencyValues, setEmergencyValues] = useState({ ingress_date: moment().format("YYYY-MM-DD"), observations: '', classification: '' });
@@ -7,7 +8,8 @@ const useEmergencyForm = () => {
   const [emergencyValidation, setEmergencyValidation] = useState(false);
 
   const handleEmergencyFieldChange = useCallback((target) => {
-    setEmergencyValues((prev) => ({ ...prev, [target.name]: target.value }));
+    const val = sanitizeInput(target.value, { maxLength: 2000 });
+    setEmergencyValues((prev) => ({ ...prev, [target.name]: val }));
   }, []);
 
   const handleIngressDateChange = useCallback((date) => {

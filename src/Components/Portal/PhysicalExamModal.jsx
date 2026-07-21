@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { sanitizeInput } from '../../utils/sanitize';
 
 const FIELDS = [
   'Cabeza', 'Ojo', 'Cuello', 'ORL', 'Torax',
@@ -29,7 +30,7 @@ const PhysicalExamModal = ({ open, onClose, initialValues, onSave, saving }) => 
   }, [open, initialValues]);
 
   const handleChange = (key, val) => {
-    setValues((prev) => ({ ...prev, [key]: val }));
+    setValues((prev) => ({ ...prev, [key]: sanitizeInput(val, { maxLength: 5000 }) }));
   };
 
   const handleSave = () => {

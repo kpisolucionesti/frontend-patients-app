@@ -12,7 +12,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DescriptionIcon from '@mui/icons-material/Description';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import PhysicalExamTable from './PhysicalExamTable';
+import InformeMedicoPreview from '../Commons/InformeMedicoPreview';
 import AsignRoom from '../Board/asignRoomModal';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
@@ -21,6 +23,7 @@ import { CLASSIFICATION_OPTIONS } from '../../constants';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import { medicalHistoryApi } from '../../services/medicalHistoryApi';
 import { generateEmergencyReport } from '../../services/medicalHistoryReport';
+import { sanitizeInput } from '../../utils/sanitize';
 
 const STATUS_MAP = {
   0: { label: 'Esperando', color: 'warning' },
@@ -46,7 +49,8 @@ const FieldRow = ({ label, value }) => (
   </Box>
 );
 
-const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) => {
+const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly, reportPermission }) => {
+  const [informePreviewOpen, setInformePreviewOpen] = useState(false);
   const [diagnostic, setDiagnostic] = useState(emergency?.diagnostic || '');
   const [treatment, setTreatment] = useState(emergency?.treatment || '');
   const [observations, setObservations] = useState(emergency?.observations || '');
@@ -281,6 +285,20 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
                   <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.25 }}>{admissionNote}</Typography>
                 </Box>
               )}
+              {reportPermission && permissions.includes(reportPermission) && (
+                <Box sx={{ mt: 1.5 }}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                    startIcon={<PictureAsPdfIcon />}
+                    onClick={() => setInformePreviewOpen(true)}
+                    sx={{ fontSize: '0.7rem' }}
+                  >
+                    Informe Médico
+                  </Button>
+                </Box>
+              )}
             </Box>
           ) : (
             <Box>
@@ -313,13 +331,16 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
               </Grid>
 
               <TextField variant="standard" fullWidth size="small" label="Diagnóstico" value={diagnostic}
-                onChange={(e) => setDiagnostic(e.target.value)}
+                onChange={(e) => setDiagnostic(sanitizeInput(e.target.value, { maxLength: 2000 }))}
+                inputProps={{ maxLength: 2000 }}
                 sx={{ mt: 0.5, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
               <TextField variant="standard" fullWidth size="small" label="Plan" value={treatment}
-                onChange={(e) => setTreatment(e.target.value)}
+                onChange={(e) => setTreatment(sanitizeInput(e.target.value, { maxLength: 2000 }))}
+                inputProps={{ maxLength: 2000 }}
                 sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
               <TextField variant="standard" fullWidth size="small" label="Observaciones" value={observations}
-                onChange={(e) => setObservations(e.target.value)} multiline rows={2}
+                onChange={(e) => setObservations(sanitizeInput(e.target.value, { maxLength: 2000 }))} multiline rows={2}
+                inputProps={{ maxLength: 2000 }}
                 sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
               <TextField select variant="standard" fullWidth size="small" label="Clasificación" value={classification}
                 onChange={(e) => setClassification(e.target.value)}
@@ -403,14 +424,14 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
             <DialogContent style={{ paddingTop: 24 }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <TextField variant="standard" fullWidth size="small" required label="Causa de Muerte"
-                  value={deathCause} onChange={(e) => setDeathCause(e.target.value)}
+                  value={deathCause} onChange={(e) => setDeathCause(sanitizeInput(e.target.value, { maxLength: 2000 }))} inputProps={{ maxLength: 2000 }}
                   error={!deathCause} helperText={!deathCause ? 'Requerido' : ''} />
                 <TextField variant="standard" fullWidth size="small" label="Fecha y Hora de Muerte"
                   type="datetime-local" value={deathDateTime}
                   onChange={(e) => setDeathDateTime(e.target.value)}
                   InputLabelProps={{ shrink: true }} />
                 <TextField variant="standard" fullWidth size="small" label="Observaciones"
-                  value={deathObservations} onChange={(e) => setDeathObservations(e.target.value)}
+                  value={deathObservations} onChange={(e) => setDeathObservations(sanitizeInput(e.target.value, { maxLength: 2000 }))} inputProps={{ maxLength: 2000 }}
                   multiline rows={2} />
               </Box>
             </DialogContent>
@@ -512,11 +533,13 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
             ) : (
               <>
                 <TextField variant="standard" fullWidth size="small" label="Motivo de consulta" value={reasonForConsultation}
-                  onChange={(e) => setReasonForConsultation(e.target.value)}
+                  onChange={(e) => setReasonForConsultation(sanitizeInput(e.target.value, { maxLength: 2000 }))}
                   disabled={fieldDisabled}
+                  inputProps={{ maxLength: 2000 }}
                   sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
                 <TextField variant="standard" fullWidth size="small" label="Enfermedad actual" value={currentIllness}
-                  onChange={(e) => setCurrentIllness(e.target.value)} multiline rows={2}
+                  onChange={(e) => setCurrentIllness(sanitizeInput(e.target.value, { maxLength: 2000 }))} multiline rows={2}
+                  inputProps={{ maxLength: 2000 }}
                   disabled={fieldDisabled}
                   sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
               </>
@@ -526,6 +549,15 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
           <PhysicalExamTable emergencyId={emergency.id} readOnly={effectiveReadOnly} />
         </> 
       )}
+
+      <InformeMedicoPreview
+        open={informePreviewOpen}
+        onClose={() => setInformePreviewOpen(false)}
+        emergency={emergency}
+        patient={patient}
+        attachableType="Emergency"
+        attachableId={emergency?.id}
+      />
     </Box>
   );
 };

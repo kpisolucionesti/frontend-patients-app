@@ -7,9 +7,9 @@ export const quirofanoApi = {
     }).then(r => r.data);
   },
 
-  getWeekly(startDate) {
+  getWeekly(startDate, endDate) {
     return axiosInstance.get('/quirofanos/weekly', {
-      params: { start_date: startDate }
+      params: { start_date: startDate, end_date: endDate }
     }).then(r => r.data);
   },
 
@@ -31,5 +31,13 @@ export const quirofanoApi = {
 
   destroy(id) {
     return axiosInstance.delete(`/quirofanos/surgeries/${id}`);
+  },
+
+  closeSurgery(id) {
+    return axiosInstance.put(`/quirofanos/surgeries/${id}/close`).then(r => r.data);
+  },
+
+  cancelSurgery(id, reason) {
+    return axiosInstance.put(`/quirofanos/surgeries/${id}/cancel`, { cancellation_reason: reason }).then(r => r.data);
   }
 };

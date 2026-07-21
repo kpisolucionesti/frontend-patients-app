@@ -1,21 +1,25 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import React from "react";
 
+const ACTION_CONFIG = {
+  suspend: { bgcolor: 'error.main', color: 'error', label: 'Suspender', verb: 'suspender' },
+  reactivate: { bgcolor: 'success.main', color: 'success', label: 'Reactivar', verb: 'reactivar' },
+  block: { bgcolor: 'error.main', color: 'error', label: 'Bloquear', verb: 'bloquear' },
+  unblock: { bgcolor: 'success.main', color: 'success', label: 'Desbloquear', verb: 'desbloquear' },
+};
+
 const ConfirmActionModal = ({ open, onClose, entityType, entityName, action, onConfirm }) => {
-  const isSuspend = action === 'suspend';
+  const config = ACTION_CONFIG[action] || ACTION_CONFIG.suspend;
   const upperType = entityType.toUpperCase();
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <DialogTitle sx={{ bgcolor: isSuspend ? 'error.main' : 'success.main', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
-        {isSuspend ? `SUSPENDER ${upperType}` : `REACTIVAR ${upperType}`}
+      <DialogTitle sx={{ bgcolor: config.bgcolor, color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+        {config.label.toUpperCase()} {upperType}
       </DialogTitle>
       <DialogContent sx={{ pt: 3, textAlign: 'center' }}>
         <DialogContentText>
-          {isSuspend
-            ? `¿Está seguro que desea suspender al ${entityType.toLowerCase()} ${entityName}?`
-            : `¿Está seguro que desea reactivar al ${entityType.toLowerCase()} ${entityName}?`
-          }
+          ¿Está seguro que desea {config.verb} al {entityType.toLowerCase()} {entityName}?
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
@@ -23,9 +27,9 @@ const ConfirmActionModal = ({ open, onClose, entityType, entityName, action, onC
         <Button
           onClick={() => onConfirm()}
           variant="outlined"
-          color={isSuspend ? 'error' : 'success'}
+          color={config.color}
         >
-          {isSuspend ? 'Suspender' : 'Reactivar'}
+          {config.label}
         </Button>
       </DialogActions>
     </Dialog>

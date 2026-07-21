@@ -3,6 +3,7 @@ import React, { useCallback, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import SpecialtySelect from "../Commons/SpecialtySelect";
 import axiosInstance from "../../services/axiosInstance";
+import { sanitizeInput, sanitizePhone } from "../../utils/sanitize";
 
 const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
   const isEdit = !!doctor;
@@ -17,7 +18,8 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
   const [validation, setValidation] = useState(false);
 
   const handleChange = useCallback((target) => {
-    setValues((prev) => ({ ...prev, [target.name]: target.value }));
+    const val = target.name === 'phone' ? sanitizePhone(target.value) : sanitizeInput(target.value);
+    setValues((prev) => ({ ...prev, [target.name]: val }));
   }, []);
 
   const handleSubmit = useCallback(async () => {

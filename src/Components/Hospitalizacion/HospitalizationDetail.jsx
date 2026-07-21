@@ -316,7 +316,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
         {tab === 'resumen' && (
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <PatientInfoPanel patient={p} emergency={emergency} readOnly={!canEdit} />
+              <PatientInfoPanel patient={p} emergency={emergency} readOnly={!canEdit} reportPermission="hospitalizacion.reportes" />
             </Box>
             <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {hospitalization && (
@@ -487,6 +487,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
               <DocumentsPanel
                 attachableType="Hospitalization"
                 attachableId={hospitalization?.id}
+                managePermission="hospitalizacion.documentos"
               />
             </Paper>
             {hospitalization?.status !== 'active' && (

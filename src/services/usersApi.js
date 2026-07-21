@@ -32,4 +32,12 @@ export const usersApi = {
     const res = await axiosInstance.get('/users/' + userId + '/emergencies');
     return res.data;
   },
+  block: async (id) => {
+    const res = await axiosInstance.put('/users/' + id + '/block');
+    return res.data;
+  },
+  unblock: async (id) => {
+    const res = await axiosInstance.put('/users/' + id + '/unblock');
+    return res.data;
+  },
 };

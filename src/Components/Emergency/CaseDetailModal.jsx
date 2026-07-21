@@ -371,6 +371,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                           <DocumentsPanel
                             attachableType="Emergency"
                             attachableId={activeEmergencyId}
+                            managePermission="emergencia.documentos"
                           />
                         )}
                         <Button

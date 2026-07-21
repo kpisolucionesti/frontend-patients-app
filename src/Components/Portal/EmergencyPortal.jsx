@@ -160,7 +160,7 @@ const EmergencyPortal = () => {
           ) : activePanel === 'documentos' ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default', px: 2, py: 1.5 }}>
               <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
-                <DocumentsPanel attachableType="Emergency" attachableId={selectedEmergency?.id} />
+                <DocumentsPanel attachableType="Emergency" attachableId={selectedEmergency?.id} managePermission="emergencia.documentos" />
               </Paper>
               {selectedEmergency?.status === 2 && (
                 <Paper sx={{ p: 1.5, borderLeft: '4px solid #2e7d32' }}>
@@ -265,6 +265,7 @@ const EmergencyPortal = () => {
                 patient={selectedPatient}
                 emergency={selectedEmergency}
                 onStartEmergency={handleStartEmergency}
+                reportPermission="emergencia.reportes"
               />
             </Box>
             <Box sx={{ flex: 1, minWidth: 0 }}>

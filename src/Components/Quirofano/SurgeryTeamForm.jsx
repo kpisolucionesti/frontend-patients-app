@@ -15,7 +15,7 @@ const ROLES = [
   { value: 'perfusionist', label: 'Perfusionista' },
 ];
 
-export default function SurgeryTeamForm({ surgeryId }) {
+export default function SurgeryTeamForm({ surgeryId, readOnly = false }) {
   const [doctors, setDoctors] = useState([]);
   const [members, setMembers] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState('');
@@ -54,22 +54,24 @@ export default function SurgeryTeamForm({ surgeryId }) {
   return (
     <Box>
       <Typography variant="subtitle1" gutterBottom>Equipo Quirúrgico</Typography>
-      <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'flex-end' }}>
-        <TextField select variant="standard" label="Doctor" value={selectedDoctor}
-          onChange={(e) => setSelectedDoctor(e.target.value)} sx={{ minWidth: 200 }} size="small">
-          {doctors.map(d =>
-            <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
-          )}
-        </TextField>
-        <TextField select variant="standard" label="Rol" value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value)} sx={{ minWidth: 150 }} size="small">
-          {ROLES.map(r => <MenuItem key={r.value} value={r.value}>{r.label}</MenuItem>)}
-        </TextField>
-        <Button variant="contained" size="small" startIcon={<AddIcon />}
-          onClick={handleAdd} disabled={!selectedDoctor || !selectedRole}>
-          Agregar
-        </Button>
-      </Box>
+      {!readOnly && (
+        <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'flex-end' }}>
+          <TextField select variant="standard" label="Doctor" value={selectedDoctor}
+            onChange={(e) => setSelectedDoctor(e.target.value)} sx={{ minWidth: 200 }} size="small">
+            {doctors.map(d =>
+              <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
+            )}
+          </TextField>
+          <TextField select variant="standard" label="Rol" value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)} sx={{ minWidth: 150 }} size="small">
+            {ROLES.map(r => <MenuItem key={r.value} value={r.value}>{r.label}</MenuItem>)}
+          </TextField>
+          <Button variant="contained" size="small" startIcon={<AddIcon />}
+            onClick={handleAdd} disabled={!selectedDoctor || !selectedRole}>
+            Agregar
+          </Button>
+        </Box>
+      )}
       {error && <Typography color="error" variant="caption">{error}</Typography>}
       <List dense>
         {members.map(m => (
@@ -78,11 +80,13 @@ export default function SurgeryTeamForm({ surgeryId }) {
               primary={m.doctor?.name || 'Doctor'}
               secondary={ROLES.find(r => r.value === m.role)?.label || m.role}
             />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" size="small" onClick={() => handleRemove(m.id)}>
-                <DeleteIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
+            {!readOnly && (
+              <ListItemSecondaryAction>
+                <IconButton edge="end" size="small" onClick={() => handleRemove(m.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            )}
           </ListItem>
         ))}
       </List>

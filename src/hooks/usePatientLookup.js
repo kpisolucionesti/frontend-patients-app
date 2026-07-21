@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { BackendAPI } from "../services/BackendApi";
 import moment from 'moment';
+import { sanitizeInput } from "../utils/sanitize";
 
 const calculateAge = (birthday) => {
   if (!birthday) return 0;
@@ -51,7 +52,8 @@ const usePatientLookup = () => {
   }, []);
 
   const handlePatientFieldChange = useCallback((target) => {
-    setPatientValues((prev) => ({ ...prev, [target.name]: target.value }));
+    const val = sanitizeInput(target.value, { maxLength: 255 });
+    setPatientValues((prev) => ({ ...prev, [target.name]: val }));
   }, []);
 
   const handleEditClick = useCallback(() => {

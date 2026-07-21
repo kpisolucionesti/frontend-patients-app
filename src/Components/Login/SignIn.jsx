@@ -33,12 +33,12 @@ const SignIn = () => {
 
   const handleValueChange = (target) => {
     setValues({ ...values, [target.name]: target.value });
-    setError(false);
-    setErrorMessage("");
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setError(false);
+    setErrorMessage("");
     if (!values.username || !values.password) {
       setError(true);
       setErrorMessage("Por favor llenar todos los campos");
@@ -60,8 +60,9 @@ const SignIn = () => {
         setErrorMessage(response.message || "Error al iniciar sesión");
       }
     } catch (e) {
+      const msg = e.response?.data?.message || "Error de conexión con el servidor";
       setError(true);
-      setErrorMessage(e.response?.data?.message || "Error de conexión con el servidor");
+      setErrorMessage(msg);
     }
   };
 

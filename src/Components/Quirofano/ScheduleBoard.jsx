@@ -59,20 +59,26 @@ export default function ScheduleBoard({ onSelectSurgery, onEditSurgery }) {
                   <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>{area.name}</Typography>
                   {schedule.surgeries
                     .filter(s => s.area?.id === area.id)
-                    .map(s => (
+                    .map(s => {
+                      const isFinalized = s.status === 'completed' || s.status === 'cancelled';
+                      return (
                       <Paper
                         key={s.id}
                         variant="outlined"
-                        sx={{ p: 1, mb: 1, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
-                        onClick={() => onSelectSurgery(s)}
+                        sx={{
+                          p: 1, mb: 1, cursor: isFinalized ? 'default' : 'pointer',
+                          opacity: s.status === 'cancelled' ? 0.5 : 1,
+                          '&:hover': isFinalized ? {} : { bgcolor: 'action.hover' }
+                        }}
+                        onClick={() => !isFinalized && onSelectSurgery(s)}
                       >
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                             {s.surgery_type}
                           </Typography>
                           <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                            <Chip label={s.status} size="small" color={statusColor[s.status] || 'default'} />
-                            {onEditSurgery && (
+                            <Chip label={s.status === 'completed' ? 'Culminada' : s.status === 'cancelled' ? 'Anulada' : s.status} size="small" color={statusColor[s.status] || 'default'} />
+                            {onEditSurgery && !isFinalized && (
                               <IconButton
                                 size="small"
                                 onClick={(e) => { e.stopPropagation(); onEditSurgery(s); }}
@@ -97,7 +103,8 @@ export default function ScheduleBoard({ onSelectSurgery, onEditSurgery }) {
                           Cirujano: {s.surgeon_name || 'No asignado'}
                         </Typography>
                       </Paper>
-                    ))}
+                    );
+                    })}
                   {schedule.surgeries.filter(s => s.area?.id === area.id).length === 0 && (
                     <Typography variant="body2" color="text.secondary">
                       Sin cirugías programadas

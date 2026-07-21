@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
+import { sanitizeNumber } from '../../utils/sanitize';
 
 const EMPTY_FORM = {
   systolic_bp: '', diastolic_bp: '', heart_rate: '',
@@ -41,7 +42,8 @@ const VitalSignsPanel = ({ emergencyId, vitalSigns, onCreated, readOnly }) => {
   const hasValues = !!latest;
 
   const handleFieldChange = (field, value) => {
-    const updated = { ...form, [field]: value };
+    const sanitized = sanitizeNumber(value);
+    const updated = { ...form, [field]: sanitized };
     const h = parseFloat(updated.height);
     const w = parseFloat(updated.weight);
     if (h > 0 && w > 0) {

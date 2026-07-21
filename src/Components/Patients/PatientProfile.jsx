@@ -601,7 +601,7 @@ const PatientProfile = ({ patient, onBack }) => {
         {activeTab === 'documentos' && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
             <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
-              <DocumentsPanel attachableType="Patient" attachableId={patient.id} />
+              <DocumentsPanel attachableType="Patient" attachableId={patient.id} managePermission="pacientes.documentos" />
             </Paper>
           </Box>
         )}

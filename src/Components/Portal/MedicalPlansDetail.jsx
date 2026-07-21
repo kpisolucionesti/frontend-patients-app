@@ -5,6 +5,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { BackendAPI } from '../../services/BackendApi';
+import { sanitizeInput } from '../../utils/sanitize';
 
 const INDICATION_TYPES = [
   { key: 'lab', label: 'Laboratorio', color: '#1565c0' },
@@ -36,7 +37,10 @@ const MedicalPlansDetail = ({ emergencyId, readOnly }) => {
 
   useEffect(() => { fetch(); }, [fetch]);
 
-  const handleChange = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field, value) => {
+    const sanitized = field === 'description' ? sanitizeInput(value, { maxLength: 5000 }) : value;
+    setForm((prev) => ({ ...prev, [field]: sanitized }));
+  };
 
   const handleOpenAdd = () => { setEditing(null); setForm(EMPTY); setDialogOpen(true); };
   const handleOpenEdit = (p) => { setEditing(p); setForm({ indication_type: p.indication_type, description: p.description }); setDialogOpen(true); };
