@@ -10,17 +10,17 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import WarningIcon from '@mui/icons-material/Warning';
 import EditIcon from '@mui/icons-material/Edit';
 import DescriptionIcon from '@mui/icons-material/Description';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import DownloadIcon from '@mui/icons-material/Download';
 import PhysicalExamTable from './PhysicalExamTable';
-import ReportsPanel from '../Commons/ReportsPanel';
 import AsignRoom from '../Board/asignRoomModal';
-import ReportEditorModal from './ReportEditorModal';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
 import usePermissions from '../../hooks/usePermissions';
 import { CLASSIFICATION_OPTIONS } from '../../constants';
 import { useSnackbar } from '../../hooks/useSnackbar';
+import { medicalHistoryApi } from '../../services/medicalHistoryApi';
+import { generateEmergencyReport } from '../../services/medicalHistoryReport';
 
 const STATUS_MAP = {
   0: { label: 'Esperando', color: 'warning' },
@@ -68,8 +68,6 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
   const [evolutiveNote, setEvolutiveNote] = useState('');
   const [dischargeNote, setDischargeNote] = useState(emergency?.discharge_note || '');
   const [admissionNote, setAdmissionNote] = useState(emergency?.admission_note || '');
-  const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [reportType, setReportType] = useState('resident');
   const permissions = usePermissions();
   const { show: showSnackbar } = useSnackbar();
 
@@ -164,15 +162,6 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
     }
   };
 
-  const handleOpenReportModal = useCallback((type) => {
-    setReportType(type);
-    setReportModalOpen(true);
-  }, []);
-
-  const handleCloseReportModal = useCallback(() => {
-    setReportModalOpen(false);
-  }, []);
-
   const handleStatusChange = (newStatus) => {
     setStatus(Number(newStatus));
     if (Number(newStatus) === 2) {
@@ -265,6 +254,23 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
                     NOTA EVOLUTIVA DE EGRESO
                   </Typography>
                   <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.25 }}>{dischargeNote}</Typography>
+                </Box>
+              )}
+              {emergency.status === 2 && (
+                <Box sx={{ mt: 1 }}>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    color="success"
+                    startIcon={<DownloadIcon />}
+                    onClick={async () => {
+                      const data = await medicalHistoryApi.getForEmergency(emergency.id);
+                      generateEmergencyReport(data);
+                    }}
+                    sx={{ fontSize: '0.7rem' }}
+                  >
+                    Descargar Historia Clínica (PDF)
+                  </Button>
                 </Box>
               )}
               {admissionNote && emergency.status === 3 && (
@@ -518,68 +524,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
           </Paper>
 
           <PhysicalExamTable emergencyId={emergency.id} readOnly={effectiveReadOnly} />
-
-          <Paper sx={{ p: 1.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-              <PictureAsPdfIcon sx={{ fontSize: 18, color: '#d32f2f' }} />
-              <Typography variant="caption" fontWeight={600} sx={{ color: '#d32f2f' }}>
-                INFORMES
-              </Typography>
-            </Box>
-            {emergency.status !== 2 && !effectiveReadOnly && (
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
-                <Button
-                  size="small"
-                  variant="contained"
-                  startIcon={<PictureAsPdfIcon />}
-                  onClick={() => handleOpenReportModal('triage')}
-                  sx={{ fontSize: '0.7rem', py: 0.3 }}
-                >
-                  Generar Triaje
-                </Button>
-                {emergency.status === 1 && permissions.includes('emergencia.generar_informe') && (
-                  <>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<PictureAsPdfIcon />}
-                      onClick={() => handleOpenReportModal('resident')}
-                      sx={{ fontSize: '0.7rem', py: 0.3 }}
-                    >
-                      Generar Informe Residente
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<PictureAsPdfIcon />}
-                      onClick={() => handleOpenReportModal('discharge')}
-                      sx={{ fontSize: '0.7rem', py: 0.3, borderColor: 'success.main', color: 'success.main' }}
-                    >
-                      Generar Informe de Alta
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<PictureAsPdfIcon />}
-                      onClick={() => handleOpenReportModal('admission')}
-                      sx={{ fontSize: '0.7rem', py: 0.3, borderColor: 'primary.main', color: 'primary.main' }}
-                    >
-                      Generar Informe de Ingreso
-                    </Button>
-                  </>
-                )}
-              </Box>
-            )}
-            <ReportsPanel attachableType="Emergency" attachableId={emergency.id} />
-            <ReportEditorModal
-              open={reportModalOpen}
-              onClose={handleCloseReportModal}
-              reportType={reportType}
-              emergency={emergency}
-              patient={patient}
-            />
-          </Paper>
-        </>
+        </> 
       )}
     </Box>
   );

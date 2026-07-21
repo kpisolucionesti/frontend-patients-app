@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Box, Paper, Typography, Tabs, Tab, Grid, Chip, Button, Table,
+  Box, Paper, Typography, Grid, Chip, Button, Table,
   TableBody, TableCell, TableContainer, TableHead, TableRow,
   TablePagination, CircularProgress, Alert, Divider,
 } from '@mui/material';
@@ -16,26 +16,55 @@ import HistoryIcon from '@mui/icons-material/History';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
+import DescriptionIcon from '@mui/icons-material/Description';
+import RestoreIcon from '@mui/icons-material/Restore';
+import DownloadIcon from '@mui/icons-material/Download';
 import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import moment from 'moment';
+import { medicalHistoryApi } from '../../services/medicalHistoryApi';
+import { generateEmergencyReport, generateHospitalizationReport } from '../../services/medicalHistoryReport';
 import AllergiesSection from '../Portal/AllergiesSection';
 import AntecedentsSection from '../Portal/AntecedentsSection';
 import PatientAppointmentsSummary from '../Commons/PatientAppointmentsSummary';
 import EditPatientData from './editPatientDataModal';
 import HistoryDetailModal from '../History/HistoryDetailModal';
 import HospitalizationDetailModal from '../Hospitalizacion/HospitalizationDetailModal';
+import DocumentsPanel from '../Commons/DocumentsPanel';
+import HistoricalCasePanel from '../Portal/HistoricalCasePanel';
+import GroupedTabBar from '../Commons/GroupedTabBar';
+import SurgeryDetailModal from './SurgeryDetailModal';
+import { SURGERY_TYPES } from '../Hospitalizacion/SurgeriesTab';
+import { generateSurgeryReport } from '../../services/surgeryReport';
 
-const TABS = [
+const STANDALONE_TABS = [
   { key: 'resumen', label: 'Resumen', icon: <SummarizeIcon /> },
-  { key: 'emergencias', label: 'Emergencias', icon: <EmergencyIcon /> },
-  { key: 'hospitalizaciones', label: 'Hospitalizaciones', icon: <HotelIcon /> },
-  { key: 'citas', label: 'Citas', icon: <CalendarMonthIcon /> },
-  { key: 'laboratorios', label: 'Laboratorios', icon: <ScienceIcon /> },
-  { key: 'notas', label: 'Notas', icon: <SubjectIcon /> },
-  { key: 'alergias', label: 'Alergias', icon: <WarningIcon /> },
-  { key: 'antecedentes', label: 'Antecedentes', icon: <HistoryIcon /> },
-  { key: 'cirugias', label: 'Cirugías', icon: <ScienceIcon /> },
+  { key: 'documentos', label: 'Documentos', icon: <DescriptionIcon /> },
+];
+
+const TAB_GROUPS = [
+  {
+    key: 'episodios',
+    label: 'Episodios',
+    icon: <EmergencyIcon />,
+    sections: [
+      { key: 'emergencias', label: 'Emergencias', icon: <EmergencyIcon /> },
+      { key: 'hospitalizaciones', label: 'Hospitalizaciones', icon: <HotelIcon /> },
+      { key: 'citas', label: 'Citas', icon: <CalendarMonthIcon /> },
+      { key: 'cirugias', label: 'Cirugías', icon: <ScienceIcon /> },
+    ],
+  },
+  {
+    key: 'clinico',
+    label: 'Clínico',
+    icon: <ScienceIcon />,
+    sections: [
+      { key: 'laboratorios', label: 'Laboratorios', icon: <ScienceIcon /> },
+      { key: 'notas', label: 'Notas', icon: <SubjectIcon /> },
+      { key: 'alergias', label: 'Alergias', icon: <WarningIcon /> },
+      { key: 'antecedentes', label: 'Antecedentes', icon: <HistoryIcon /> },
+    ],
+  },
 ];
 
 const GENDER_MAP = { M: 'Masculino', F: 'Femenino' };
@@ -66,6 +95,7 @@ const PatientProfile = ({ patient, onBack }) => {
   const [editOpen, setEditOpen] = useState(false);
   const [detailEmerg, setDetailEmerg] = useState(null);
   const [detailHosp, setDetailHosp] = useState(null);
+  const [detailSurg, setDetailSurg] = useState(null);
   const [surgeries, setSurgeries] = useState([]);
   const [loadingSurgeries, setLoadingSurgeries] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
@@ -222,27 +252,15 @@ const PatientProfile = ({ patient, onBack }) => {
           </Box>
         </Paper>
 
-        <Tabs
-          value={activeTab}
-          onChange={(_, v) => setActiveTab(v)}
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{
-            mb: 2,
-            bgcolor: 'white',
-            borderRadius: 1,
-            '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, fontSize: '0.8rem', minHeight: 36 },
-            '& .Mui-selected': { color: '#1565c0', fontWeight: 700 },
-            '& .MuiTabs-indicator': { bgcolor: '#1565c0' },
-          }}
-        >
-          {TABS.map((t) => (
-            <Tab key={t.key} label={t.label} value={t.key} icon={t.icon} iconPosition="start" />
-          ))}
-        </Tabs>
+        <GroupedTabBar
+          groups={TAB_GROUPS}
+          standaloneTabs={STANDALONE_TABS}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
 
         {activeTab === 'resumen' && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={3}>
                 <Paper sx={{ p: 1.5, textAlign: 'center', bgcolor: '#e3f2fd' }}>
@@ -329,13 +347,28 @@ const PatientProfile = ({ patient, onBack }) => {
                             <Chip
                               label={STATUS_LABELS[e.status]?.label || '?'}
                               size="small"
-                              sx={{ bgcolor: STATUS_LABELS[e.status]?.color, color: 'white', fontSize: '0.7rem' }}
+                              color={e.status === 2 ? 'success' : e.status === 3 ? 'warning' : e.status === 4 ? 'default' : e.status === 5 ? 'error' : 'primary'}
+                              sx={{ height: 18, '& .MuiChip-label': { fontSize: '0.6rem', px: 0.5 } }}
                             />
                           </TableCell>
                           <TableCell>
-                            <Button size="small" onClick={(ev) => { ev.stopPropagation(); setDetailEmerg(e.id); }}>
-                              Ver detalle
-                            </Button>
+                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                              <Button size="small" onClick={(ev) => { ev.stopPropagation(); setDetailEmerg(e.id); }}>
+                                Ver detalle
+                              </Button>
+                              {e.status === 2 && (
+                                <Button
+                                  size="small"
+                                  onClick={async (ev) => {
+                                    ev.stopPropagation();
+                                    const data = await medicalHistoryApi.getForEmergency(e.id);
+                                    generateEmergencyReport(data);
+                                  }}
+                                >
+                                  Descargar Historia Clínica
+                                </Button>
+                              )}
+                            </Box>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -391,9 +424,23 @@ const PatientProfile = ({ patient, onBack }) => {
                             />
                           </TableCell>
                           <TableCell>
-                            <Button size="small" onClick={(ev) => { ev.stopPropagation(); setDetailHosp(h.id); }}>
-                              Ver detalle
-                            </Button>
+                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                              <Button size="small" onClick={(ev) => { ev.stopPropagation(); setDetailHosp(h.id); }}>
+                                Ver detalle
+                              </Button>
+                              {h.status !== 'active' && (
+                                <Button
+                                  size="small"
+                                  onClick={async (ev) => {
+                                    ev.stopPropagation();
+                                    const data = await medicalHistoryApi.getForHospitalization(h.id);
+                                    generateHospitalizationReport(data);
+                                  }}
+                                >
+                                  Descargar Historia Clínica
+                                </Button>
+                              )}
+                            </Box>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -415,6 +462,10 @@ const PatientProfile = ({ patient, onBack }) => {
 
         {activeTab === 'citas' && (
           <PatientAppointmentsSummary patientId={patient.id} />
+        )}
+
+        {activeTab === 'historial' && (
+          <HistoricalCasePanel patient={patient} />
         )}
 
         {activeTab === 'laboratorios' && (
@@ -479,54 +530,79 @@ const PatientProfile = ({ patient, onBack }) => {
         )}
 
         {activeTab === 'cirugias' && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Paper>
             {loadingSurgeries ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}><CircularProgress /></Box>
             ) : surgeries.length === 0 ? (
-              <Paper sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin cirugías registradas</Typography></Paper>
+              <Box sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin cirugías registradas</Typography></Box>
             ) : (
-              surgeries.map((s) => (
-                <Paper key={s.id} sx={{ p: 1.5, borderLeft: '4px solid #00695c', bgcolor: '#f0faf8' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Chip
-                        label={s.surgery_type}
-                        size="small"
-                        sx={{ bgcolor: '#00695c', color: 'white', fontSize: '0.7rem', fontWeight: 600 }}
-                      />
-                      {s.ambulatory && (
-                        <Chip label="Ambulatorio" size="small" color="info" sx={{ height: 20, fontSize: '0.6rem' }} />
-                      )}
-                      <Chip
-                        label={s.status === 'scheduled' ? 'Programada' : s.status === 'in_progress' ? 'En Progreso' : s.status === 'completed' ? 'Realizada' : 'Cancelada'}
-                        size="small"
-                        color={s.status === 'completed' ? 'success' : s.status === 'in_progress' ? 'warning' : s.status === 'scheduled' ? 'primary' : 'default'}
-                        sx={{ height: 20, fontSize: '0.6rem' }}
-                      />
-                    </Box>
-                    <Typography variant="caption" color="text.secondary">
-                      {s.surgery_date ? moment(s.surgery_date).format('DD/MM/YYYY') : ''}
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-                    {s.description || ''}
-                    {s.surgeon_name && <Box component="span" sx={{ color: 'text.secondary' }}> — Cirujano: {s.surgeon_name}</Box>}
-                  </Typography>
-                  {(s.scheduled_start_time || s.actual_start_time) && (
-                    <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.3 }}>
-                      {s.scheduled_start_time && <>Programado: {moment(s.scheduled_start_time).format('DD/MM/YYYY HH:mm')}</>}
-                      {s.actual_start_time && <> | Inicio Real: {moment(s.actual_start_time).format('DD/MM/YYYY HH:mm')}</>}
-                      {s.actual_end_time && <> | Fin Real: {moment(s.actual_end_time).format('DD/MM/YYYY HH:mm')}</>}
-                    </Typography>
-                  )}
-                  {s.result && (
-                    <Typography variant="body2" sx={{ fontSize: '0.75rem', mt: 0.5, fontStyle: 'italic', color: 'text.secondary' }}>
-                      Resultado: {s.result}
-                    </Typography>
-                  )}
-                </Paper>
-              ))
+              <>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 700 }}>Tipo</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Cirujano</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Fecha</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Hora Inicio</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Hora Fin</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Acciones</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {surgeries.map((s) => (
+                        <TableRow key={s.id} hover sx={{ cursor: 'pointer' }} onClick={() => setDetailSurg(s)}>
+                          <TableCell>
+                            <Chip
+                              label={SURGERY_TYPES.find((t) => t.key === s.surgery_type)?.label || s.surgery_type}
+                              size="small"
+                              sx={{ bgcolor: '#00695c', color: 'white', fontSize: '0.65rem', fontWeight: 600 }}
+                            />
+                          </TableCell>
+                          <TableCell>{s.surgeon_name || '-'}</TableCell>
+                          <TableCell>{s.surgery_date ? moment(s.surgery_date).format('DD/MM/YYYY') : '-'}</TableCell>
+                          <TableCell>{s.scheduled_start_time ? moment(s.scheduled_start_time).format('HH:mm') : s.actual_start_time ? moment(s.actual_start_time).format('HH:mm') : '-'}</TableCell>
+                          <TableCell>{s.scheduled_end_time ? moment(s.scheduled_end_time).format('HH:mm') : s.actual_end_time ? moment(s.actual_end_time).format('HH:mm') : '-'}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={s.status === 'scheduled' ? 'Programada' : s.status === 'in_progress' ? 'En Progreso' : s.status === 'completed' ? 'Realizada' : 'Cancelada'}
+                              size="small"
+                              color={s.status === 'completed' ? 'success' : s.status === 'in_progress' ? 'warning' : s.status === 'scheduled' ? 'primary' : 'default'}
+                              sx={{ height: 18, '& .MuiChip-label': { fontSize: '0.6rem', px: 0.5 } }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                              <Button size="small" onClick={(ev) => { ev.stopPropagation(); setDetailSurg(s); }}>
+                                Ver detalle
+                              </Button>
+                              {s.status === 'completed' && (
+                                <Button
+                                  size="small"
+                                  startIcon={<DownloadIcon />}
+                                  onClick={(ev) => { ev.stopPropagation(); generateSurgeryReport(s); }}
+                                >
+                                  Descargar Historia Clínica
+                                </Button>
+                              )}
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>
             )}
+          </Paper>
+        )}
+
+        {activeTab === 'documentos' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
+            <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+              <DocumentsPanel attachableType="Patient" attachableId={patient.id} />
+            </Paper>
           </Box>
         )}
       </Box>
@@ -545,6 +621,13 @@ const PatientProfile = ({ patient, onBack }) => {
           open={!!detailHosp}
           hospitalizationId={detailHosp}
           onClose={() => setDetailHosp(null)}
+        />
+      )}
+      {detailSurg && (
+        <SurgeryDetailModal
+          open={!!detailSurg}
+          surgery={detailSurg}
+          onClose={() => setDetailSurg(null)}
         />
       )}
     </Box>

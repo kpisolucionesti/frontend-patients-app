@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, Typography, Tabs, Tab, Paper, Grid, Chip, Button, Badge,
+  Box, Typography, Paper, Grid, Chip, Button,
   CircularProgress, Alert, TextField, Dialog, DialogTitle,
   DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel,
   Autocomplete
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DownloadIcon from '@mui/icons-material/Download';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import PersonIcon from '@mui/icons-material/Person';
@@ -15,6 +16,12 @@ import InfoIcon from '@mui/icons-material/Info';
 import ScienceIcon from '@mui/icons-material/Science';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import HistoryIcon from '@mui/icons-material/History';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import PeopleIcon from '@mui/icons-material/People';
+import MedicationIcon from '@mui/icons-material/Medication';
+import DescriptionIcon from '@mui/icons-material/Description';
+import RestoreIcon from '@mui/icons-material/Restore';
 import { BackendAPI } from '../../services/BackendApi';
 import PatientInfoPanel from '../Portal/PatientInfoPanel';
 import VitalSignsHistoryTab from './VitalSignsHistoryTab';
@@ -31,35 +38,49 @@ import ParaclinicalStudiesTab from './ParaclinicalStudiesTab';
 import SurgeriesTab from './SurgeriesTab';
 import NotesSection from './NotesSection';
 import PatientAppointmentsSummary from '../Commons/PatientAppointmentsSummary';
+import DocumentsPanel from '../Commons/DocumentsPanel';
+import HistoricalCasePanel from '../Portal/HistoricalCasePanel';
+import GroupedTabBar from '../Commons/GroupedTabBar';
 import usePermissions from '../../hooks/usePermissions';
+import { medicalHistoryApi } from '../../services/medicalHistoryApi';
+import { generateHospitalizationReport } from '../../services/medicalHistoryReport';
 
-const TAB_PATIENT_INFO = 0;
-const TAB_PROGRESS = 1;
-const TAB_INTERCONSULT = 2;
-const TAB_VITALS = 3;
-const TAB_PARACLINICAL = 4;
-const TAB_FLUID = 5;
-const TAB_MEDICATION = 6;
-const TAB_SURGERIES = 7;
-const TAB_LAB = 8;
+const STANDALONE_TABS = [
+  { key: 'resumen', label: 'Resumen', icon: <InfoIcon /> },
+  { key: 'documentos', label: 'Documentos', icon: <DescriptionIcon /> },
+];
 
-const TAB_LABELS = [
-  'Resumen',
-  'Evolución',
-  'Interconsultas',
-  'Signos Vitales',
-  'Paraclínicos',
-  'Balance Hídrico',
-  'Medicamentos',
-  'Cirugías',
-  'Laboratorio',
+const TAB_GROUPS = [
+  {
+    key: 'clinico',
+    label: 'Clínico',
+    icon: <HistoryIcon />,
+    sections: [
+      { key: 'evolucion', label: 'Evolución', icon: <HistoryIcon /> },
+      { key: 'vitales', label: 'Signos Vitales', icon: <FavoriteIcon /> },
+      { key: 'paraclinicos', label: 'Paraclínicos', icon: <ScienceIcon /> },
+      { key: 'laboratorio', label: 'Laboratorio', icon: <ScienceIcon /> },
+      { key: 'historial', label: 'Historial', icon: <RestoreIcon /> },
+    ],
+  },
+  {
+    key: 'tratamientos',
+    label: 'Tratamientos',
+    icon: <MedicationIcon />,
+    sections: [
+      { key: 'interconsultas', label: 'Interconsultas', icon: <PeopleIcon /> },
+      { key: 'balance_hidrico', label: 'Balance Hídrico', icon: <ScienceIcon /> },
+      { key: 'medicamentos', label: 'Medicamentos', icon: <MedicationIcon /> },
+      { key: 'cirugias', label: 'Cirugías', icon: <LocalHospitalIcon /> },
+    ],
+  },
 ];
 
 const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
   const emergencyId = propEmergencyId;
   const navigate = useNavigate();
   const permissions = usePermissions();
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState('resumen');
   const [emergency, setEmergency] = useState(null);
   const [hospitalization, setHospitalization] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -96,14 +117,14 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
     const eUpdated = emergency?.updated_at;
     const hUpdated = hospitalization?.updated_at;
     return {
-      [TAB_PROGRESS]: isRecent(hUpdated) || isRecent(eUpdated),
-      [TAB_VITALS]: isRecent(eUpdated),
-      [TAB_INTERCONSULT]: isRecent(eUpdated),
-      [TAB_PARACLINICAL]: isRecent(eUpdated),
-      [TAB_FLUID]: isRecent(hUpdated),
-      [TAB_MEDICATION]: isRecent(hUpdated),
-      [TAB_SURGERIES]: isRecent(hUpdated),
-      [TAB_LAB]: isRecent(eUpdated),
+      evolucion: isRecent(hUpdated) || isRecent(eUpdated),
+      vitales: isRecent(eUpdated),
+      interconsultas: isRecent(eUpdated),
+      paraclinicos: isRecent(eUpdated),
+      balance_hidrico: isRecent(hUpdated),
+      medicamentos: isRecent(hUpdated),
+      cirugias: isRecent(hUpdated),
+      laboratorio: isRecent(eUpdated),
     };
   }, [emergency?.updated_at, hospitalization?.updated_at]);
 
@@ -282,38 +303,17 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
           </Box>
         </Paper>
 
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'white', px: 2 }}>
-          <Tabs
-            value={tab}
-            onChange={(_, v) => setTab(v)}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, fontSize: '0.8rem', minHeight: 36 },
-              '& .Mui-selected': { color: 'primary.main', fontWeight: 700 },
-              '& .MuiTabs-indicator': { bgcolor: 'primary.main', height: 3 },
-            }}
-          >
-            {TAB_LABELS.map((label, idx) => (
-              <Tab
-                key={idx}
-                label={
-                  tabHasRecentActivity[idx] ? (
-                    <Badge color="error" variant="dot" sx={{ '& .MuiBadge-badge': { top: 8, right: -8 } }}>
-                      {label}
-                    </Badge>
-                  ) : (
-                    label
-                  )
-                }
-              />
-            ))}
-          </Tabs>
-        </Box>
+        <GroupedTabBar
+          groups={TAB_GROUPS}
+          standaloneTabs={STANDALONE_TABS}
+          activeTab={tab}
+          onTabChange={setTab}
+          sectionBadges={tabHasRecentActivity}
+        />
       </Box>
 
       <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', px: 3, pb: 3, pt: 1.5 }}>
-        {tab === TAB_PATIENT_INFO && (
+        {tab === 'resumen' && (
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <PatientInfoPanel patient={p} emergency={emergency} readOnly={!canEdit} />
@@ -425,7 +425,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
                       LABORATORIOS
                     </Typography>
                   </Box>
-                  <Button size="small" sx={{ fontSize: '0.7rem', minWidth: 'auto' }} onClick={() => setTab(TAB_LAB)}>
+                  <Button size="small" sx={{ fontSize: '0.7rem', minWidth: 'auto' }} onClick={() => setTab('laboratorio')}>
                     Ver resultados
                   </Button>
                 </Box>
@@ -441,38 +441,71 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
           </Box>
         )}
 
-        {tab === TAB_PROGRESS && hospitalization && (
+        {tab === 'evolucion' && hospitalization && (
           <DailyProgressNotes hospitalizationId={hospitalization.id} />
         )}
 
-        {tab === TAB_INTERCONSULT && (
+        {tab === 'interconsultas' && (
           <InterconsultationsTab emergencyId={emergency.id} />
         )}
 
-        {tab === TAB_VITALS && (
+        {tab === 'vitales' && (
           <VitalSignsHistoryTab emergencyId={emergency.id} readOnly={!canEdit} />
         )}
 
-        {tab === TAB_PARACLINICAL && (
+        {tab === 'paraclinicos' && (
           <ParaclinicalStudiesTab emergencyId={emergency.id} />
         )}
 
-        {tab === TAB_FLUID && hospitalization && (
+        {tab === 'balance_hidrico' && hospitalization && (
           <FluidBalancePanel hospitalizationId={hospitalization.id} />
         )}
 
-        {tab === TAB_MEDICATION && hospitalization && (
+        {tab === 'medicamentos' && hospitalization && (
           <MedicationAdminPanel hospitalizationId={hospitalization.id} />
         )}
 
-        {tab === TAB_SURGERIES && hospitalization && (
+        {tab === 'cirugias' && hospitalization && (
           <SurgeriesTab hospitalizationId={hospitalization.id} />
         )}
 
-        {tab === TAB_LAB && (
+        {tab === 'laboratorio' && (
           <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
             <LabResultsPanel emergencyId={emergency.id} patientGender={p.gender} />
           </Paper>
+        )}
+
+        {tab === 'historial' && (
+          <Paper sx={{ p: 1.5 }}>
+            <HistoricalCasePanel patient={p} currentEmergencyId={emergency.id} />
+          </Paper>
+        )}
+
+        {tab === 'documentos' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+              <DocumentsPanel
+                attachableType="Hospitalization"
+                attachableId={hospitalization?.id}
+              />
+            </Paper>
+            {hospitalization?.status !== 'active' && (
+              <Paper sx={{ p: 1.5, borderLeft: '4px solid #2e7d32' }}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<DownloadIcon />}
+                  onClick={async () => {
+                    const data = await medicalHistoryApi.getForHospitalization(hospitalization.id);
+                    generateHospitalizationReport(data);
+                  }}
+                  sx={{ fontSize: '0.8rem' }}
+                >
+                  Descargar Historia Clínica (PDF)
+                </Button>
+              </Paper>
+            )}
+          </Box>
         )}
       </Box>
 

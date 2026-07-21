@@ -1,7 +1,7 @@
 import { Autocomplete, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from "@mui/material";
 import { ArrowBack, Cancel, Edit, MedicalServices } from "@mui/icons-material";
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import WarningIcon from '@mui/icons-material/Warning';
+import DownloadIcon from '@mui/icons-material/Download';
 import MedicalPlanSection from "./MedicalPlanSection";
 import NoteItem from "./NoteItem";
 import AddNoteInline from "./AddNoteInline";
@@ -14,10 +14,11 @@ import EditPatientData from "../Patients/editPatientDataModal";
 import IngressPatientModal from "../Board/IngressPatientModal";
 import ReleasePatient from "../Board/releasePatientModal";
 import StatusChip from "../Commons/StatusChip";
-import ReportsPanel from "../Commons/ReportsPanel";
-import ReportEditorModal from "../Portal/ReportEditorModal";
+import DocumentsPanel from '../Commons/DocumentsPanel';
 import usePermissions from "../../hooks/usePermissions";
 import { CLASSIFICATION_OPTIONS } from '../../constants';
+import { medicalHistoryApi } from '../../services/medicalHistoryApi';
+import { generateEmergencyReport } from '../../services/medicalHistoryReport';
 import moment from 'moment';
 
 const FieldItem = ({ label, value }) => (
@@ -48,9 +49,6 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
     const [interconsultaInput, setInterconsultaInput] = useState('');
     const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
-    const [reportModalOpen, setReportModalOpen] = useState(false);
-    const [reportType, setReportType] = useState('triage');
-
     const activeEmergencyId = historyEmergencyId || emergencyId;
     const isViewingHistory = !!historyEmergencyId;
 
@@ -164,16 +162,6 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
         if (eid === activeEmergencyId) return;
         setHistoryEmergencyId(eid);
     }, [activeEmergencyId]);
-
-    const handleOpenReportModal = useCallback((type) => {
-        setReportType(type);
-        setReportModalOpen(true);
-    }, []);
-
-    const handleCloseReportModal = useCallback(() => {
-        setReportModalOpen(false);
-        refetch();
-    }, [refetch]);
 
     const effectiveReadOnly = readOnly || isViewingHistory || patient?.disabled;
 
@@ -294,8 +282,14 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                                 <Typography variant="body2" sx={{ fontSize: '0.73rem', mt: 0.25 }}>{row.observations}</Typography>
                             </Box>
                         )}
+                        {row.status === 4 && row.medical_exit && (
+                            <Box sx={{ mt: 0.5, p: 0.75, bgcolor: '#ffebee', borderRadius: 1, border: '1px solid #ef5350' }}>
+                                <Typography variant="caption" fontWeight={700} sx={{ color: '#c62828', fontSize: '0.65rem' }}>EMERGENCIA ANULADA</Typography>
+                                <Typography variant="body2" sx={{ fontSize: '0.73rem', mt: 0.25, color: '#c62828' }}>{row.medical_exit}</Typography>
+                            </Box>
+                        )}
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 0.5 }}>
-                            {row.medical_exit && <FieldItem label="Alta Médica" value={row.medical_exit} />}
+                            {row.status !== 4 && row.medical_exit && <FieldItem label="Alta Médica" value={row.medical_exit} />}
                             {row.transfer && <FieldItem label="Área Ingreso" value={row.transfer} />}
                             {row.cause_of_death && <FieldItem label="Causa Muerte" value={row.cause_of_death} />}
                         </Box>
@@ -337,25 +331,6 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                         )}
                     </Box>
 
-                    {/* Reports */}
-                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
-                        <SectionHeader title="INFORMES" />
-                        {row.status !== 2 && !effectiveReadOnly && hasPerm('emergencia.generar_informe') && (
-                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    startIcon={<PictureAsPdfIcon />}
-                                    onClick={() => handleOpenReportModal('triage')}
-                                    sx={{ fontSize: '0.7rem', py: 0.3 }}
-                                >
-                                    Generar Informe de Triaje
-                                </Button>
-                            </Box>
-                        )}
-                        <ReportsPanel attachableType="Emergency" attachableId={row.id} />
-                    </Box>
-
                     {/* Medical Plan */}
                     <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
                         <SectionHeader title="PLAN MÉDICO" />
@@ -388,8 +363,33 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                         )}
                     </Box>
 
+                    {/* Documents */}
+                    {emergency.status === 2 && (
+                      <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <SectionHeader title="DOCUMENTOS" />
+                        {!effectiveReadOnly && (
+                          <DocumentsPanel
+                            attachableType="Emergency"
+                            attachableId={activeEmergencyId}
+                          />
+                        )}
+                        <Button
+                          variant="contained"
+                          size="small"
+                          startIcon={<DownloadIcon />}
+                          onClick={async () => {
+                            const data = await medicalHistoryApi.getForEmergency(activeEmergencyId);
+                            generateEmergencyReport(data);
+                          }}
+                          sx={{ mt: 1, fontSize: '0.7rem' }}
+                        >
+                          Descargar Historia Clínica (PDF)
+                        </Button>
+                      </Box>
+                    )}
+
                     {/* Case History */}
-                    {!hideHistory && allEmergencies.length > 1 && (
+                    {!hideHistory && allEmergencies.length > 0 && (
                         <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
                             <SectionHeader title="HISTORIAL DE CASOS" />
                             <TableContainer component={Paper} variant="outlined">
@@ -453,14 +453,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                 <EditPatientData open={showEditPatient} onClose={() => setShowEditPatient(false)} patient={patient} onSaved={handlePatientSaved} />
             )}
 
-            <ReportEditorModal
-                open={reportModalOpen}
-                onClose={handleCloseReportModal}
-                reportType={reportType}
-                emergency={row}
-                patient={patient}
-            />
-        </>
+        </> 
     );
 };
 

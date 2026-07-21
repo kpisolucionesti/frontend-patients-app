@@ -38,6 +38,8 @@ const EMPTY = {
   description: '',
   surgeon_name: '',
   surgery_date: '',
+  scheduled_start_time: '',
+  scheduled_end_time: '',
   status: 'scheduled',
   preanesthetic_evaluation: '',
   preop_notes: '',
@@ -81,6 +83,8 @@ const SurgeriesTab = ({ hospitalizationId }) => {
       description: s.description || '',
       surgeon_name: s.surgeon_name || '',
       surgery_date: s.surgery_date ? s.surgery_date.slice(0, 16) : '',
+      scheduled_start_time: s.scheduled_start_time ? s.scheduled_start_time.slice(0, 16) : '',
+      scheduled_end_time: s.scheduled_end_time ? s.scheduled_end_time.slice(0, 16) : '',
       status: s.status || 'scheduled',
       preanesthetic_evaluation: s.preanesthetic_evaluation || '',
       preop_notes: s.preop_notes || '',
@@ -152,6 +156,8 @@ const SurgeriesTab = ({ hospitalizationId }) => {
                 <TableCell sx={{ fontWeight: 700 }}>Descripción</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Cirujano</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Fecha</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Hora Inicio</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Hora Fin</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Notas Post-Op</TableCell>
                 {canEdit && <TableCell sx={{ fontWeight: 700 }}>Acciones</TableCell>}
@@ -160,7 +166,7 @@ const SurgeriesTab = ({ hospitalizationId }) => {
             <TableBody>
               {items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={canEdit ? 7 : 6} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                  <TableCell colSpan={canEdit ? 9 : 8} align="center" sx={{ py: 3, color: 'text.secondary' }}>
                     Sin cirugías registradas
                   </TableCell>
                 </TableRow>
@@ -174,6 +180,12 @@ const SurgeriesTab = ({ hospitalizationId }) => {
                   <TableCell sx={{ fontSize: '0.75rem' }}>{s.surgeon_name || '-'}</TableCell>
                   <TableCell sx={{ fontSize: '0.75rem' }}>
                     {s.surgery_date ? new Date(s.surgery_date).toLocaleDateString() : '-'}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.75rem' }}>
+                    {s.scheduled_start_time ? new Date(s.scheduled_start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.75rem' }}>
+                    {s.scheduled_end_time ? new Date(s.scheduled_end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -211,8 +223,14 @@ const SurgeriesTab = ({ hospitalizationId }) => {
               onChange={(e) => handleChange('description', e.target.value)} multiline rows={2} fullWidth />
             <TextField variant="standard" size="small" label="Cirujano" value={form.surgeon_name}
               onChange={(e) => handleChange('surgeon_name', e.target.value)} fullWidth />
-            <TextField variant="standard" size="small" label="Fecha de Cirugía" type="datetime-local"
+            <TextField variant="standard" size="small" label="Fecha de Cirugía" type="date"
               value={form.surgery_date} onChange={(e) => handleChange('surgery_date', e.target.value)}
+              InputLabelProps={{ shrink: true }} fullWidth />
+            <TextField variant="standard" size="small" label="Hora de Inicio" type="time"
+              value={form.scheduled_start_time} onChange={(e) => handleChange('scheduled_start_time', e.target.value)}
+              InputLabelProps={{ shrink: true }} fullWidth />
+            <TextField variant="standard" size="small" label="Hora de Fin" type="time"
+              value={form.scheduled_end_time} onChange={(e) => handleChange('scheduled_end_time', e.target.value)}
               InputLabelProps={{ shrink: true }} fullWidth />
             <TextField select variant="standard" size="small" label="Estado" value={form.status}
               onChange={(e) => handleChange('status', e.target.value)} fullWidth>

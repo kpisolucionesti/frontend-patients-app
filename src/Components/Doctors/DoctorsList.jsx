@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, IconButton, Paper, Tab, Tabs, Tooltip } from '@mui/material';
+import { Box, IconButton, Paper, Tab, Tabs, Tooltip, Typography } from '@mui/material';
 import { Add, Block, CheckCircle, Edit, History as HistoryIcon } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -120,6 +120,11 @@ const DoctorsList = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <Box sx={{ px: 2, py: 1.25, flexShrink: 0 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1565c0', fontSize: '1rem' }}>
+          Médicos
+        </Typography>
+      </Box>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
           value={tab}

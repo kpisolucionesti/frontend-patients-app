@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Box, Typography, Tabs, Tab, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Chip, TextField, InputAdornment,
-  CircularProgress
+  CircularProgress, Stack
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import EmergencyIcon from '@mui/icons-material/LocalHospital';
@@ -32,6 +32,8 @@ const TABS = [
 const Historial = () => {
   const [activeTab, setActiveTab] = useState('emergencias');
   const [search, setSearch] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [loading, setLoading] = useState(false);
 
   const [emergencies, setEmergencies] = useState([]);
@@ -39,32 +41,52 @@ const Historial = () => {
   const [appointments, setAppointments] = useState([]);
   const [surgeries, setSurgeries] = useState([]);
 
-  const fetchEmergencies = useCallback(async (q = '') => {
+  const applyDateFilter = (items, dateField) => {
+    return items.filter((item) => {
+      const v = item[dateField];
+      if (!v) return !dateFrom && !dateTo;
+      const d = new Date(v);
+      if (isNaN(d.getTime())) return true;
+      if (dateFrom && d < new Date(dateFrom)) return false;
+      if (dateTo) {
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        if (d > end) return false;
+      }
+      return true;
+    });
+  };
+
+  const fetchEmergencies = useCallback(async (q = '', dateF = dateFrom, dateT = dateTo) => {
     setLoading(true);
     try {
       const params = { per_page: 200 };
       if (q) params.q = q;
       const res = await BackendAPI.emergencies.getAll(params);
       const all = res.data || [];
-      setEmergencies(all.filter((e) => HISTORICAL_STATUSES.includes(e.status)));
+      let filtered = all.filter((e) => HISTORICAL_STATUSES.includes(e.status));
+      filtered = applyDateFilter(filtered, 'ingress_date');
+      setEmergencies(filtered);
     } catch {
       setEmergencies([]);
     }
     setLoading(false);
-  }, []);
+  }, [dateFrom, dateTo]);
 
-  const fetchHospitalizations = useCallback(async (q = '') => {
+  const fetchHospitalizations = useCallback(async (q = '', dateF = dateFrom, dateT = dateTo) => {
     setLoading(true);
     try {
       const res = await BackendAPI.hospitalizations.historical({ per_page: 100, q });
-      setHospitalizations(res.data || []);
+      let data = res.data || [];
+      data = applyDateFilter(data, 'admission_date');
+      setHospitalizations(data);
     } catch {
       setHospitalizations([]);
     }
     setLoading(false);
-  }, []);
+  }, [dateFrom, dateTo]);
 
-  const fetchAppointments = useCallback(async (q = '') => {
+  const fetchAppointments = useCallback(async (q = '', dateF = dateFrom, dateT = dateTo) => {
     setLoading(true);
     try {
       const allAppointments = await BackendAPI.appointments.getAll({ per_page: 200 });
@@ -78,25 +100,28 @@ const Historial = () => {
           (a.patient?.ci || '').includes(t)
         );
       }
+      past = applyDateFilter(past, 'appointment_date');
       setAppointments(past);
     } catch {
       setAppointments([]);
     }
     setLoading(false);
-  }, []);
+  }, [dateFrom, dateTo]);
 
-  const fetchSurgeries = useCallback(async (q = '') => {
+  const fetchSurgeries = useCallback(async (q = '', dateF = dateFrom, dateT = dateTo) => {
     setLoading(true);
     try {
       const params = { per_page: 100 };
       if (q) params.q = q;
       const res = await BackendAPI.surgeries.search(params);
-      setSurgeries(res.data || []);
+      let data = res.data || [];
+      data = applyDateFilter(data, 'surgery_date');
+      setSurgeries(data);
     } catch {
       setSurgeries([]);
     }
     setLoading(false);
-  }, []);
+  }, [dateFrom, dateTo]);
 
   const fetchData = useCallback((q) => {
     switch (activeTab) {
@@ -117,6 +142,11 @@ const Historial = () => {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleSearch();
+  };
+
+  const handleDateChange = (setter) => (e) => {
+    setter(e.target.value);
+    fetchData(search);
   };
 
   const renderEmergencias = () => (
@@ -235,19 +265,23 @@ const Historial = () => {
             <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
             <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Tipo</TableCell>
             <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Fecha</TableCell>
+            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Hora Inicio</TableCell>
+            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Hora Fin</TableCell>
             <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cirujano</TableCell>
             <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Resultado</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {surgeries.length === 0 ? (
-            <TableRow><TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>No hay historial de cirugías</TableCell></TableRow>
+            <TableRow><TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>No hay historial de cirugías</TableCell></TableRow>
           ) : surgeries.map((s) => (
             <TableRow key={s.id} hover>
               <TableCell>{s.patient?.ci || '-'}</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>{(s.patient?.name || '') + ' ' + (s.patient?.lastname || '')}</TableCell>
               <TableCell>{s.surgery_type || '-'}</TableCell>
               <TableCell>{s.surgery_date ? moment(s.surgery_date).format('DD/MM/YYYY') : '-'}</TableCell>
+              <TableCell>{s.scheduled_start_time ? moment(s.scheduled_start_time).format('HH:mm') : s.actual_start_time ? moment(s.actual_start_time).format('HH:mm') : '-'}</TableCell>
+              <TableCell>{s.scheduled_end_time ? moment(s.scheduled_end_time).format('HH:mm') : s.actual_end_time ? moment(s.actual_end_time).format('HH:mm') : '-'}</TableCell>
               <TableCell>{s.surgeon_name || '-'}</TableCell>
               <TableCell>{s.result || '-'}</TableCell>
             </TableRow>
@@ -274,17 +308,40 @@ const Historial = () => {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: '#f0f4ff' }}>
       <BreadcrumbNav crumbs={[{ label: 'Historial' }]} />
       <Box sx={{ px: 2, py: 1, flexShrink: 0 }}>
-        <TextField
-          size="small"
-          placeholder="Buscar por Cédula, Nombre o Apellido..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={handleKeyDown}
-          sx={{ width: 400 }}
-          InputProps={{
-            startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
-          }}
-        />
+        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1565c0', fontSize: '1rem', mb: 1 }}>
+          Historial Clínico
+        </Typography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <TextField
+            size="small"
+            placeholder="Buscar por Cédula, Nombre o Apellido..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
+            sx={{ width: 300 }}
+            InputProps={{
+              startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
+            }}
+          />
+          <TextField
+            label="Desde"
+            type="date"
+            size="small"
+            value={dateFrom}
+            onChange={handleDateChange(setDateFrom)}
+            InputLabelProps={{ shrink: true }}
+            sx={{ width: 170 }}
+          />
+          <TextField
+            label="Hasta"
+            type="date"
+            size="small"
+            value={dateTo}
+            onChange={handleDateChange(setDateTo)}
+            InputLabelProps={{ shrink: true }}
+            sx={{ width: 170 }}
+          />
+        </Stack>
       </Box>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'white', px: 2, flexShrink: 0 }}>
         <Tabs

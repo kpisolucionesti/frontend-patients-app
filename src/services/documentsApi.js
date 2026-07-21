@@ -1,19 +1,21 @@
-import axiosInstance from './axiosInstance';
+import api from './axiosInstance';
 
 export const documentsApi = {
-  list(attachableType, attachableId) {
-    return axiosInstance.get('/documents', {
+  list: async (attachableType, attachableId) => {
+    const { data } = await api.get('/documents', {
       params: { attachable_type: attachableType, attachable_id: attachableId }
-    }).then(r => r.data);
+    });
+    return data;
   },
 
-  create(formData) {
-    return axiosInstance.post('/documents', formData, {
+  create: async (formData) => {
+    const { data } = await api.post('/documents', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(r => r.data);
+    });
+    return data;
   },
 
-  destroy(id) {
-    return axiosInstance.delete(`/documents/${id}`).then(r => r.data);
-  }
+  destroy: async (id) => {
+    await api.delete(`/documents/${id}`);
+  },
 };

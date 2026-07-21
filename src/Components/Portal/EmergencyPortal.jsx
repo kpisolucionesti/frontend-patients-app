@@ -5,15 +5,22 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import SearchIcon from '@mui/icons-material/Search';
+import RestoreIcon from '@mui/icons-material/Restore';
+import ScienceIcon from '@mui/icons-material/Science';
+import DescriptionIcon from '@mui/icons-material/Description';
+import InfoIcon from '@mui/icons-material/Info';
+import DownloadIcon from '@mui/icons-material/Download';
 import PatientInfoPanel from './PatientInfoPanel';
 import PatientDashboard from './PatientDashboard';
 import CurrentPatients from '../Emergency/CurrentPatients';
 import AddEmergencyModal from '../Emergency/AddEmergencyModal';
 import LabResultsPanel from './LabResultsPanel';
 import HistoricalCasePanel from './HistoricalCasePanel';
-import ReportsPanel from '../Commons/ReportsPanel';
 import BreadcrumbNav from '../Commons/BreadcrumbNav';
 import ExportModal from '../Commons/ExportModal';
+import DocumentsPanel from '../Commons/DocumentsPanel';
+import { medicalHistoryApi } from '../../services/medicalHistoryApi';
+import { generateEmergencyReport } from '../../services/medicalHistoryReport';
 import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
 
@@ -120,6 +127,11 @@ const EmergencyPortal = () => {
           ),
         ]}
       />
+      <Box sx={{ px: 2, py: 1.25, flexShrink: 0 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1565c0', fontSize: '1rem' }}>
+          Módulo de Emergencia
+        </Typography>
+      </Box>
       {selectedPatient ? (
         <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {selectedEmergency && (
@@ -127,13 +139,13 @@ const EmergencyPortal = () => {
               <Tabs
                 value={activePanel}
                 onChange={(_, v) => setActivePanel(v)}
-                sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, fontSize: '0.8rem', minHeight: 36 }, '& .Mui-selected': { color: 'primary.main', fontWeight: 700 } }}
+                sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: '0.8rem', minHeight: 36 }, '& .Mui-selected': { color: 'primary.main', fontWeight: 700 } }}
                 TabIndicatorProps={{ sx: { bgcolor: 'primary.main', height: 3 } }}
               >
-                <Tab label="Resumen" value="resumen" />
-                <Tab label="Historial de Casos" value="historial_casos" />
-                <Tab label="Laboratorio" value="laboratorio" />
-                <Tab label="Informes" value="informes" />
+                <Tab label="Resumen" value="resumen" icon={<InfoIcon />} iconPosition="start" />
+                <Tab label="Historial de Casos" value="historial_casos" icon={<RestoreIcon />} iconPosition="start" />
+                <Tab label="Laboratorio" value="laboratorio" icon={<ScienceIcon />} iconPosition="start" />
+                <Tab label="Documentos" value="documentos" icon={<DescriptionIcon />} iconPosition="start" />
               </Tabs>
             </Box>
           )}
@@ -145,9 +157,27 @@ const EmergencyPortal = () => {
             <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default' }}>
               <LabResultsPanel emergencyId={selectedEmergency?.id} patientGender={selectedPatient?.gender} />
             </Box>
-          ) : activePanel === 'informes' ? (
-            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default', p: 2 }}>
-              <ReportsPanel attachableType="Emergency" attachableId={selectedEmergency?.id} />
+          ) : activePanel === 'documentos' ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default', px: 2, py: 1.5 }}>
+              <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+                <DocumentsPanel attachableType="Emergency" attachableId={selectedEmergency?.id} />
+              </Paper>
+              {selectedEmergency?.status === 2 && (
+                <Paper sx={{ p: 1.5, borderLeft: '4px solid #2e7d32' }}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    startIcon={<DownloadIcon />}
+                    onClick={async () => {
+                      const data = await medicalHistoryApi.getForEmergency(selectedEmergency.id);
+                      generateEmergencyReport(data);
+                    }}
+                    sx={{ fontSize: '0.8rem' }}
+                  >
+                    Descargar Historia Clínica (PDF)
+                  </Button>
+                </Paper>
+              )}
             </Box>
           ) : (
           <Box sx={{
@@ -245,7 +275,8 @@ const EmergencyPortal = () => {
                 vitalSigns={vitalSigns}
                 onVitalSignsCreated={handleVitalSignsCreated}
                 onOpenLabPanel={handleOpenLabPanel}
-              />
+                            />
+              
             </Box>
           </Box>
         </Box>

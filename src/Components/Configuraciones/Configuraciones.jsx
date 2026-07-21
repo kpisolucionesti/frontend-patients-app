@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 import usePermissions from '../../hooks/usePermissions';
 import DoctorsList from '../Doctors/DoctorsList';
@@ -24,6 +24,19 @@ const SECTION_MAP = {
   laboratorio: <LabParametersManager />,
   tv_screens: <TvScreensManager />,
   displays: <DisplaysManager />,
+};
+
+const SECTION_LABELS = {
+  medicos: 'Médicos',
+  especialidades: 'Especialidades',
+  agenda: 'Agenda',
+  usuarios: 'Usuarios',
+  perfiles: 'Perfiles',
+  correo: 'Correo',
+  salas: 'Salas',
+  laboratorio: 'Laboratorio',
+  tv_screens: 'TV Screens',
+  displays: 'Displays',
 };
 
 const Configuraciones = () => {
@@ -54,6 +67,11 @@ const Configuraciones = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: 'background.default' }}>
+      <Box sx={{ px: 2, py: 1.25, borderBottom: 1, borderColor: 'divider', bgcolor: 'white', flexShrink: 0 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1565c0', fontSize: '1rem' }}>
+          Configuraciones {currentKey && SECTION_LABELS[currentKey] && <Box component="span" sx={{ fontWeight: 400, color: 'text.secondary' }}>&gt; {SECTION_LABELS[currentKey]}</Box>}
+        </Typography>
+      </Box>
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {SECTION_MAP[currentKey] || <Box sx={{ p: 2 }}>Selecciona una sección</Box>}
       </Box>

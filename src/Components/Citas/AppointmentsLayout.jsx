@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import AppointmentCalendar from './AppointmentCalendar';
 import TodayAppointments from './TodayAppointments';
 import NewAppointmentModal from './NewAppointmentModal';
@@ -21,12 +21,16 @@ const AppointmentsLayout = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: '#f0f4ff' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
+      <Box sx={{ px: 2, py: 1.25, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1565c0', fontSize: '1rem' }}>
+          Citas
+        </Typography>
         <Button
-          variant="outlined"
+          variant="contained"
           size="small"
-          startIcon={<AddCircleIcon />}
+          startIcon={<PersonAddIcon />}
           onClick={handleNewAppointment}
+          sx={{ fontSize: '0.8rem' }}
         >
           Nueva Cita
         </Button>
