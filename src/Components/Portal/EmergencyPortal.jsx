@@ -11,6 +11,7 @@ import CurrentPatients from '../Emergency/CurrentPatients';
 import AddEmergencyModal from '../Emergency/AddEmergencyModal';
 import LabResultsPanel from './LabResultsPanel';
 import HistoricalCasePanel from './HistoricalCasePanel';
+import ReportsPanel from '../Commons/ReportsPanel';
 import BreadcrumbNav from '../Commons/BreadcrumbNav';
 import ExportModal from '../Commons/ExportModal';
 import { BackendAPI } from '../../services/BackendApi';
@@ -132,6 +133,7 @@ const EmergencyPortal = () => {
                 <Tab label="Resumen" value="resumen" />
                 <Tab label="Historial de Casos" value="historial_casos" />
                 <Tab label="Laboratorio" value="laboratorio" />
+                <Tab label="Informes" value="informes" />
               </Tabs>
             </Box>
           )}
@@ -142,6 +144,10 @@ const EmergencyPortal = () => {
           ) : activePanel === 'laboratorio' ? (
             <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default' }}>
               <LabResultsPanel emergencyId={selectedEmergency?.id} patientGender={selectedPatient?.gender} />
+            </Box>
+          ) : activePanel === 'informes' ? (
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default', p: 2 }}>
+              <ReportsPanel attachableType="Emergency" attachableId={selectedEmergency?.id} />
             </Box>
           ) : (
           <Box sx={{

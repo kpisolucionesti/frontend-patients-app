@@ -9,16 +9,15 @@ import EmergencyEditButton from "./EmergencyEditButton";
 import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { useFetch } from "../../hooks/useFetch";
-import { useSnackbar } from "../../hooks/useSnackbar";
 import AsignRoom from "../Board/asignRoomModal";
 import EditPatientData from "../Patients/editPatientDataModal";
 import IngressPatientModal from "../Board/IngressPatientModal";
 import ReleasePatient from "../Board/releasePatientModal";
 import StatusChip from "../Commons/StatusChip";
 import ReportsPanel from "../Commons/ReportsPanel";
+import ReportEditorModal from "../Portal/ReportEditorModal";
 import usePermissions from "../../hooks/usePermissions";
 import { CLASSIFICATION_OPTIONS } from '../../constants';
-import { generateTriageReport } from '../../services/pdfReportGenerator';
 import moment from 'moment';
 
 const FieldItem = ({ label, value }) => (
@@ -49,8 +48,8 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
     const [interconsultaInput, setInterconsultaInput] = useState('');
     const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
-    const [generatingTriage, setGeneratingTriage] = useState(false);
-    const { show: showSnackbar } = useSnackbar();
+    const [reportModalOpen, setReportModalOpen] = useState(false);
+    const [reportType, setReportType] = useState('triage');
 
     const activeEmergencyId = historyEmergencyId || emergencyId;
     const isViewingHistory = !!historyEmergencyId;
@@ -166,38 +165,15 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
         setHistoryEmergencyId(eid);
     }, [activeEmergencyId]);
 
-    const handleGenerateTriage = useCallback(async () => {
-        setGeneratingTriage(true);
-        try {
-            const userData = JSON.parse(localStorage.getItem('user') || '{}');
-            let doctor = null;
-            if (userData.doctor_id) {
-                doctor = await BackendAPI.doctors.getById(userData.doctor_id);
-            }
+    const handleOpenReportModal = useCallback((type) => {
+        setReportType(type);
+        setReportModalOpen(true);
+    }, []);
 
-            const pdfBlob = await generateTriageReport({
-                emergency: row,
-                patient: patient,
-                doctor: doctor,
-            });
-
-            const fd = new FormData();
-            fd.append('file', pdfBlob, `informe_triaje_${row.id}_${moment().format('YYYYMMDD_HHmmss')}.pdf`);
-            fd.append('attachable_type', 'Emergency');
-            fd.append('attachable_id', row.id);
-            fd.append('file_type', 'application/pdf');
-            fd.append('report_type', 'triage');
-            fd.append('description', 'Informe de Triaje');
-            await BackendAPI.documents.create(fd);
-
-            showSnackbar('Informe de Triaje generado correctamente', 'success');
-            refetch();
-        } catch (err) {
-            showSnackbar('Error al generar el informe: ' + (err.message || 'desconocido'), 'error');
-        } finally {
-            setGeneratingTriage(false);
-        }
-    }, [row, patient, refetch, showSnackbar]);
+    const handleCloseReportModal = useCallback(() => {
+        setReportModalOpen(false);
+        refetch();
+    }, [refetch]);
 
     const effectiveReadOnly = readOnly || isViewingHistory || patient?.disabled;
 
@@ -370,11 +346,10 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                                     size="small"
                                     variant="contained"
                                     startIcon={<PictureAsPdfIcon />}
-                                    onClick={handleGenerateTriage}
-                                    disabled={generatingTriage}
+                                    onClick={() => handleOpenReportModal('triage')}
                                     sx={{ fontSize: '0.7rem', py: 0.3 }}
                                 >
-                                    {generatingTriage ? 'Generando...' : 'Generar Informe de Triaje'}
+                                    Generar Informe de Triaje
                                 </Button>
                             </Box>
                         )}
@@ -477,6 +452,14 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
             {!readOnly && showEditPatient && (
                 <EditPatientData open={showEditPatient} onClose={() => setShowEditPatient(false)} patient={patient} onSaved={handlePatientSaved} />
             )}
+
+            <ReportEditorModal
+                open={reportModalOpen}
+                onClose={handleCloseReportModal}
+                reportType={reportType}
+                emergency={row}
+                patient={patient}
+            />
         </>
     );
 };

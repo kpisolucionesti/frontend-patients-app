@@ -15,11 +15,12 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import PhysicalExamTable from './PhysicalExamTable';
 import ReportsPanel from '../Commons/ReportsPanel';
 import AsignRoom from '../Board/asignRoomModal';
+import ReportEditorModal from './ReportEditorModal';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
+import usePermissions from '../../hooks/usePermissions';
 import { CLASSIFICATION_OPTIONS } from '../../constants';
 import { useSnackbar } from '../../hooks/useSnackbar';
-import { generateTriageReport } from '../../services/pdfReportGenerator';
 
 const STATUS_MAP = {
   0: { label: 'Esperando', color: 'warning' },
@@ -67,7 +68,9 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
   const [evolutiveNote, setEvolutiveNote] = useState('');
   const [dischargeNote, setDischargeNote] = useState(emergency?.discharge_note || '');
   const [admissionNote, setAdmissionNote] = useState(emergency?.admission_note || '');
-  const [generatingTriage, setGeneratingTriage] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportType, setReportType] = useState('resident');
+  const permissions = usePermissions();
   const { show: showSnackbar } = useSnackbar();
 
   const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
@@ -161,37 +164,14 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
     }
   };
 
-  const handleGenerateTriage = useCallback(async () => {
-    setGeneratingTriage(true);
-    try {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      let doctor = null;
-      if (userData.doctor_id) {
-        doctor = await BackendAPI.doctors.getById(userData.doctor_id);
-      }
+  const handleOpenReportModal = useCallback((type) => {
+    setReportType(type);
+    setReportModalOpen(true);
+  }, []);
 
-      const pdfBlob = await generateTriageReport({
-        emergency,
-        patient: patient || {},
-        doctor,
-      });
-
-      const fd = new FormData();
-      fd.append('file', pdfBlob, `informe_triaje_${emergency.id}_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.pdf`);
-      fd.append('attachable_type', 'Emergency');
-      fd.append('attachable_id', emergency.id);
-      fd.append('file_type', 'application/pdf');
-      fd.append('report_type', 'triage');
-      fd.append('description', 'Informe de Triaje');
-      await BackendAPI.documents.create(fd);
-
-      showSnackbar('Informe de Triaje generado correctamente', 'success');
-    } catch (err) {
-      showSnackbar('Error al generar el informe: ' + (err.message || 'desconocido'), 'error');
-    } finally {
-      setGeneratingTriage(false);
-    }
-  }, [emergency, patient, showSnackbar]);
+  const handleCloseReportModal = useCallback(() => {
+    setReportModalOpen(false);
+  }, []);
 
   const handleStatusChange = (newStatus) => {
     setStatus(Number(newStatus));
@@ -552,15 +532,52 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly }) =>
                   size="small"
                   variant="contained"
                   startIcon={<PictureAsPdfIcon />}
-                  onClick={handleGenerateTriage}
-                  disabled={generatingTriage}
+                  onClick={() => handleOpenReportModal('triage')}
                   sx={{ fontSize: '0.7rem', py: 0.3 }}
                 >
-                  {generatingTriage ? 'Generando...' : 'Generar Informe de Triaje'}
+                  Generar Triaje
                 </Button>
+                {emergency.status === 1 && permissions.includes('emergencia.generar_informe') && (
+                  <>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<PictureAsPdfIcon />}
+                      onClick={() => handleOpenReportModal('resident')}
+                      sx={{ fontSize: '0.7rem', py: 0.3 }}
+                    >
+                      Generar Informe Residente
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<PictureAsPdfIcon />}
+                      onClick={() => handleOpenReportModal('discharge')}
+                      sx={{ fontSize: '0.7rem', py: 0.3, borderColor: 'success.main', color: 'success.main' }}
+                    >
+                      Generar Informe de Alta
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<PictureAsPdfIcon />}
+                      onClick={() => handleOpenReportModal('admission')}
+                      sx={{ fontSize: '0.7rem', py: 0.3, borderColor: 'primary.main', color: 'primary.main' }}
+                    >
+                      Generar Informe de Ingreso
+                    </Button>
+                  </>
+                )}
               </Box>
             )}
             <ReportsPanel attachableType="Emergency" attachableId={emergency.id} />
+            <ReportEditorModal
+              open={reportModalOpen}
+              onClose={handleCloseReportModal}
+              reportType={reportType}
+              emergency={emergency}
+              patient={patient}
+            />
           </Paper>
         </>
       )}

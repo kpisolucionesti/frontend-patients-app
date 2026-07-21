@@ -181,3 +181,61 @@ export async function generateTriageReport({ emergency, patient, doctor }) {
   drawFooter(doc);
   return doc.output('blob');
 }
+
+export async function generateReportFromHtml({ title, htmlContent }) {
+  const doc = new jsPDF('p', 'mm', 'a4');
+  const fullHtml = `
+    <div style="font-family: Arial, sans-serif; color: #333; font-size: 10pt; line-height: 1.6; padding: 0;">
+      <div style="border-bottom: 2px solid #1e50a0; margin-bottom: 10px; padding-bottom: 6px;">
+        <h1 style="font-size: 16pt; color: #282828; margin: 0; letter-spacing: 1px;">EMERBOARD</h1>
+        <p style="font-size: 8pt; color: #888; margin: 2px 0;">Sistema de Gestión Hospitalaria</p>
+        <p style="font-size: 7pt; color: #aaa; margin: 2px 0;">Fecha de generación: ${moment().format('DD/MM/YYYY HH:mm')}</p>
+      </div>
+      <h2 style="font-size: 13pt; color: #1e50a0; margin: 8px 0 6px 0; text-transform: uppercase;">${title}</h2>
+      ${htmlContent}
+    </div>
+  `;
+
+  const container = document.createElement('div');
+  container.innerHTML = fullHtml;
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.width = '180mm';
+  document.body.appendChild(container);
+
+  return new Promise((resolve, reject) => {
+    doc.html(container, {
+      callback: (pdf) => {
+        const pageCount = pdf.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          pdf.setPage(i);
+          pdf.setFontSize(7);
+          pdf.setTextColor(160, 160, 160);
+          pdf.text(
+            `Página ${i} de ${pageCount} — Emerboard`,
+            MARGIN,
+            PAGE_HEIGHT - 10
+          );
+        }
+        document.body.removeChild(container);
+        try {
+          resolve(pdf.output('blob'));
+        } catch (e) {
+          reject(e);
+        }
+      },
+      margin: [15, 15, 20, 15],
+      autoPaging: 'text',
+      x: 0,
+      y: 0,
+      html2canvas: {
+        scale: 0.75,
+        letterRendering: true,
+        useCORS: true,
+      },
+    });
+  });
+}
+
+

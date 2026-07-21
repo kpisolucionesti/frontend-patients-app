@@ -8,7 +8,10 @@ import {
   TextField,
   Typography,
   Alert,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { BackendAPI } from "../../services/BackendApi";
 import ForcePasswordChange from "./ForcePasswordChange";
 
@@ -19,6 +22,8 @@ const SignIn = () => {
   const [error, setError] = useState(searchParams.get('expired') === '1');
   const [errorMessage, setErrorMessage] = useState(searchParams.get('expired') === '1' ? "Su sesión ha expirado por inactividad. Por favor, inicie sesión nuevamente." : "");
   const [showForceChange, setShowForceChange] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const handleClickShowPassword = () => setShowPassword((prev) => !prev);
 
   useEffect(() => {
     if (searchParams.get('expired') === '1') {
@@ -103,11 +108,24 @@ const SignIn = () => {
               fullWidth
               label="Contrasena"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={values.password}
               onChange={({ target }) => handleValueChange(target)}
               sx={{ mb: 3 }}
               required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClickShowPassword}
+                      edge="end"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               fullWidth

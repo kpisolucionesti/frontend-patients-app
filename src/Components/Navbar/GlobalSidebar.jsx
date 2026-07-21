@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box, List, ListItemButton, ListItemIcon, ListItemText,
@@ -89,6 +89,23 @@ const GlobalSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
+  const prevPathRef = useRef(location.pathname);
+  const [expandedMenu, setExpandedMenu] = useState(() => {
+    const item = NAV_ITEMS.find(i =>
+      location.pathname.startsWith(i.basePath || i.path) && i.subSections
+    );
+    return item?.key || null;
+  });
+
+  useEffect(() => {
+    if (prevPathRef.current !== location.pathname) {
+      const item = NAV_ITEMS.find(i =>
+        location.pathname.startsWith(i.basePath || i.path) && i.subSections
+      );
+      setExpandedMenu(item?.key || null);
+      prevPathRef.current = location.pathname;
+    }
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     try { await BackendAPI.auth.signOut(); } catch { }
@@ -124,17 +141,7 @@ const GlobalSidebar = () => {
       navigate(item.path);
       return;
     }
-    const visibleSubs = item.subSections.filter((sub) => {
-      if (sub.perm && !permissions.includes(sub.perm)) return false;
-      if (sub.adminOnly && !isAdmin) return false;
-      return true;
-    });
-    if (activeMainKey === item.key) {
-      navigate(`${item.basePath}?tab=${currentTab || visibleSubs[0]?.key || ''}`);
-    } else {
-      const firstKey = visibleSubs[0]?.key || '';
-      navigate(`${item.basePath}?tab=${firstKey}`);
-    }
+    setExpandedMenu((prev) => prev === item.key ? null : item.key);
   };
 
   const handleSubClick = (item, sub) => {
@@ -152,15 +159,21 @@ const GlobalSidebar = () => {
           mx: 0.5,
           borderRadius: 0.5,
           mb: 0.15,
-          pl: 3,
+          pl: 3.5,
           minHeight: 28,
+          borderLeft: '2px solid',
+          borderColor: isActive ? 'primary.main' : 'rgba(255,255,255,0.12)',
+          bgcolor: isActive ? 'primary.main' : 'transparent',
           '&.Mui-selected': {
             bgcolor: 'primary.main',
             color: 'white',
             '&:hover': { bgcolor: 'primary.dark' },
             '& .MuiListItemIcon-root': { color: 'white' },
           },
-          '&:not(.Mui-selected):hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+          '&:not(.Mui-selected):hover': {
+            bgcolor: 'rgba(255,255,255,0.08)',
+            borderColor: 'rgba(255,255,255,0.3)',
+          },
         }}
       >
         <ListItemText
@@ -262,9 +275,23 @@ const GlobalSidebar = () => {
             return (
               <Box key={item.key}>
                 {mainEl}
-                {!collapsed && isMainActive && item.subSections && (
+                {!collapsed && expandedMenu === item.key && item.subSections && (
                   <Collapse in={true} timeout="auto">
-                    {item.subSections.map((sub) => renderSubSection(item, sub))}
+                    <Box
+                      sx={{
+                        ml: 1,
+                        pl: 0.5,
+                        borderLeft: '1px solid',
+                        borderColor: 'rgba(255,255,255,0.08)',
+                        mt: 0.25,
+                        mb: 0.25,
+                        bgcolor: 'rgba(255,255,255,0.04)',
+                        borderRadius: '0 4px 4px 0',
+                      }}
+                    >
+                      <Divider sx={{ borderColor: 'rgba(255,255,255,0.06)', mb: 0.25 }} />
+                      {item.subSections.map((sub) => renderSubSection(item, sub))}
+                    </Box>
                   </Collapse>
                 )}
               </Box>
