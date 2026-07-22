@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDoctors } from '../../hooks/useApiData';
 import moment from 'moment';
 
 const HOURS = Array.from({ length: 11 }, (_, i) => i + 7);
@@ -22,7 +23,7 @@ const STATUS_COLORS = {
 const AppointmentCalendar = () => {
   const [weekStart, setWeekStart] = useState(moment().startOf('isoWeek'));
   const [appointments, setAppointments] = useState([]);
-  const [doctors, setDoctors] = useState([]);
+  const { data: doctors } = useDoctors();
   const [filterDoctor, setFilterDoctor] = useState('');
   const [loading, setLoading] = useState(true);
   const weekEnd = moment(weekStart).endOf('isoWeek');
@@ -36,12 +37,8 @@ const AppointmentCalendar = () => {
         end_date: weekEnd.format('YYYY-MM-DD'),
       };
       if (filterDoctor) params.doctor_id = filterDoctor;
-      const [apps, docs] = await Promise.all([
-        BackendAPI.appointments.getAll(params),
-        BackendAPI.doctors.getAll(),
-      ]);
+      const apps = await BackendAPI.appointments.getAll(params);
       setAppointments(apps || []);
-      setDoctors(docs || []);
     } catch {
       setAppointments([]);
     }

@@ -23,6 +23,7 @@ import MedicationIcon from '@mui/icons-material/Medication';
 import DescriptionIcon from '@mui/icons-material/Description';
 import RestoreIcon from '@mui/icons-material/Restore';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDoctors, useRooms } from '../../hooks/useApiData';
 import PatientInfoPanel from '../Portal/PatientInfoPanel';
 import VitalSignsHistoryTab from './VitalSignsHistoryTab';
 import LabResultsPanel from '../Portal/LabResultsPanel';
@@ -88,8 +89,8 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
   const [dischargeDialogOpen, setDischargeDialogOpen] = useState(false);
   const [dischargeForm, setDischargeForm] = useState({ discharge_diagnosis: '', discharge_summary: '' });
   const [discharging, setDischarging] = useState(false);
-  const [allRooms, setAllRooms] = useState([]);
-  const [doctors, setDoctors] = useState([]);
+  const { data: allRooms = [] } = useRooms();
+  const { data: doctors = [] } = useDoctors();
   const [selectedRoomId, setSelectedRoomId] = useState(null);
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
   const [savingRoom, setSavingRoom] = useState(false);
@@ -152,8 +153,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
 
   useEffect(() => {
     loadData();
-    BackendAPI.rooms.getAll().then((r) => setAllRooms(r || [])).catch(() => {});
-    BackendAPI.doctors.getAll().then((d) => setDoctors(d || [])).catch(() => {});
+
   }, [loadData]);
 
   const hospRooms = useMemo(() =>

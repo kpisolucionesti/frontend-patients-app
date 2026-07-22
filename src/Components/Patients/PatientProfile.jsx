@@ -326,15 +326,15 @@ const PatientProfile = ({ patient, onBack }) => {
               <Box sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin emergencias registradas</Typography></Box>
             ) : (
               <>
-                <TableContainer>
-                  <Table size="small">
+                <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+                  <Table size="small" stickyHeader>
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 700 }}>F. Ingreso</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Diagnóstico</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Médico</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Acciones</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>F. Ingreso</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Diagnóstico</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Médico</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Acciones</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -396,16 +396,16 @@ const PatientProfile = ({ patient, onBack }) => {
               <Box sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin hospitalizaciones registradas</Typography></Box>
             ) : (
               <>
-                <TableContainer>
-                  <Table size="small">
+                <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+                  <Table size="small" stickyHeader>
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 700 }}>F. Ingreso</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>F. Alta</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Diagnóstico</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Médico</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Acciones</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>F. Ingreso</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>F. Alta</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Diagnóstico</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Médico</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Acciones</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -537,17 +537,17 @@ const PatientProfile = ({ patient, onBack }) => {
               <Box sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin cirugías registradas</Typography></Box>
             ) : (
               <>
-                <TableContainer>
-                  <Table size="small">
+                <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+                  <Table size="small" stickyHeader>
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 700 }}>Tipo</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Cirujano</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Fecha</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Hora Inicio</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Hora Fin</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Acciones</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Tipo</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cirujano</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Fecha</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Hora Inicio</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Hora Fin</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
+                        <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Acciones</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>

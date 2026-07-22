@@ -152,16 +152,16 @@ const FluidBalancePanel = ({ hospitalizationId }) => {
         </Grid>
       )}
 
-      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto', boxShadow: 3, borderRadius: 1 }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Tipo</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Fluido</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Cantidad</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Fecha/Hora</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Registró</TableCell>
-              {canNurse && <TableCell sx={{ fontWeight: 700 }}>Acción</TableCell>}
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Tipo</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Fluido</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cantidad</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Fecha/Hora</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Registró</TableCell>
+              {canNurse && <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Acción</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>

@@ -30,6 +30,7 @@ import NotificationBell from './NotificationBell';
 import { BackendAPI } from '../../services/BackendApi';
 import { APP_VERSION } from '../../version';
 import usePermissions from '../../hooks/usePermissions';
+import { useAuth } from '../../hooks/useAuth';
 
 const COLLAPSED_WIDTH = 48;
 const EXPANDED_WIDTH = 200;
@@ -62,20 +63,8 @@ const NAV_ITEMS = [
     icon: <PeopleIcon />, perm: 'pacientes.view',
   },
   {
-    key: 'config', label: 'Config.', basePath: '/patients/configuraciones',
+    key: 'config', label: 'Config.', path: '/patients/configuraciones',
     icon: <SettingsIcon />, perm: 'configuraciones.view',
-    subSections: [
-      { key: 'medicos', label: 'Médicos', icon: <MedicalServicesIcon />, perm: 'medicos.view' },
-      { key: 'especialidades', label: 'Especialidades', icon: <CategoryIcon />, perm: 'especialidades.view' },
-      { key: 'agenda', label: 'Agenda Médica', icon: <CalendarMonthIcon />, perm: 'agenda.edit' },
-      { key: 'usuarios', label: 'Usuarios', icon: <PersonIcon />, perm: 'usuarios.view' },
-      { key: 'perfiles', label: 'Perfiles', icon: <AdminPanelSettingsIcon />, perm: 'perfiles.view' },
-      { key: 'salas', label: 'Salas', icon: <MeetingRoomIcon />, perm: 'rooms.view', adminOnly: true },
-      { key: 'laboratorio', label: 'Laboratorio', icon: <ScienceIcon />, perm: 'lab_params.view' },
-      { key: 'tv_screens', label: 'Pantallas TV', icon: <TvIcon />, perm: 'configuraciones.view', adminOnly: true },
-      { key: 'displays', label: 'Pantallas Citas', icon: <TvIcon />, perm: 'citas.view', adminOnly: true },
-      { key: 'correo', label: 'Correo', icon: <EmailIcon />, adminOnly: true },
-    ],
   },
 ];
 
@@ -83,9 +72,9 @@ const GlobalSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { user, signOut: authSignOut } = useAuth();
   const permissions = usePermissions();
-  const isAdmin = user.is_admin;
+  const isAdmin = user?.is_admin;
   const [collapsed, setCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
@@ -109,9 +98,7 @@ const GlobalSidebar = () => {
 
   const handleLogout = async () => {
     try { await BackendAPI.auth.signOut(); } catch { }
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('user_permissions');
+    authSignOut();
     navigate('/', { replace: true });
   };
 

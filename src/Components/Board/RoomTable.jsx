@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { BackendAPI } from '../../services/BackendApi';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { useFetch } from '../../hooks/useFetch';
+import { useRooms } from '../../hooks/useApiData';
 import { usePolling } from '../../hooks/usePolling';
 
 const COLUMNS = [
@@ -56,9 +57,7 @@ const RoomTable = ({ screenRoute }) => {
     () => BackendAPI.emergencies.getAll(), [],
   );
 
-  const { data: rooms } = useFetch(
-    () => BackendAPI.rooms.getAll(), [],
-  );
+  const { data: rooms } = useRooms();
 
   usePolling(refetch, 5000);
 

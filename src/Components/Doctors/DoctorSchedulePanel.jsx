@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { Add, Delete, Save } from '@mui/icons-material';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDoctors } from '../../hooks/useApiData';
 import { useSnackbar } from '../../hooks/useSnackbar';
 
 const DAYS = [
@@ -36,16 +37,14 @@ const EMPTY_BLOCK = {
 const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 const DoctorSchedulePanel = () => {
-  const [doctors, setDoctors] = useState([]);
+  const { data: doctors } = useDoctors();
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const [blocks, setBlocks] = useState([]);
   const [saving, setSaving] = useState(false);
   const { show } = useSnackbar();
   const loadedRef = useRef(false);
 
-  useEffect(() => {
-    BackendAPI.doctors.getAll().then((d) => setDoctors(d || [])).catch(() => {});
-  }, []);
+
 
   useEffect(() => {
     if (!selectedDoctorId) {
@@ -148,18 +147,18 @@ const DoctorSchedulePanel = () => {
               </Button>
             </Box>
           </Box>
-          <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
+          <TableContainer component={Paper} sx={{ flex: 1, overflow: 'auto', boxShadow: 3, borderRadius: 1 }}>
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700, minWidth: 100 }}>Día</TableCell>
-                  <TableCell sx={{ fontWeight: 700, minWidth: 90 }}>Desde</TableCell>
-                  <TableCell sx={{ fontWeight: 700, minWidth: 90 }}>Hasta</TableCell>
-                  <TableCell sx={{ fontWeight: 700, minWidth: 90 }}>Duración</TableCell>
-                  <TableCell sx={{ fontWeight: 700, minWidth: 140 }}>Modo</TableCell>
-                  <TableCell sx={{ fontWeight: 700, minWidth: 80 }}>Máx. Pac.</TableCell>
-                  <TableCell sx={{ fontWeight: 700, minWidth: 60 }}>Activo</TableCell>
-                  <TableCell sx={{ fontWeight: 700, minWidth: 50 }}></TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}> 100 }}>Día</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}> 90 }}>Desde</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}> 90 }}>Hasta</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}> 90 }}>Duración</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}> 140 }}>Modo</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}> 80 }}>Máx. Pac.</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}> 60 }}>Activo</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}> 50 }}></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

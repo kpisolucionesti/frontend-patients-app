@@ -86,12 +86,12 @@ const PhysicalExamTable = ({ emergencyId, readOnly }) => {
           )}
         </Box>
         {hasData ? (
-          <TableContainer>
-            <Table size="small">
+          <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+            <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontSize: '0.7rem', fontWeight: 600, p: 0.5, width: '30%' }}>Área</TableCell>
-                  <TableCell sx={{ fontSize: '0.7rem', fontWeight: 600, p: 0.5 }}>Hallazgo</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5, width: '30%' }}>Área</TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Hallazgo</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

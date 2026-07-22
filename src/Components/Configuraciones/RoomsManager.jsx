@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Chip, IconButton, Paper, Tooltip } from '@mui/material';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Box, Chip, IconButton, Paper, Tooltip, Typography } from '@mui/material';
 import { Add, Delete, Edit, LockOpen } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
-import { useFetch } from '../../hooks/useFetch';
+import { useRooms } from '../../hooks/useApiData';
 import { useSnackbar } from '../../hooks/useSnackbar';
+import { useQueryClient } from '@tanstack/react-query';
 import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 import RoomFormModal from './RoomFormModal';
 
@@ -14,12 +15,21 @@ const ROOM_TYPE_LABELS = {
 };
 
 const RoomsManager = () => {
-  const { data: rooms, loading, refetch } = useFetch(
-    () => BackendAPI.rooms.getAll(), [],
-  );
+  const { data: rooms, isLoading: loading, isError, error, refetch } = useRooms();
   const { show } = useSnackbar();
+  const queryClient = useQueryClient();
 
   const [formModal, setFormModal] = useState(null);
+
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['rooms'] });
+  }, [queryClient]);
+
+  useEffect(() => {
+    if (isError) {
+      show(error?.message || 'Error al cargar salas', 'error');
+    }
+  }, [isError, error, show]);
 
   const handleSaved = useCallback(() => {
     refetch();

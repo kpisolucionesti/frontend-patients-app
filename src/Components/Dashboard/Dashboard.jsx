@@ -359,12 +359,12 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} md={3}>
           <ChartCard title="Últimas 24h">
-            <TableContainer sx={{ maxHeight: 165 }}>
+            <TableContainer sx={{ maxHeight: 165, boxShadow: 3, borderRadius: 1 }}>
               <Table size="small" stickyHeader>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', p: 0.5 }}>Nombre</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', p: 0.5 }}>Estado</TableCell>
+                    <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.65rem', p: 0.5 }}>Nombre</TableCell>
+                    <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.65rem', p: 0.5 }}>Estado</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

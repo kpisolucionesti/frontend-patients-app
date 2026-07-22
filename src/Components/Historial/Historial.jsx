@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Box, Typography, Tabs, Tab, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Chip, TextField, InputAdornment,
-  CircularProgress, Stack
+  CircularProgress, Stack, MenuItem
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import EmergencyIcon from '@mui/icons-material/LocalHospital';
@@ -34,6 +34,8 @@ const Historial = () => {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const yearOptions = Array.from({ length: new Date().getFullYear() - 2019 }, (_, i) => new Date().getFullYear() - i);
   const [loading, setLoading] = useState(false);
 
   const [emergencies, setEmergencies] = useState([]);
@@ -57,10 +59,13 @@ const Historial = () => {
     });
   };
 
+  const yearFrom = `${selectedYear}-01-01`;
+  const yearTo = `${selectedYear}-12-31`;
+
   const fetchEmergencies = useCallback(async (q = '', dateF = dateFrom, dateT = dateTo) => {
     setLoading(true);
     try {
-      const params = { per_page: 200 };
+      const params = { per_page: 200, from: yearFrom, to: yearTo };
       if (q) params.q = q;
       const res = await BackendAPI.emergencies.getAll(params);
       const all = res.data || [];
@@ -71,12 +76,12 @@ const Historial = () => {
       setEmergencies([]);
     }
     setLoading(false);
-  }, [dateFrom, dateTo]);
+  }, [dateFrom, dateTo, yearFrom, yearTo]);
 
   const fetchHospitalizations = useCallback(async (q = '', dateF = dateFrom, dateT = dateTo) => {
     setLoading(true);
     try {
-      const res = await BackendAPI.hospitalizations.historical({ per_page: 100, q });
+      const res = await BackendAPI.hospitalizations.historical({ per_page: 100, q, from: yearFrom, to: yearTo });
       let data = res.data || [];
       data = applyDateFilter(data, 'admission_date');
       setHospitalizations(data);
@@ -84,7 +89,7 @@ const Historial = () => {
       setHospitalizations([]);
     }
     setLoading(false);
-  }, [dateFrom, dateTo]);
+  }, [dateFrom, dateTo, yearFrom, yearTo]);
 
   const fetchAppointments = useCallback(async (q = '', dateF = dateFrom, dateT = dateTo) => {
     setLoading(true);
@@ -100,18 +105,22 @@ const Historial = () => {
           (a.patient?.ci || '').includes(t)
         );
       }
+      past = past.filter((a) => {
+        if (!a.appointment_date) return false;
+        return new Date(a.appointment_date).getFullYear() === selectedYear;
+      });
       past = applyDateFilter(past, 'appointment_date');
       setAppointments(past);
     } catch {
       setAppointments([]);
     }
     setLoading(false);
-  }, [dateFrom, dateTo]);
+  }, [dateFrom, dateTo, selectedYear]);
 
   const fetchSurgeries = useCallback(async (q = '', dateF = dateFrom, dateT = dateTo) => {
     setLoading(true);
     try {
-      const params = { per_page: 100 };
+      const params = { per_page: 100, from: yearFrom, to: yearTo };
       if (q) params.q = q;
       const res = await BackendAPI.surgeries.search(params);
       let data = res.data || [];
@@ -121,7 +130,7 @@ const Historial = () => {
       setSurgeries([]);
     }
     setLoading(false);
-  }, [dateFrom, dateTo]);
+  }, [dateFrom, dateTo, yearFrom, yearTo]);
 
   const fetchData = useCallback((q) => {
     switch (activeTab) {
@@ -149,16 +158,21 @@ const Historial = () => {
     fetchData(search);
   };
 
+  const handleYearChange = (e) => {
+    setSelectedYear(Number(e.target.value));
+    fetchData(search);
+  };
+
   const renderEmergencias = () => (
     <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cédula</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>F. Ingreso</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Diagnóstico</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cédula</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>F. Ingreso</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Diagnóstico</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -189,12 +203,12 @@ const Historial = () => {
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cédula</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>F. Ingreso</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>F. Alta</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Diagnóstico</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Días</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cédula</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>F. Ingreso</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>F. Alta</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Diagnóstico</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Días</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -223,12 +237,12 @@ const Historial = () => {
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cédula</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Fecha</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Doctor</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Especialidad</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cédula</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Fecha</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Doctor</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Especialidad</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -261,14 +275,14 @@ const Historial = () => {
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cédula</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Tipo</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Fecha</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Hora Inicio</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Hora Fin</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cirujano</TableCell>
-            <TableCell sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Resultado</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cédula</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Paciente</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Tipo</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Fecha</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Hora Inicio</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Hora Fin</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Cirujano</TableCell>
+            <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Resultado</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -323,6 +337,17 @@ const Historial = () => {
               startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
             }}
           />
+          <TextField
+            select
+            size="small"
+            value={selectedYear}
+            onChange={handleYearChange}
+            sx={{ width: 100 }}
+          >
+            {yearOptions.map((y) => (
+              <MenuItem key={y} value={y}>{y}</MenuItem>
+            ))}
+          </TextField>
           <TextField
             label="Desde"
             type="date"

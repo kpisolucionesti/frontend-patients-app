@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select, InputLabel, MenuItem, DialogActions, TextField, Alert, IconButton, Tooltip } from "@mui/material";
 import { HealthAndSafetyOutlined } from "@mui/icons-material";
-import { useFetch } from "../../hooks/useFetch";
+import { useRooms } from '../../hooks/useApiData';
 
 const EXIT_REASONS = ['Mejoria Medica', 'Referencia', 'Contra opinion Medica', 'Muerte'];
 
@@ -11,7 +11,7 @@ const ReleasePatient = ({ row, onStatusChange }) => {
     const [extraData, setExtraData] = useState({ medical_exit: '', observations: '', cause_of_death: '', death_at: '' });
     const [validation, setValidation] = useState(false);
 
-    const { data: rooms = [] } = useFetch(() => BackendAPI.rooms.getAll(), [open]);
+    const { data: rooms = [] } = useRooms();
 
     const handleOpen = () => setOpen(true);
 

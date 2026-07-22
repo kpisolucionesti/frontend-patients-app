@@ -13,9 +13,11 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { BackendAPI } from "../../services/BackendApi";
+import { useAuth } from "../../hooks/useAuth";
 import ForcePasswordChange from "./ForcePasswordChange";
 
 const SignIn = () => {
+  const { signIn } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [values, setValues] = useState({ username: "", password: "" });
@@ -47,9 +49,7 @@ const SignIn = () => {
     try {
       const response = await BackendAPI.auth.signIn(values.username, values.password);
       if (response.status === "success") {
-        localStorage.setItem("auth_token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
-        localStorage.setItem("user_permissions", JSON.stringify(response.user.permissions));
+          signIn(response);
         if (response.user.must_change_password) {
           setShowForceChange(true);
         } else {

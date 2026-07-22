@@ -59,7 +59,7 @@ const PatientSearchBar = ({ onSelectPatient, selectedPatient, onClearSelection }
         renderInput={(params) => (
           <TextField
             {...params}
-            variant="standard"
+            variant="outlined"
             placeholder="Buscar paciente por nombre o cédula..."
             size="small"
             sx={{ flex: 1 }}

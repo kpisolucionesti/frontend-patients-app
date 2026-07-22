@@ -9,6 +9,7 @@ import EmergencyEditButton from "./EmergencyEditButton";
 import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { useFetch } from "../../hooks/useFetch";
+import { useDoctors, useRooms } from "../../hooks/useApiData";
 import AsignRoom from "../Board/asignRoomModal";
 import EditPatientData from "../Patients/editPatientDataModal";
 import IngressPatientModal from "../Board/IngressPatientModal";
@@ -69,8 +70,8 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
         () => activeEmergencyId ? BackendAPI.notes.getAll({ emergency_id: activeEmergencyId }) : Promise.resolve([]),
         [activeEmergencyId],
     );
-    const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
-    const { data: rooms } = useFetch(() => BackendAPI.rooms.getAll(), []);
+    const { data: doctors } = useDoctors();
+    const { data: rooms } = useRooms();
     const patientNotes = useMemo(() => allNotes || [], [allNotes]);
 
     const allEmergencies = useMemo(() => patientEmergencies?.data || [], [patientEmergencies]);
@@ -396,11 +397,11 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                             <TableContainer component={Paper} variant="outlined">
                                 <Table size="small">
                                     <TableHead>
-                                        <TableRow sx={{ bgcolor: 'grey.700' }}>
-                                            <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.65rem', py: 0.5 }}>F. Ingreso</TableCell>
-                                            <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.65rem', py: 0.5 }}>Médico Tratante</TableCell>
-                                            <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.65rem', py: 0.5 }}>Diagnóstico</TableCell>
-                                            <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.65rem', py: 0.5 }}>Estatus</TableCell>
+                                        <TableRow sx={{ bgcolor: 'primary.main' }}>
+                                            <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>F. Ingreso</TableCell>
+                                            <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Médico Tratante</TableCell>
+                                            <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Diagnóstico</TableCell>
+                                            <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Estatus</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>

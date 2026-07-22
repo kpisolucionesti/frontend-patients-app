@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Box, Dialog, DialogTitle, DialogContent, DialogActions, Button, Stepper, Step, StepLabel,
   TextField, Typography, Autocomplete, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert
 } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDoctors, useRooms } from '../../hooks/useApiData';
 
 const STEPS = ['Paciente', 'Datos de Ingreso', 'Asignación'];
 
@@ -19,16 +20,13 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
     diagnostic: '', treatment: '', classification: '',
     reason_for_consultation: '', current_illness: '', admission_note: '',
   });
-  const [doctors, setDoctors] = useState([]);
-  const [rooms, setRooms] = useState([]);
+  const { data: doctors = [] } = useDoctors();
+  const { data: allRooms = [] } = useRooms();
+  const rooms = useMemo(() => allRooms.filter((rm) => !rm.patient_id), [allRooms]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState('');
 
-  useEffect(() => {
-    if (!open) return;
-    BackendAPI.doctors.getAll().then((d) => setDoctors(d || [])).catch(() => {});
-    BackendAPI.rooms.getAll().then((r) => setRooms((r || []).filter((rm) => !rm.patient_id))).catch(() => {});
-  }, [open]);
+
 
   const handleSearchCi = async () => {
     setError(null);
@@ -204,7 +202,7 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={handleClose} variant="outlined">Cancelar</Button>
+        <Button onClick={handleClose} variant="outlined" color="error">Cancelar</Button>
         {activeStep < STEPS.length - 1 ? (
           <Button variant="contained" onClick={handleNext} disabled={!canGoNext()}>
             Siguiente

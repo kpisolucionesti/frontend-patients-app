@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Box, IconButton } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
 import { BackendAPI } from '../../services/BackendApi';
-import { useFetch } from '../../hooks/useFetch';
+import { useLabParameters } from '../../hooks/useApiData';
 
 const LabParameterGroupFormModal = ({ open, onClose, group, onSaved }) => {
   const isEdit = !!group;
@@ -11,10 +11,7 @@ const LabParameterGroupFormModal = ({ open, onClose, group, onSaved }) => {
   const [params, setParams] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  const { data: allGlobalParams } = useFetch(
-    () => open ? BackendAPI.labParameters.getAll() : Promise.resolve([]),
-    [open],
-  );
+  const { data: allGlobalParams } = useLabParameters({ enabled: open });
 
   const globalOptions = (allGlobalParams || []).map((p) => ({
     label: p.name,

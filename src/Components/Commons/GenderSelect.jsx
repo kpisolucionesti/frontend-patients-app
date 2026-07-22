@@ -1,6 +1,10 @@
 import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
 
-const GENDERS = ['Masculino', 'Femenino', 'Otros'];
+const GENDERS = [
+  { value: 'M', label: 'Masculino' },
+  { value: 'F', label: 'Femenino' },
+  { value: 'O', label: 'Otros' },
+];
 
 const GenderSelect = ({ value, onChange, disabled = false, error = false, variant }) => (
   <FormControl fullWidth variant={variant}>
@@ -17,7 +21,7 @@ const GenderSelect = ({ value, onChange, disabled = false, error = false, varian
       onChange={onChange}
     >
       {GENDERS.map((g) => (
-        <MenuItem key={g} value={g}>{g}</MenuItem>
+        <MenuItem key={g.value} value={g.value}>{g.label}</MenuItem>
       ))}
     </Select>
     {error && <FormHelperText>Requerido</FormHelperText>}

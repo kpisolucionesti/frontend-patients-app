@@ -17,6 +17,7 @@ import PhysicalExamTable from './PhysicalExamTable';
 import InformeMedicoPreview from '../Commons/InformeMedicoPreview';
 import AsignRoom from '../Board/asignRoomModal';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDoctors, useRooms } from '../../hooks/useApiData';
 import { useFetch } from '../../hooks/useFetch';
 import usePermissions from '../../hooks/usePermissions';
 import { CLASSIFICATION_OPTIONS } from '../../constants';
@@ -75,12 +76,12 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly, repo
   const permissions = usePermissions();
   const { show: showSnackbar } = useSnackbar();
 
-  const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
+  const { data: doctors } = useDoctors();
 
   const isDeceased = patient?.disabled;
   const effectiveReadOnly = readOnly || isDeceased;
 
-  const { data: rooms } = useFetch(() => BackendAPI.rooms.getAll(), []);
+  const { data: rooms } = useRooms();
   const patientRoom = useMemo(
     () => (rooms || []).find((r) => r.patient_id === patient?.id),
     [rooms, patient?.id],
@@ -486,13 +487,13 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly, repo
             </Button>
           </Box>
           {emergencyHistory?.data?.length > 0 ? (
-            <TableContainer>
-              <Table size="small">
+            <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+              <Table size="small" stickyHeader>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontSize: '0.7rem', fontWeight: 600, p: 0.5 }}>Fecha</TableCell>
-                    <TableCell sx={{ fontSize: '0.7rem', fontWeight: 600, p: 0.5 }}>Diagnóstico</TableCell>
-                    <TableCell sx={{ fontSize: '0.7rem', fontWeight: 600, p: 0.5 }}>Estado</TableCell>
+                    <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Fecha</TableCell>
+                    <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Diagnóstico</TableCell>
+                    <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Estado</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

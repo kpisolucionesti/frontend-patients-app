@@ -3,7 +3,7 @@ import { Box, IconButton, Paper, Tab, Tabs, Tooltip, Typography } from '@mui/mat
 import { Add, Block, CheckCircle, Edit, History as HistoryIcon } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
-import { useFetch } from '../../hooks/useFetch';
+import { useDoctors } from '../../hooks/useApiData';
 import DoctorFormModal from './DoctorFormModal';
 import ConfirmActionModal from '../Commons/ConfirmActionModal';
 import usePermissions from '../../hooks/usePermissions';
@@ -12,9 +12,7 @@ import DoctorHistoryModal from './DoctorHistoryModal';
 import ExportModal from '../Commons/ExportModal';
 
 const DoctorsList = () => {
-  const { data: doctors, loading, refetch } = useFetch(
-    () => BackendAPI.doctors.getAll(), [],
-  );
+  const { data: doctors, isLoading: loading, refetch } = useDoctors();
   const permissions = usePermissions();
 
   const [tab, setTab] = useState('activos');

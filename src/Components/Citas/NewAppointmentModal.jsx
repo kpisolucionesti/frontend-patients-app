@@ -5,6 +5,7 @@ import {
   InputLabel, Select, MenuItem, Alert, Typography,
 } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDoctors } from '../../hooks/useApiData';
 import moment from 'moment';
 
 const STEPS = ['Paciente', 'Cita', 'Confirmación'];
@@ -18,7 +19,7 @@ const NewAppointmentModal = ({ open, onClose, onSaved, doctors: doctorsProp }) =
   const [foundPatient, setFoundPatient] = useState(null);
   const [patientForm, setPatientForm] = useState({ ci: '', name: '', lastname: '', gender: '', birthday: '' });
 
-  const [doctors, setDoctors] = useState(doctorsProp || []);
+  const { data: doctors } = useDoctors();
   const [specialties, setSpecialties] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [appointment, setAppointment] = useState({
@@ -39,9 +40,7 @@ const NewAppointmentModal = ({ open, onClose, onSaved, doctors: doctorsProp }) =
     setAvailableSlots([]);
     setError(null);
     BackendAPI.specialties.getAll().then(setSpecialties).catch(() => {});
-    if (!doctorsProp) {
-      BackendAPI.doctors.getAll().then(setDoctors).catch(() => {});
-    }
+
   }, [open, doctorsProp]);
 
   useEffect(() => {

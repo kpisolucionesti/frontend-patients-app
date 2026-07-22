@@ -16,7 +16,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import { BackendAPI } from '../../services/BackendApi';
-import { useFetch } from '../../hooks/useFetch';
+import { useLabParameters } from '../../hooks/useApiData';
 import LabResultFormModal from './LabResultFormModal';
 import { isOutOfRange } from '../../utils/labUtils';
 import moment from 'moment';
@@ -41,10 +41,7 @@ const LabResultsPanel = ({ emergencyId, patientGender, onGoBack }) => {
   const [saving, setSaving] = useState(false);
   const [selectedParam, setSelectedParam] = useState('');
 
-  const { data: allLabParams } = useFetch(
-    () => emergencyId ? BackendAPI.labParameters.getAll() : Promise.resolve([]),
-    [emergencyId],
-  );
+  const { data: allLabParams } = useLabParameters({ enabled: !!emergencyId });
 
   const paramMap = useMemo(() => {
     const map = {};

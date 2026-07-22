@@ -18,6 +18,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import LockIcon from '@mui/icons-material/Lock';
 import UserSelfPasswordModal from './UserSelfPasswordModal';
 import { BackendAPI } from '../../services/BackendApi';
+import { useAuth } from '../../hooks/useAuth';
 import { APP_VERSION } from '../../version';
 import usePermissions from '../../hooks/usePermissions';
 
@@ -32,16 +33,14 @@ const MENUS = [
 const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { user, signOut: authSignOut } = useAuth();
   const permissions = usePermissions();
   const [anchorEl, setAnchorEl] = useState(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
 
   const handleLogout = async () => {
     try { await BackendAPI.auth.signOut(); } catch { /* ignore if server is unreachable */ }
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('user_permissions');
+    authSignOut();
     navigate('/', { replace: true });
   };
 

@@ -1,15 +1,7 @@
-import { useMemo } from "react";
-
-const STORAGE_KEY = 'user_permissions';
+import { useAuth } from './useAuth';
 
 const usePermissions = () => {
-  return useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    } catch {
-      return [];
-    }
-  }, []);
+  return useAuth().permissions;
 };
 
 export default usePermissions;

@@ -4,6 +4,7 @@ import './App.css';
 import { Box } from '@mui/material';
 import GlobalSidebar from './Components/Navbar/GlobalSidebar';
 import { BackendAPI } from './services/BackendApi';
+import { useAuth } from './hooks/useAuth';
 import EmergencyPortal from './Components/Portal/EmergencyPortal';
 import DoctorsList from './Components/Doctors/DoctorsList';
 import Configuraciones from './Components/Configuraciones/Configuraciones';
@@ -13,7 +14,6 @@ import HospitalizationBoard from './Components/Hospitalizacion/HospitalizationBo
 import HospitalizationDetail from './Components/Hospitalizacion/HospitalizationDetail';
 import TvPinGuard from './Components/Commons/TvPinGuard';
 import ErrorBoundary from './Components/Commons/ErrorBoundary';
-import usePermissions from './hooks/usePermissions';
 import useSessionTimeout from './hooks/useSessionTimeout';
 import SessionTimeoutModal from './Components/Commons/SessionTimeoutModal';
 import ForcePasswordChange from './Components/Login/ForcePasswordChange';
@@ -26,14 +26,11 @@ import PatientsModule from './Components/Patients/PatientsModule';
 import AtencionLayout from './Components/Atencion/AtencionLayout';
 
 function ProtectedLayout() {
-  const token = localStorage.getItem('auth_token');
-  const permissions = usePermissions();
+  const { token, user, signOut, hasPermission } = useAuth();
   const navigate = useNavigate();
 
   const handleSessionExpired = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_permissions');
-    localStorage.removeItem('user');
+    signOut();
     navigate('/', { replace: true });
   };
 
@@ -43,12 +40,7 @@ function ProtectedLayout() {
     return <Navigate to="/" replace />;
   }
 
-  const userData = (() => {
-    try { return JSON.parse(localStorage.getItem('user') || '{}'); }
-    catch { return {}; }
-  })();
-
-  if (userData.must_change_password) {
+  if (user?.must_change_password) {
     return <ForcePasswordChange onComplete={() => window.location.reload()} />;
   }
 
@@ -57,7 +49,7 @@ function ProtectedLayout() {
       <GlobalSidebar />
       <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <ErrorBoundary>
-          <Outlet context={{ permissions }} />
+          <Outlet context={{ permissions: hasPermission }} />
         </ErrorBoundary>
       </Box>
       <SessionTimeoutModal open={warning} onContinue={resetTimer} />
@@ -66,7 +58,7 @@ function ProtectedLayout() {
 }
 
 function PublicRoute({ children }) {
-  const token = localStorage.getItem('auth_token');
+  const { token } = useAuth();
   if (token) {
     return <Navigate to="/patients" replace />;
   }

@@ -9,7 +9,7 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { BackendAPI } from '../../services/BackendApi';
-import { useFetch } from '../../hooks/useFetch';
+import { useLabParameters } from '../../hooks/useApiData';
 import { isOutOfRange } from '../../utils/labUtils';
 
 function formatRange(param, gender) {
@@ -28,10 +28,7 @@ const LabResultsQuickModal = ({ open, onClose, emergencyId, onGoToFullPanel, pat
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const { data: allLabParams } = useFetch(
-    () => (open && emergencyId) ? BackendAPI.labParameters.getAll() : Promise.resolve([]),
-    [open, emergencyId],
-  );
+  const { data: allLabParams } = useLabParameters({ enabled: !!(open && emergencyId) });
 
   const paramMap = useMemo(() => {
     const map = {};

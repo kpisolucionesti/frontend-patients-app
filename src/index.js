@@ -5,7 +5,20 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnackbarProvider } from './hooks/useSnackbar';
+import { AuthProvider } from './hooks/useAuth';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const theme = createTheme({
   palette: {
@@ -103,7 +116,7 @@ root.render(
   <BrowserRouter basename={'/'} >
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <SnackbarProvider><App /></SnackbarProvider>
+      <SnackbarProvider><AuthProvider><QueryClientProvider client={queryClient}><App /></QueryClientProvider></AuthProvider></SnackbarProvider>
     </ThemeProvider>
   </BrowserRouter>
 );

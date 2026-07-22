@@ -5,7 +5,7 @@ import {
 import { AddCircleOutlineRounded } from '@mui/icons-material';
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
-import { useFetch } from "../../hooks/useFetch";
+import { useDoctors, useRooms } from "../../hooks/useApiData";
 import usePatientLookup from "../../hooks/usePatientLookup";
 import useEmergencyForm from "../../hooks/useEmergencyForm";
 import PatientSection from "./PatientSection";
@@ -17,7 +17,6 @@ const STEPS = ['Paciente', 'Emergencia', 'Confirmación'];
 
 const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externalOpen, onClose: externalOnClose, preloadPatient }) => {
   const [internalOpen, setInternalOpen] = useState(false);
-  const [roomsList, setRoomsList] = useState([]);
   const [activeStep, setActiveStep] = useState(0);
   const [error, setError] = useState(null);
 
@@ -26,13 +25,8 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
 
   const patient = usePatientLookup();
   const emergency = useEmergencyForm();
-  const { data: doctors } = useFetch(() => BackendAPI.doctors.getAll(), []);
-
-  useEffect(() => {
-    if (open && roomsList.length === 0) {
-      BackendAPI.rooms.getAll().then(setRoomsList);
-    }
-  }, [open]);
+  const { data: doctors } = useDoctors();
+  const { data: roomsList } = useRooms({ enabled: open });
 
   useEffect(() => {
     if (open) {
@@ -59,11 +53,9 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
   const clearFields = useCallback(() => {
     patient.clearPatientFields();
     emergency.clearEmergencyFields();
-    setRoomsList([]);
   }, [patient, emergency]);
 
   const handleOpen = useCallback(() => {
-    BackendAPI.rooms.getAll().then(setRoomsList);
     if (!isControlled) setInternalOpen(true);
   }, [isControlled]);
 

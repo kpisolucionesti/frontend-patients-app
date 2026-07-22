@@ -3,6 +3,7 @@ import {
   Box, Button, Card, CardContent, Chip, CircularProgress, Typography
 } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDoctors } from '../../hooks/useApiData';
 import moment from 'moment';
 import AppointmentDetail from './AppointmentDetail';
 
@@ -17,7 +18,7 @@ const STATUS_COLORS = {
 
 const TodayAppointments = () => {
   const [appointments, setAppointments] = useState([]);
-  const [doctors, setDoctors] = useState([]);
+  const { data: doctors } = useDoctors();
   const [loading, setLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
@@ -26,12 +27,8 @@ const TodayAppointments = () => {
   const fetch = useCallback(async () => {
     setLoading(true);
     try {
-      const [apps, docs] = await Promise.all([
-        BackendAPI.appointments.getAll({ date: moment().format('YYYY-MM-DD') }),
-        BackendAPI.doctors.getAll(),
-      ]);
+      const apps = await BackendAPI.appointments.getAll({ date: moment().format('YYYY-MM-DD') });
       setAppointments(apps || []);
-      setDoctors(docs || []);
     } catch {
       setAppointments([]);
     }

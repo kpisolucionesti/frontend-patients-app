@@ -218,21 +218,21 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
           Sin registros de signos vitales
         </Typography>
       ) : (
-        <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto', boxShadow: 3, borderRadius: 1 }}>
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Fecha / Hora</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>PA</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>FC</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>FR</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Temp</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>SpO2</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>GLC</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Talla</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Peso</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>IMC</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.7rem', p: 0.5 }}>Registrado por</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Fecha / Hora</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>PA</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FC</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FR</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Temp</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>SpO2</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>GLC</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Talla</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Peso</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>IMC</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Registrado por</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

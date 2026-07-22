@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Box, Button, TextField, MenuItem, IconButton, Typography,
   List, ListItem, ListItemText, ListItemSecondaryAction
@@ -6,6 +6,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDoctors } from '../../hooks/useApiData';
 
 const ROLES = [
   { value: 'surgeon', label: 'Cirujano' },
@@ -16,15 +17,13 @@ const ROLES = [
 ];
 
 export default function SurgeryTeamForm({ surgeryId, readOnly = false }) {
-  const [doctors, setDoctors] = useState([]);
+  const { data: doctors } = useDoctors();
   const [members, setMembers] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    BackendAPI.doctors.getAll().then(setDoctors).catch(() => {});
-  }, []);
+
 
   const handleAdd = async () => {
     if (!selectedDoctor || !selectedRole) return;

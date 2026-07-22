@@ -7,6 +7,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
 import { useSnackbar } from '../../hooks/useSnackbar';
+import { useLabParameters } from '../../hooks/useApiData';
 
 const filter = createFilterOptions();
 
@@ -17,10 +18,7 @@ const LabResultFormModal = ({ open, onClose, onSave, saving, emergencyId, editRe
   const [values, setValues] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
 
-  const { data: allParams, refetch: refetchParams } = useFetch(
-    () => open ? BackendAPI.labParameters.getAll() : Promise.resolve([]),
-    [open],
-  );
+  const { data: allParams, refetch: refetchParams } = useLabParameters({ enabled: open });
   const { data: groups } = useFetch(
     () => open ? BackendAPI.labParameters.getGroups() : Promise.resolve([]),
     [open],

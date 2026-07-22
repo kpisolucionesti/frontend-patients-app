@@ -166,18 +166,18 @@ const MedicationAdminPanel = ({ hospitalizationId }) => {
 
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
-      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+      <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto', boxShadow: 3, borderRadius: 1 }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Medicamento</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Dosis</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Vía</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Frecuencia</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Programado</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Administrado</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Acción</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Medicamento</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Dosis</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Vía</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Frecuencia</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Programado</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Administrado</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
+              <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Acción</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

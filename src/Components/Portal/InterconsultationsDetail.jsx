@@ -5,6 +5,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDoctors } from '../../hooks/useApiData';
 
 const STATUS_OPTIONS = [
   { key: 'pending', label: 'Pendiente', color: '#e65100' },
@@ -16,15 +17,13 @@ const EMPTY = { doctor_requested_id: null, reason: '', observations: '', status:
 
 const InterconsultationsDetail = ({ emergencyId, readOnly }) => {
   const [items, setItems] = useState([]);
-  const [doctors, setDoctors] = useState([]);
+  const { data: doctors } = useDoctors();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    BackendAPI.doctors.getAll().then((d) => setDoctors(d || [])).catch(() => {});
-  }, []);
+
 
   const fetch = useCallback(async () => {
     if (!emergencyId) return;

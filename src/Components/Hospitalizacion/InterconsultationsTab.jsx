@@ -117,16 +117,16 @@ const InterconsultationsTab = ({ emergencyId }) => {
       {loading ? (
         <CircularProgress />
       ) : (
-        <TableContainer sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <TableContainer component={Paper} sx={{ flex: 1, minHeight: 0, overflow: 'auto', boxShadow: 3, borderRadius: 1 }}>
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Médico Solicitado</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Motivo</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Resumen del Consultor</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Observaciones</TableCell>
-                {canEdit && <TableCell sx={{ fontWeight: 700 }}>Acciones</TableCell>}
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Médico Solicitado</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Motivo</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Estado</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Resumen del Consultor</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Observaciones</TableCell>
+                {canEdit && <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Acciones</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>

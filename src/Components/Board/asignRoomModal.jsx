@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { KingBed } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField, Tooltip } from "@mui/material";
-import { useFetch } from "../../hooks/useFetch";
+import { useRooms } from '../../hooks/useApiData';
 import { PEDIATRIC_AGE_THRESHOLD } from "../../constants";
 
 const AsignRoom = ({ row, onStatusChange, iconOnly }) => {
@@ -10,7 +10,7 @@ const AsignRoom = ({ row, onStatusChange, iconOnly }) => {
     const [roomSelected, setRoomSelected] = useState(null);
     const [validation, setValidation] = useState(false);
 
-    const { data: rooms } = useFetch(() => BackendAPI.rooms.getAll(), []);
+    const { data: rooms } = useRooms();
 
     const handleClose = useCallback(() => {
         setOpenModal(false);
