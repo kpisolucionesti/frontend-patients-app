@@ -3,7 +3,7 @@ import {
   Box, Typography, IconButton, List, ListItem, ListItemText,
   ListItemIcon, ListItemSecondaryAction, Chip, CircularProgress, Alert,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Divider
+  Paper, Divider, Button
 } from '@mui/material';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,17 +12,19 @@ import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DownloadIcon from '@mui/icons-material/Download';
 import FileUploader from './FileUploader';
+import HistoriaMedicaPreview from './HistoriaMedicaPreview';
 import usePermissions from '../../hooks/usePermissions';
 import { BackendAPI } from '../../services/BackendApi';
 import moment from 'moment';
 
-export default function DocumentsPanel({ attachableType, attachableId, managePermission }) {
+export default function DocumentsPanel({ attachableType, attachableId, managePermission, emergencyId, patientId }) {
   const permissions = usePermissions();
   const canManage = !managePermission || permissions.includes(managePermission);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  const [historiaMedicaOpen, setHistoriaMedicaOpen] = useState(false);
 
   const loadDocuments = useCallback(async () => {
     if (!attachableId) return;
@@ -120,9 +122,22 @@ export default function DocumentsPanel({ attachableType, attachableId, managePer
 
       <Divider sx={{ my: 2 }} />
 
-      <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-        Reportes Generados por el Sistema
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+        <Typography variant="subtitle1">
+          Reportes Generados por el Sistema
+        </Typography>
+        {emergencyId && patientId && (
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<PictureAsPdfIcon />}
+            onClick={() => setHistoriaMedicaOpen(true)}
+            sx={{ fontSize: '0.7rem' }}
+          >
+            Generar Historia Médica
+          </Button>
+        )}
+      </Box>
 
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
@@ -189,6 +204,14 @@ export default function DocumentsPanel({ attachableType, attachableId, managePer
           </TableBody>
         </Table>
       </TableContainer>
+      <HistoriaMedicaPreview
+        open={historiaMedicaOpen}
+        onClose={() => setHistoriaMedicaOpen(false)}
+        patientId={patientId}
+        emergencyId={emergencyId}
+        attachableType={attachableType}
+        attachableId={attachableId}
+      />
     </Box>
   );
 }

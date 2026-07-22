@@ -19,10 +19,15 @@ import HistoricalCasePanel from './HistoricalCasePanel';
 import BreadcrumbNav from '../Commons/BreadcrumbNav';
 import ExportModal from '../Commons/ExportModal';
 import DocumentsPanel from '../Commons/DocumentsPanel';
+import AntecedentsSection from './AntecedentsSection';
+import FamilyAntecedentsSection from '../Emergency/FamilyAntecedentsSection';
+import GynecologicalHistorySection from '../Emergency/GynecologicalHistorySection';
+import LifestyleHabitsSection from '../Emergency/LifestyleHabitsSection';
 import { medicalHistoryApi } from '../../services/medicalHistoryApi';
 import { generateEmergencyReport } from '../../services/medicalHistoryReport';
 import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
+
 
 const GENDER_MAP = { M: 'Masculino', F: 'Femenino' };
 
@@ -145,6 +150,7 @@ const EmergencyPortal = () => {
                 <Tab label="Resumen" value="resumen" icon={<InfoIcon />} iconPosition="start" />
                 <Tab label="Historial de Casos" value="historial_casos" icon={<RestoreIcon />} iconPosition="start" />
                 <Tab label="Laboratorio" value="laboratorio" icon={<ScienceIcon />} iconPosition="start" />
+                <Tab label="Antecedentes" value="antecedentes" icon={<InfoIcon />} iconPosition="start" />
                 <Tab label="Documentos" value="documentos" icon={<DescriptionIcon />} iconPosition="start" />
               </Tabs>
             </Box>
@@ -156,6 +162,13 @@ const EmergencyPortal = () => {
           ) : activePanel === 'laboratorio' ? (
             <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default' }}>
               <LabResultsPanel emergencyId={selectedEmergency?.id} patientGender={selectedPatient?.gender} />
+            </Box>
+          ) : activePanel === 'antecedentes' ? (
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default', px: 2, py: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <AntecedentsSection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} />
+              <FamilyAntecedentsSection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} />
+              <GynecologicalHistorySection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} patientGender={selectedPatient?.gender} />
+              <LifestyleHabitsSection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} />
             </Box>
           ) : activePanel === 'documentos' ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default', px: 2, py: 1.5 }}>
@@ -276,8 +289,7 @@ const EmergencyPortal = () => {
                 vitalSigns={vitalSigns}
                 onVitalSignsCreated={handleVitalSignsCreated}
                 onOpenLabPanel={handleOpenLabPanel}
-                            />
-              
+              />
             </Box>
           </Box>
         </Box>

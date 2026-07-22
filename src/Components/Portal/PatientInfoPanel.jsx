@@ -15,6 +15,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import PhysicalExamTable from './PhysicalExamTable';
 import InformeMedicoPreview from '../Commons/InformeMedicoPreview';
+import HistoriaMedicaPreview from '../Commons/HistoriaMedicaPreview';
 import AsignRoom from '../Board/asignRoomModal';
 import { BackendAPI } from '../../services/BackendApi';
 import { useDoctors, useRooms } from '../../hooks/useApiData';
@@ -52,6 +53,7 @@ const FieldRow = ({ label, value }) => (
 
 const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly, reportPermission }) => {
   const [informePreviewOpen, setInformePreviewOpen] = useState(false);
+  const [historiaMedicaOpen, setHistoriaMedicaOpen] = useState(false);
   const [diagnostic, setDiagnostic] = useState(emergency?.diagnostic || '');
   const [treatment, setTreatment] = useState(emergency?.treatment || '');
   const [observations, setObservations] = useState(emergency?.observations || '');
@@ -287,7 +289,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly, repo
                 </Box>
               )}
               {reportPermission && permissions.includes(reportPermission) && (
-                <Box sx={{ mt: 1.5 }}>
+                <Box sx={{ mt: 1.5, display: 'flex', gap: 1 }}>
                   <Button
                     variant="outlined"
                     size="small"
@@ -297,6 +299,16 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly, repo
                     sx={{ fontSize: '0.7rem' }}
                   >
                     Informe Médico
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    color="secondary"
+                    startIcon={<PictureAsPdfIcon />}
+                    onClick={() => setHistoriaMedicaOpen(true)}
+                    sx={{ fontSize: '0.7rem' }}
+                  >
+                    Historia Médica
                   </Button>
                 </Box>
               )}
@@ -556,6 +568,14 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly, repo
         onClose={() => setInformePreviewOpen(false)}
         emergency={emergency}
         patient={patient}
+        attachableType="Emergency"
+        attachableId={emergency?.id}
+      />
+      <HistoriaMedicaPreview
+        open={historiaMedicaOpen}
+        onClose={() => setHistoriaMedicaOpen(false)}
+        patientId={patient?.id}
+        emergencyId={emergency?.id}
         attachableType="Emergency"
         attachableId={emergency?.id}
       />

@@ -139,7 +139,6 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns = [], onVita
 
       <PatientAppointmentsSummary patientId={patient?.id} />
       <AllergiesSection patientId={patient?.id} readOnly={effectiveReadOnly} />
-      <AntecedentsSection patientId={patient?.id} readOnly={effectiveReadOnly} />
 
       {selectedCase && (
         <HistoryDetailModal

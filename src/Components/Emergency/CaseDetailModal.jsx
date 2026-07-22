@@ -6,6 +6,9 @@ import MedicalPlanSection from "./MedicalPlanSection";
 import NoteItem from "./NoteItem";
 import AddNoteInline from "./AddNoteInline";
 import EmergencyEditButton from "./EmergencyEditButton";
+import FamilyAntecedentsSection from "./FamilyAntecedentsSection";
+import GynecologicalHistorySection from "./GynecologicalHistorySection";
+import LifestyleHabitsSection from "./LifestyleHabitsSection";
 import React, { useCallback, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { useFetch } from "../../hooks/useFetch";
@@ -364,16 +367,33 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                         )}
                     </Box>
 
+                    {/* Family Antecedents */}
+                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <FamilyAntecedentsSection patientId={patientId} readOnly={effectiveReadOnly} />
+                    </Box>
+
+                    {/* Gynecological History */}
+                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <GynecologicalHistorySection patientId={patientId} readOnly={effectiveReadOnly} patientGender={patient.gender} />
+                    </Box>
+
+                    {/* Lifestyle Habits */}
+                    <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                        <LifestyleHabitsSection patientId={patientId} readOnly={effectiveReadOnly} />
+                    </Box>
+
                     {/* Documents */}
                     {emergency.status === 2 && (
                       <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
                         <SectionHeader title="DOCUMENTOS" />
                         {!effectiveReadOnly && (
-                          <DocumentsPanel
-                            attachableType="Emergency"
-                            attachableId={activeEmergencyId}
-                            managePermission="emergencia.documentos"
-                          />
+                      <DocumentsPanel
+                        attachableType="Emergency"
+                        attachableId={activeEmergencyId}
+                        managePermission="emergencia.documentos"
+                        emergencyId={activeEmergencyId}
+                        patientId={patientId}
+                      />
                         )}
                         <Button
                           variant="contained"

@@ -14,6 +14,9 @@ import { tvScreensApi } from './tvScreensApi';
 import { vitalSignsApi } from './vitalSignsApi';
 import { allergiesApi } from './allergiesApi';
 import { antecedentsApi } from './antecedentsApi';
+import { familyAntecedentsApi } from './familyAntecedentsApi';
+import { gynecologicalHistoriesApi } from './gynecologicalHistoriesApi';
+import { lifestyleHabitsApi } from './lifestyleHabitsApi';
 import { interconsultationsApi } from './interconsultationsApi';
 import { dashboardApi } from './dashboardApi';
 import { userActivityLogsApi } from './userActivityLogsApi';
@@ -54,6 +57,9 @@ export const BackendAPI = {
   vitalSigns: vitalSignsApi,
   allergies: allergiesApi,
   antecedents: antecedentsApi,
+  familyAntecedents: familyAntecedentsApi,
+  gynecologicalHistories: gynecologicalHistoriesApi,
+  lifestyleHabits: lifestyleHabitsApi,
   interconsultations: interconsultationsApi,
   dashboard: dashboardApi,
   userActivityLogs: userActivityLogsApi,
