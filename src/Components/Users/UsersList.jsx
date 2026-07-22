@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Box, Chip, IconButton, Paper, Tab, Tabs, Tooltip } from '@mui/material';
-import { Add, Block, CheckCircle, Edit, Lock, AdminPanelSettings, History, LockOpen } from '@mui/icons-material';
+import { Add, Block, CheckCircle, Edit, Lock, LockClock, AdminPanelSettings, History, LockOpen } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
@@ -109,11 +109,18 @@ const UsersList = () => {
     data: currentData,
     ...MRT_DEFAULTS,
     enableRowActions: true,
+    positionActionsColumn: 'last',
     positionPagination: 'top',
     muiTableContainerProps: { sx: { flex: 1, overflow: 'auto' } },
+    displayColumnDefOptions: {
+      'mrt-row-actions': {
+        size: 200,
+        grow: true,
+      },
+    },
     renderRowActions: ({ row }) => {
       const u = row.original;
-      const isAdmin = u.username === 'admin';
+      const isAdmin = u.username === 'admin' || u.is_admin;
       return (
         <>
           {permissions.includes('usuarios.edit') && (
@@ -151,7 +158,7 @@ const UsersList = () => {
                 size="small"
                 onClick={() => setConfirmModal({ user: u, action: tab === 'activos' ? 'block' : 'unblock' })}
               >
-                {tab === 'activos' ? <Block fontSize="small" /> : <LockOpen fontSize="small" />}
+                {tab === 'activos' ? <LockClock fontSize="small" /> : <LockOpen fontSize="small" />}
               </IconButton>
             </Tooltip>
           )}
@@ -191,7 +198,7 @@ const UsersList = () => {
   const handleConfirm = useCallback(() => {
     if (!confirmModal) return;
     const { user, action } = confirmModal;
-    if (action === 'block') {
+    if (action === 'block' || action === 'unblock') {
       handleBlockToggle(user);
     } else {
       handleToggleStatus(user);

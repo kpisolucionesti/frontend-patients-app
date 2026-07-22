@@ -157,7 +157,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
   }, [loadData]);
 
   const hospRooms = useMemo(() =>
-    (allRooms || []).filter((r) => !r.patient_id || r.patient_id === emergency?.patient?.id),
+    (allRooms || []).filter((r) => r.area_id === 5 && (!r.patient_id || r.patient_id === emergency?.patient?.id)),
     [allRooms, emergency],
   );
 

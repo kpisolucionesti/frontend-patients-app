@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, Alert } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, TextField, Typography, Alert } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
 import PermissionSelector from '../Commons/PermissionSelector';
 
@@ -59,6 +59,11 @@ const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
     }
   };
 
+  const allPermissionKeys = useMemo(
+    () => groups.flatMap((g) => (g.permissions || []).map((p) => p.key)),
+    [groups],
+  );
+
   return (
     <Dialog fullWidth maxWidth={false} open={open} onClose={onClose}
       sx={{ '& .MuiDialog-paper': { width: { xs: '100%', sm: '90%', md: '85%', lg: '80%' }, maxWidth: 1100 } }}
@@ -81,7 +86,29 @@ const ProfileFormModal = ({ open, onClose, profile, onSaved }) => {
           ) : groups.length === 0 ? (
             <Typography variant="body2" color="text.secondary">No se pudieron cargar los permisos</Typography>
           ) : (
-            <PermissionSelector groups={groups} permissions={permissions} onToggle={togglePermission} />
+            <>
+              <Box sx={{ mb: 1 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={allPermissionKeys.length > 0 && allPermissionKeys.every((k) => permissions.includes(k))}
+                      indeterminate={allPermissionKeys.some((k) => permissions.includes(k)) && !allPermissionKeys.every((k) => permissions.includes(k))}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          const missing = allPermissionKeys.filter((k) => !permissions.includes(k));
+                          missing.forEach((k) => togglePermission(k));
+                        } else {
+                          permissions.forEach((k) => togglePermission(k));
+                        }
+                      }}
+                    />
+                  }
+                  label={<Typography variant="body2" fontWeight={600}>Seleccionar todos los permisos</Typography>}
+                />
+              </Box>
+              <PermissionSelector groups={groups} permissions={permissions} onToggle={togglePermission} />
+            </>
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
