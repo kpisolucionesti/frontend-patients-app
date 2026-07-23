@@ -17,7 +17,7 @@ const ROLES = [
 ];
 
 export default function SurgeryTeamForm({ surgeryId, readOnly = false }) {
-  const { data: doctors } = useDoctors();
+  const { data: doctors = [] } = useDoctors();
   const [members, setMembers] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
