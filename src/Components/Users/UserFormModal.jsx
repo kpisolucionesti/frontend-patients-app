@@ -1,14 +1,17 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Alert } from "@mui/material";
+import { Autocomplete, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Alert } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
+import { useDoctors } from "../../hooks/useApiData";
 
 const UserFormModal = ({ open, onClose, user, onSaved, existingUsers }) => {
   const isEdit = !!user;
+  const { data: doctors } = useDoctors();
   const [values, setValues] = useState({
     username: user?.username || '',
     name: user?.name || '',
     lastname: user?.lastname || '',
     email: user?.email || '',
+    doctor_id: user?.doctor_id || '',
   });
   const [validation, setValidation] = useState(false);
   const [backendErrors, setBackendErrors] = useState([]);
@@ -67,9 +70,9 @@ const UserFormModal = ({ open, onClose, user, onSaved, existingUsers }) => {
     }
     try {
       if (isEdit) {
-        await BackendAPI.users.update({ id: user.id, name: values.name, lastname: values.lastname, email: values.email });
+        await BackendAPI.users.update({ id: user.id, name: values.name, lastname: values.lastname, email: values.email, doctor_id: values.doctor_id || null });
       } else {
-        await BackendAPI.users.create(values);
+        await BackendAPI.users.create({ ...values, doctor_id: values.doctor_id || null });
       }
       if (onSaved) onSaved();
       onClose();
@@ -82,6 +85,11 @@ const UserFormModal = ({ open, onClose, user, onSaved, existingUsers }) => {
       }
     }
   }, [values, user, isEdit, onSaved, onClose, usernameConflict, emailConflict]);
+
+  const selectedDoctor = useMemo(
+    () => (doctors || []).find((d) => d.id === values.doctor_id) || null,
+    [doctors, values.doctor_id],
+  );
 
   const usernameDisabled = isEdit || !usernameConflict;
 
@@ -131,6 +139,18 @@ const UserFormModal = ({ open, onClose, user, onSaved, existingUsers }) => {
           onChange={({ target }) => handleChange(target)}
           error={emailConflict}
           helperText={emailConflict ? 'Este correo ya está registrado' : ''}
+          sx={{ mb: 2 }}
+        />
+        <Autocomplete
+          size="small" fullWidth
+          options={doctors || []}
+          getOptionLabel={(d) => `${d.name}${d.specialty?.name ? ` — ${d.specialty.name}` : ''}`}
+          value={selectedDoctor}
+          onChange={(_, newValue) => setValues((prev) => ({ ...prev, doctor_id: newValue?.id || '' }))}
+          renderInput={(params) => (
+            <TextField variant="standard" {...params} label="Médico Asociado" placeholder="Buscar médico..."
+              sx={{ mb: 2, '& .MuiInputBase-input': { fontSize: '0.8rem' } }} />
+          )}
           sx={{ mb: 2 }}
         />
         {!isEdit && (

@@ -12,7 +12,6 @@ import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DownloadIcon from '@mui/icons-material/Download';
 import FileUploader from './FileUploader';
-import HistoriaMedicaPreview from './HistoriaMedicaPreview';
 import usePermissions from '../../hooks/usePermissions';
 import { BackendAPI } from '../../services/BackendApi';
 import moment from 'moment';
@@ -24,8 +23,6 @@ export default function DocumentsPanel({ attachableType, attachableId, managePer
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
-  const [historiaMedicaOpen, setHistoriaMedicaOpen] = useState(false);
-
   const loadDocuments = useCallback(async () => {
     if (!attachableId) return;
     setLoading(true);
@@ -122,22 +119,9 @@ export default function DocumentsPanel({ attachableType, attachableId, managePer
 
       <Divider sx={{ my: 2 }} />
 
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-        <Typography variant="subtitle1">
-          Reportes Generados por el Sistema
-        </Typography>
-        {emergencyId && patientId && (
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<PictureAsPdfIcon />}
-            onClick={() => setHistoriaMedicaOpen(true)}
-            sx={{ fontSize: '0.7rem' }}
-          >
-            Generar Historia Médica
-          </Button>
-        )}
-      </Box>
+      <Typography variant="subtitle1" sx={{ mb: 1 }}>
+        Reportes Generados por el Sistema
+      </Typography>
 
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
@@ -204,14 +188,6 @@ export default function DocumentsPanel({ attachableType, attachableId, managePer
           </TableBody>
         </Table>
       </TableContainer>
-      <HistoriaMedicaPreview
-        open={historiaMedicaOpen}
-        onClose={() => setHistoriaMedicaOpen(false)}
-        patientId={patientId}
-        emergencyId={emergencyId}
-        attachableType={attachableType}
-        attachableId={attachableId}
-      />
     </Box>
   );
 }

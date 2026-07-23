@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import RestoreIcon from '@mui/icons-material/Restore';
 import ScienceIcon from '@mui/icons-material/Science';
 import DescriptionIcon from '@mui/icons-material/Description';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import InfoIcon from '@mui/icons-material/Info';
 import DownloadIcon from '@mui/icons-material/Download';
 import PatientInfoPanel from './PatientInfoPanel';
@@ -19,6 +20,7 @@ import HistoricalCasePanel from './HistoricalCasePanel';
 import BreadcrumbNav from '../Commons/BreadcrumbNav';
 import ExportModal from '../Commons/ExportModal';
 import DocumentsPanel from '../Commons/DocumentsPanel';
+import EvaluationsTab from '../Emergency/EvaluationsTab';
 import AntecedentsSection from './AntecedentsSection';
 import FamilyAntecedentsSection from '../Emergency/FamilyAntecedentsSection';
 import GynecologicalHistorySection from '../Emergency/GynecologicalHistorySection';
@@ -152,6 +154,7 @@ const EmergencyPortal = () => {
                 <Tab label="Laboratorio" value="laboratorio" icon={<ScienceIcon />} iconPosition="start" />
                 <Tab label="Antecedentes" value="antecedentes" icon={<InfoIcon />} iconPosition="start" />
                 <Tab label="Documentos" value="documentos" icon={<DescriptionIcon />} iconPosition="start" />
+                <Tab label="Evaluaciones" value="evaluaciones" icon={<AssignmentIcon />} iconPosition="start" />
               </Tabs>
             </Box>
           )}
@@ -191,6 +194,14 @@ const EmergencyPortal = () => {
                   </Button>
                 </Paper>
               )}
+            </Box>
+          ) : activePanel === 'evaluaciones' ? (
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default', px: 2, py: 1.5 }}>
+              <EvaluationsTab
+                emergency={selectedEmergency}
+                readOnly={selectedPatient?.disabled}
+                onDataChange={() => {}}
+              />
             </Box>
           ) : (
           <Box sx={{

@@ -1,4 +1,4 @@
-import { Autocomplete, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, Paper, Stack, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, TextField, Tooltip, Typography } from "@mui/material";
 import { ArrowBack, Cancel, Edit, MedicalServices } from "@mui/icons-material";
 import WarningIcon from '@mui/icons-material/Warning';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -48,6 +48,7 @@ const SectionHeader = ({ title }) => (
 const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, hideHistory }) => {
     const permissions = usePermissions();
     const hasPerm = useCallback((p) => permissions.includes(p), [permissions]);
+    const [activeTab, setActiveTab] = useState(0);
     const [historyEmergencyId, setHistoryEmergencyId] = useState(null);
     const [showEditPatient, setShowEditPatient] = useState(false);
     const [interconsultaInput, setInterconsultaInput] = useState('');
@@ -193,6 +194,10 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                         </Button>
                     )}
 
+                    <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ mb: 1.5, minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0, fontSize: '0.75rem', textTransform: 'none' } }}>
+                        <Tab label="Resumen" />
+                    </Tabs>
+
                     {patient?.disabled && (
                         <Box sx={{ bgcolor: '#212121', color: 'white', p: 0.5, borderRadius: 1, mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <WarningIcon sx={{ fontSize: 16 }} />
@@ -200,6 +205,8 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                         </Box>
                     )}
 
+                    {activeTab === 0 && (
+                    <>
                     {/* Patient Header */}
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -446,6 +453,8 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                             </TableContainer>
                         </Box>
                     )}
+                    </>
+                )}
                 </DialogContent>
                 <DialogActions sx={{ p: '0.5rem 1rem' }}>
                     <Button onClick={onClose} variant="outlined" color="error" sx={{ fontSize: '0.7rem' }}>Cerrar</Button>

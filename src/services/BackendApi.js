@@ -36,6 +36,8 @@ import { appointmentsApi } from './appointmentsApi';
 import { appointmentRecordsApi } from './appointmentRecordsApi';
 import { appointmentDisplaysApi } from './appointmentDisplaysApi';
 import { documentsApi } from './documentsApi';
+import { evaluationsApi } from './evaluationsApi';
+import { recipesApi } from './recipesApi';
 import { quirofanoApi } from './quirofanoApi';
 import { surgeryTeamApi } from './surgeryTeamApi';
 import { notificationsApi } from './notificationsApi';
@@ -79,6 +81,8 @@ export const BackendAPI = {
   appointmentRecords: appointmentRecordsApi,
   appointmentDisplays: appointmentDisplaysApi,
   documents: documentsApi,
+  evaluations: evaluationsApi,
+  recipes: recipesApi,
   quirofano: quirofanoApi,
   surgeryTeam: surgeryTeamApi,
   notifications: notificationsApi,

@@ -25,6 +25,10 @@ export function useSpecialties(options = {}) {
   return useApiQuery(['specialties'], () => BackendAPI.specialties.getAll(), options);
 }
 
+export function useUsers(options = {}) {
+  return useApiQuery(['users'], () => BackendAPI.users.getAll(), options);
+}
+
 export function useDashboardStats(year, options = {}) {
   return useApiQuery(['dashboard', 'stats', year], () => BackendAPI.dashboard.stats(year), {
     staleTime: 5 * 60 * 1000,

@@ -84,6 +84,7 @@ const UsersList = () => {
       { header: 'Nombre', accessorFn: (row) => `${row.name || ''} ${row.lastname || ''}`.trim(), grow: true },
       { header: 'Correo', accessorKey: 'email', size: 250 },
       { header: 'Perfil', accessorKey: 'profile_name', size: 150 },
+      { header: 'Médico', accessorKey: 'doctor_name', size: 180 },
       ...(tab === 'bloqueados' ? [{
         header: 'Motivo',
         accessorFn: (row) => row.blocked_at ? 'Bloqueo manual' : 'Auto-bloqueo',
