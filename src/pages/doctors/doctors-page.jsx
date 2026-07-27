@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Box, IconButton, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { Add, Block, CheckCircle, Edit, History as HistoryIcon } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -12,6 +13,7 @@ import DoctorHistoryModal from '../../Components/Doctors/DoctorHistoryModal';
 import ExportModal from '../../Components/Commons/ExportModal';
 
 const DoctorsList = () => {
+  useDocumentTitle('Médicos');
   const { data: doctors, isLoading: loading, refetch } = useDoctors();
   const permissions = usePermissions();
 

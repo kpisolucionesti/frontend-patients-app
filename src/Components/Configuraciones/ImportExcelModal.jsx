@@ -342,7 +342,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
                 p: 4,
                 textAlign: 'center',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
+                transition: 'border-color 0.15s, background-color 0.15s',
                 '&:hover': { borderColor: '#1565c0', bgcolor: 'rgba(21,101,192,0.04)' },
               }}
             >

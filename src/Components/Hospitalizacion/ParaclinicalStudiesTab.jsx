@@ -98,7 +98,7 @@ const ParaclinicalStudiesTab = ({ emergencyId }) => {
   const pendingCount = studies.filter((s) => s.status === 'requested').length;
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #6a1b9a', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+    <Paper sx={{ p: 1.5, borderTop: 2, borderColor: 'secondary.dark', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <BiotechIcon sx={{ fontSize: 18, color: '#6a1b9a' }} />

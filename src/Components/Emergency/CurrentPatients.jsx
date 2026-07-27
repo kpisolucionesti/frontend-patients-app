@@ -53,7 +53,7 @@ const triageChipStyle = (classification) => {
   };
 };
 
-const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey, searchQuery, onCountChange, onEmergenciesChange }) => {
+const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey, searchQuery, onCountChange, onEmergenciesChange, doctorId }) => {
   const [detailEmergencyId, setDetailEmergencyId] = useState(null);
   const [sortBy, setSortBy] = useState('triage');
   const [sortDir, setSortDir] = useState('asc');
@@ -67,7 +67,10 @@ const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey, searchQuery,
   );
 
   const sortedEmergencies = useMemo(() => {
-    const list = [...(data?.data || [])];
+    let list = [...(data?.data || [])];
+    if (doctorId) {
+      list = list.filter((e) => e.primary_doctor?.id === doctorId || (e.doctors || []).some((d) => d.id === doctorId));
+    }
     if (sortBy === 'triage') {
       list.sort((a, b) => {
         const diff = triagePriority(a) - triagePriority(b);
@@ -87,7 +90,7 @@ const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey, searchQuery,
       });
     }
     return list;
-  }, [data, sortBy, sortDir]);
+  }, [data, sortBy, sortDir, doctorId]);
 
   const triageCounts = useMemo(() => {
     const counts = { red: 0, orange: 0, yellow: 0, green: 0, blue: 0 };

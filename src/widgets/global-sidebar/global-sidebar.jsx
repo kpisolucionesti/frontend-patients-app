@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback, useContext } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box, List, ListItemButton, ListItemIcon, ListItemText,
@@ -19,12 +19,17 @@ import TodayIcon from '@mui/icons-material/Today';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import LockIcon from '@mui/icons-material/Lock';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import NotificationBell from './notification-bell';
 import UserSelfPasswordModal from './user-self-password-modal';
+import HelpPanel from '../../Components/Commons/HelpPanel';
 import { BackendAPI } from '../../services/BackendApi';
 import { APP_VERSION } from '../../version';
 import usePermissions from '../../hooks/usePermissions';
 import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from '@mui/material/styles';
+import ColorModeContext from '../../context/ColorModeContext';
 
 const COLLAPSED_WIDTH = 48;
 const EXPANDED_WIDTH = 200;
@@ -78,6 +83,8 @@ const GlobalSidebar = () => {
   const [searchParams] = useSearchParams();
   const { user, signOut: authSignOut } = useAuth();
   const permissions = usePermissions();
+  const theme = useTheme();
+  const { toggleColorMode } = useContext(ColorModeContext);
   const isAdmin = user?.is_admin;
   const [collapsed, setCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -157,7 +164,7 @@ const GlobalSidebar = () => {
           flexDirection: 'column',
           bgcolor: '#0d1b2a',
           color: 'white',
-          transition: 'width 0.2s ease, min-width 0.2s ease',
+          transition: 'width 0.15s ease, min-width 0.15s ease',
           overflow: 'hidden',
           flexShrink: 0,
         }}
@@ -317,8 +324,6 @@ const GlobalSidebar = () => {
                               mb: 0.15,
                               pl: 3.5,
                               minHeight: 28,
-                              borderLeft: '2px solid',
-                              borderColor: isActive ? 'primary.main' : 'rgba(255,255,255,0.12)',
                               bgcolor: isActive ? 'primary.main' : 'transparent',
                               '&.Mui-selected': {
                                 bgcolor: 'primary.main',
@@ -403,6 +408,13 @@ const GlobalSidebar = () => {
                 </Typography>
               </Box>
               <NotificationBell />
+              <HelpPanel />
+              <Tooltip title={theme.palette.mode === 'dark' ? 'Modo claro' : 'Modo oscuro'} arrow placement="top">
+                <IconButton size="small" onClick={toggleColorMode} aria-label={theme.palette.mode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                  sx={{ color: 'rgba(255,255,255,0.6)', '&:hover': { color: 'rgba(255,255,255,0.9)' } }}>
+                  {theme.palette.mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+                </IconButton>
+              </Tooltip>
             </>
           )}
         </Box>

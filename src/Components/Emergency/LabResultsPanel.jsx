@@ -229,13 +229,13 @@ const LabResultsPanel = ({ emergencyId, patientGender, onGoBack }) => {
                     const unit = paramConf?.unit || '';
                     return (
                       <TableRow key={param} hover>
-                        <TableCell sx={{ fontSize: '0.75rem', fontWeight: 500, position: 'sticky', left: 0, bgcolor: 'white', zIndex: 1, whiteSpace: 'nowrap' }}>
+                        <TableCell sx={{ fontSize: '0.75rem', fontWeight: 500, position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1, whiteSpace: 'nowrap' }}>
                           {paramConf?.abbreviation ? `${paramConf.abbreviation} (${param})` : param}
                         </TableCell>
-                        <TableCell sx={{ fontSize: '0.7rem', color: 'text.secondary', position: 'sticky', left: 140, bgcolor: 'white', zIndex: 1, whiteSpace: 'nowrap' }}>
+                        <TableCell sx={{ fontSize: '0.7rem', color: 'text.secondary', position: 'sticky', left: 140, bgcolor: 'background.paper', zIndex: 1, whiteSpace: 'nowrap' }}>
                           {refText || '—'}
                         </TableCell>
-                        <TableCell sx={{ fontSize: '0.7rem', color: 'text.secondary', position: 'sticky', left: 230, bgcolor: 'white', zIndex: 1, whiteSpace: 'nowrap' }}>
+                        <TableCell sx={{ fontSize: '0.7rem', color: 'text.secondary', position: 'sticky', left: 230, bgcolor: 'background.paper', zIndex: 1, whiteSpace: 'nowrap' }}>
                           {unit || '—'}
                         </TableCell>
                         {sortedResults.map((r) => {

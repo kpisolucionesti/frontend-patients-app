@@ -94,7 +94,7 @@ const InterconsultationsTab = ({ emergencyId }) => {
   if (!emergencyId) return null;
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid', borderColor: 'primary.main', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+    <Paper sx={{ p: 1.5, borderTop: 2, borderColor: 'primary.main', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <GroupIcon sx={{ fontSize: 18, color: 'primary.main' }} />

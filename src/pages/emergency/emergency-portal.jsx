@@ -10,9 +10,11 @@ import DeceasedBanner from '../../features/emergency/deceased-banner';
 import ClinicalBar from '../../widgets/emergency-clinical-bar/clinical-bar';
 import EmergencyTabPanels from '../../widgets/emergency-tab-panels/tab-panels';
 import EmergencyListView from '../../features/emergency/emergency-list-view';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 const EmergencyPortal = () => {
   const { user } = useAuth();
+  useDocumentTitle('Emergencia');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [selectedEmergency, setSelectedEmergency] = useState(null);
   const [newIngresoOpen, setNewIngresoOpen] = useState(false);
@@ -22,6 +24,8 @@ const EmergencyPortal = () => {
   const [emergencyCount, setEmergencyCount] = useState(0);
   const [emergenciesData, setEmergenciesData] = useState([]);
   const [activePanel, setActivePanel] = useState('resumen');
+  const [lastUpdated, setLastUpdated] = useState(Date.now());
+  const [doctorFilter, setDoctorFilter] = useState('all');
 
   const isAdmin = user?.is_admin === true;
   const loggedDoctorId = Number(user?.doctor_id) || null;
@@ -45,7 +49,7 @@ const EmergencyPortal = () => {
     setActivePanel('resumen');
   }, []);
 
-  const handleTriggerRefresh = useCallback(() => { setRefreshKey((k) => k + 1); }, []);
+  const handleTriggerRefresh = useCallback(() => { setRefreshKey((k) => k + 1); setLastUpdated(Date.now()); }, []);
   const handleStartEmergency = useCallback((patient) => { setPreloadPatient(patient); setNewIngresoOpen(true); }, []);
   const handleCloseNewIngreso = useCallback(() => { setNewIngresoOpen(false); setPreloadPatient(null); }, []);
   const handleClearSelection = useCallback(() => { setSelectedPatient(null); setSelectedEmergency(null); setActivePanel('resumen'); }, []);
@@ -59,7 +63,7 @@ const EmergencyPortal = () => {
   }, [handleClearSelection]);
 
   const handleKeyDown = useCallback((e) => {
-    if (e.ctrlKey || e.metaKey) {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
       if (e.key.toLowerCase() === 'n') {
         e.preventDefault();
         setNewIngresoOpen(true);
@@ -68,7 +72,7 @@ const EmergencyPortal = () => {
   }, []);
 
   return (
-    <Box component="main" role="main" aria-label="Módulo de Emergencia" onKeyDown={handleKeyDown} tabIndex={-1}
+    <Box component="main" role="main" aria-label="Módulo de Emergencia" onKeyDown={handleKeyDown}
       sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: 'background.default', outline: 'none' }}>
       <BreadcrumbNav
         crumbs={[
@@ -83,6 +87,7 @@ const EmergencyPortal = () => {
         emergencyCount={emergencyCount}
         selectedPatient={selectedPatient}
         onNewIngreso={() => setNewIngresoOpen(true)}
+        lastUpdated={lastUpdated}
       />
 
       {selectedPatient ? (
@@ -121,6 +126,9 @@ const EmergencyPortal = () => {
           onSelectEmergency={handleSelectEmergency}
           onCountChange={setEmergencyCount}
           onEmergenciesChange={setEmergenciesData}
+          doctorId={loggedDoctorId}
+          doctorFilter={doctorFilter}
+          onDoctorFilterChange={setDoctorFilter}
         />
       )}
 

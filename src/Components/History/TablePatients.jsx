@@ -194,7 +194,7 @@ const TablePatients = ({ onSelectEmergency, embedded }) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', p: 2, flex: 1, minHeight: 0 }}>
-      <Paper sx={{ p: 1.5, bgcolor: 'white' }}>
+      <Paper sx={{ p: 1.5, bgcolor: 'background.paper' }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
           <Typography variant="subtitle1" fontWeight="bold" color="primary.dark">
             FILTROS DE HISTORIAL
@@ -276,7 +276,7 @@ const TablePatients = ({ onSelectEmergency, embedded }) => {
           </Typography>
         </Paper>
       ) : (
-        <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
+        <Paper sx={{ bgcolor: 'background.paper', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
           <MaterialReactTable table={table} />
         </Paper>
       )}

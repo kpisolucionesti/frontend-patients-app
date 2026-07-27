@@ -2,11 +2,13 @@ import React, { useState, useCallback } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import AppointmentCalendar from '../../Components/Citas/AppointmentCalendar';
 import TodayAppointments from '../../Components/Citas/TodayAppointments';
 import NewAppointmentModal from '../../Components/Citas/NewAppointmentModal';
 
 const AppointmentsLayout = () => {
+  useDocumentTitle('Citas');
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get('tab') || 'hoy';
   const [newAppointmentOpen, setNewAppointmentOpen] = useState(false);

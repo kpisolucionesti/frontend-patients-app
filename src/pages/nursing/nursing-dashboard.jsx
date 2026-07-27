@@ -4,6 +4,7 @@ import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import HotelIcon from '@mui/icons-material/Hotel';
 import CloseIcon from '@mui/icons-material/Close';
 import { BackendAPI } from '../../services/BackendApi';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useFetch } from '../../hooks/useFetch';
 import { useRooms } from '../../hooks/useApiData';
 import { CLASSIFICATION_OPTIONS } from '../../constants';
@@ -35,6 +36,7 @@ const elapsedMinutes = (dateStr) => {
 };
 
 const NursingDashboard = () => {
+  useDocumentTitle('Enfermería');
   const [selected, setSelected] = useState(null);
 
   const { data: emergenciesData } = useFetch(

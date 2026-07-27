@@ -27,7 +27,7 @@ const PatientAppointmentsSummary = ({ patientId }) => {
   if (appointments.length === 0) return null;
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+    <Paper sx={{ p: 1.5, borderTop: 1, borderColor: 'primary.main' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
         <CalendarMonthIcon sx={{ fontSize: 18, color: '#1565c0' }} />
         <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0', fontSize: '0.8rem' }}>

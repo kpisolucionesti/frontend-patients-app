@@ -43,7 +43,7 @@ export default function GroupedTabBar({ groups, standaloneTab, standaloneTabs, a
         scrollButtons="auto"
         sx={{
           mb: activeGroup ? 0.5 : 0,
-          bgcolor: 'white',
+          bgcolor: 'background.paper',
           borderRadius: '8px 8px 0 0',
           '& .MuiTab-root': groupTabSx,
           '& .Mui-selected': selectedSx,

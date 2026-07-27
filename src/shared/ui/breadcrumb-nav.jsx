@@ -17,6 +17,7 @@ const BreadcrumbNav = ({ crumbs }) => {
               <Typography
                 key={idx}
                 variant="caption"
+                aria-current="page"
                 sx={{
                   fontWeight: isLast ? 600 : 400,
                   color: isLast ? 'text.primary' : 'text.secondary',

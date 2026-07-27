@@ -31,7 +31,7 @@ const ClinicalBar = React.memo(function ClinicalBar({
   onTabChange,
 }) {
   return (
-    <Box sx={{ flexShrink: 0, bgcolor: 'white', borderBottom: 1, borderColor: 'divider', px: 2 }}>
+    <Box sx={{ flexShrink: 0, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider', px: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, pt: 1, pb: 0.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
           <PersonIcon sx={{ color: 'primary.main', fontSize: 18, flexShrink: 0 }} />

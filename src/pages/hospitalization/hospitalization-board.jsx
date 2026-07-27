@@ -14,6 +14,7 @@ import usePermissions from '../../hooks/usePermissions';
 import DirectAdmissionModal from '../../Components/Hospitalizacion/DirectAdmissionModal';
 import BreadcrumbNav from '../../Components/Commons/BreadcrumbNav';
 import ExportModal from '../../Components/Commons/ExportModal';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 const LENGTH_COLOR = {
   short: { color: 'success', label: 'Corta' },
@@ -46,6 +47,7 @@ const EXPORT_COLUMNS = [
 
 const HospitalizationBoard = ({ onSelectPatient }) => {
   const navigate = useNavigate();
+  useDocumentTitle('Hospitalización');
   const permissions = usePermissions();
   const [hospitalizations, setHospitalizations] = useState([]);
   const [loading, setLoading] = useState(true);

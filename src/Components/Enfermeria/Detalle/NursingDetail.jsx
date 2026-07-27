@@ -202,7 +202,7 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>Sin notas de enfermería registradas</Typography>
           ) : (
             nursingNotes.map((note) => (
-              <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'white', borderRadius: 1, border: 1, borderColor: 'divider' }}>
+              <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'background.paper', borderRadius: 1, border: 1, borderColor: 'divider' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', display: 'block' }}>

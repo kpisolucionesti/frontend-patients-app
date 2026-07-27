@@ -3,12 +3,14 @@ import {
   Box, Tabs, Tab, Button, Typography
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import ScheduleBoard from '../../Components/Quirofano/ScheduleBoard';
 import WeeklySchedule from '../../Components/Quirofano/WeeklySchedule';
 import SurgeryPlanningModal from '../../Components/Quirofano/SurgeryPlanningModal';
 import QuirofanoDetail from '../../Components/Quirofano/QuirofanoDetail';
 
 export default function QuirofanoBoard() {
+  useDocumentTitle('Quirófano');
   const [tabIndex, setTabIndex] = useState(0);
   const [planningOpen, setPlanningOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);

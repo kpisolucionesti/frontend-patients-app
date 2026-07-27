@@ -26,7 +26,7 @@ const SectionSidebar = ({ sections, activeSection, onSectionChange, collapsible,
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        transition: isCollapsible ? 'width 0.2s ease, min-width 0.2s ease' : 'none',
+        transition: isCollapsible ? 'width 0.15s ease, min-width 0.15s ease' : 'none',
         overflow: 'hidden',
       }}
     >

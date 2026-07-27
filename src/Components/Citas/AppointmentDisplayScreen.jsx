@@ -14,7 +14,7 @@ const DoctorColumn = ({ doctorData }) => {
       sx={{
         flex: '1 1 300px',
         minWidth: 280,
-        bgcolor: 'white',
+        bgcolor: 'background.paper',
         borderRadius: 3,
         p: 2,
         boxShadow: 3,

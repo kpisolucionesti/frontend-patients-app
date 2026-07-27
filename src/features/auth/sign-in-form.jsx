@@ -79,10 +79,10 @@ const SignIn = () => {
       <Card sx={{ maxWidth: 400, width: "100%", mx: 2 }}>
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
-              <Typography variant="h4" fontWeight={700} color="primary">
+              <Typography component="span" fontWeight={700} color="primary" sx={{ fontSize: '1.25rem', display: 'block' }}>
               EMERBOARD
             </Typography>
-              <Typography variant="h6" fontWeight={700} sx={{ mt: 1 }}>
+              <Typography variant="h1" fontWeight={700} sx={{ mt: 1, fontSize: '1.25rem' }}>
               INICIAR SESION
             </Typography>
           </Box>

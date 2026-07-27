@@ -13,7 +13,7 @@ const NursingNotesSection = React.memo(function NursingNotesSection({ nursingNot
   return (
     <>
       {nursingNotes.map((note) => (
-        <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'white', borderRadius: 1, border: 1, borderColor: 'divider' }}>
+        <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'background.paper', borderRadius: 1, border: 1, borderColor: 'divider' }}>
           <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block' }}>
             {note.created_at ? new Date(note.created_at).toLocaleDateString() + ' ' + new Date(note.created_at).toLocaleTimeString() : '—'}
             {note.created_by?.name ? ' · ' + note.created_by.name : ''}

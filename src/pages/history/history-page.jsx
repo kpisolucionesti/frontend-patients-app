@@ -12,6 +12,7 @@ import ScienceIcon from '@mui/icons-material/Science';
 import { BackendAPI } from '../../services/BackendApi';
 import moment from 'moment';
 import BreadcrumbNav from '../../Components/Commons/BreadcrumbNav';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 const HISTORICAL_STATUSES = [2, 3, 4, 5];
 
@@ -30,6 +31,7 @@ const TABS = [
 ];
 
 const Historial = () => {
+  useDocumentTitle('Historial');
   const [activeTab, setActiveTab] = useState('emergencias');
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
@@ -368,7 +370,7 @@ const Historial = () => {
           />
         </Stack>
       </Box>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'white', px: 2, flexShrink: 0 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper', px: 2, flexShrink: 0 }}>
         <Tabs
           value={activeTab}
           onChange={(_, v) => setActiveTab(v)}

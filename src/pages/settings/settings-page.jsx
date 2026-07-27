@@ -6,6 +6,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import usePermissions from '../../hooks/usePermissions';
 import DoctorsList from '../../Components/Doctors/DoctorsList';
 import UsersList from '../../Components/Users/UsersList';
@@ -84,6 +85,7 @@ const GROUPS = [
 const SIDEBAR_WIDTH = 160;
 
 const Configuraciones = () => {
+  useDocumentTitle('Configuración');
   const permissions = usePermissions();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [searchParams, setSearchParams] = useSearchParams();
@@ -118,7 +120,7 @@ const Configuraciones = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: 'background.default' }}>
-      <Box sx={{ px: 1.5, py: 0.75, borderBottom: 1, borderColor: 'divider', bgcolor: 'white', flexShrink: 0 }}>
+      <Box sx={{ px: 1.5, py: 0.75, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper', flexShrink: 0 }}>
         <Typography variant="h6" sx={{ fontWeight: 700, color: '#1565c0', fontSize: '0.85rem' }}>
           Configuraciones {currentKey && SECTION_LABELS[currentKey] && <Box component="span" sx={{ fontWeight: 400, color: 'text.secondary', fontSize: '0.8rem' }}>&gt; {SECTION_LABELS[currentKey]}</Box>}
         </Typography>

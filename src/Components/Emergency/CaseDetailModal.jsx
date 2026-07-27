@@ -387,7 +387,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                         ) : (
                             patientNotes.map((note) => (
                                 effectiveReadOnly ? (
-                                    <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'white', borderRadius: 1, border: '1px solid #eee' }}>
+                                    <Box key={note.id} sx={{ mb: 0.5, p: 0.75, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid #eee' }}>
                                         <Typography variant="body2" sx={{ fontSize: '0.73rem', whiteSpace: 'pre-wrap' }}>{note.note}</Typography>
                                         {note.created_by?.name && (
                                             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', mt: 0.25, display: 'block' }}>

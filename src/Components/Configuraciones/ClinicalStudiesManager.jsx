@@ -374,7 +374,7 @@ const ClinicalStudiesManager = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'white' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}

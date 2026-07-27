@@ -138,7 +138,7 @@ const HospitalizationDetailModal = ({ open, hospitalizationId, onClose }) => {
               <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
                 <SectionHeader title="CIRUGÍAS" />
                 {h.surgeries.map((s, i) => (
-                  <Box key={s.id || i} sx={{ p: 0.5, bgcolor: 'white', borderRadius: 1, border: '1px solid #eee', mb: 0.5 }}>
+                  <Box key={s.id || i} sx={{ p: 0.5, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid #eee', mb: 0.5 }}>
                     <Typography variant="body2" sx={{ fontSize: '0.73rem', fontWeight: 600 }}>{s.surgery_type || s.name || 'Cirugía'}</Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
                       {s.scheduled_date ? moment(s.scheduled_date).format('DD/MM/YYYY') : ''}

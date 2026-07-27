@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Box } from '@mui/material';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import PatientsList from '../../Components/Patients/PatientsList';
 import PatientProfile from '../../Components/Patients/PatientProfile';
 
 const PatientsModule = () => {
+  useDocumentTitle('Pacientes');
   const [selectedPatient, setSelectedPatient] = useState(null);
 
   const handleSelectPatient = (patient) => {

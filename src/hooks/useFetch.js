@@ -4,6 +4,7 @@ export function useFetch(asyncFn, deps = []) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fetchedAt, setFetchedAt] = useState(null);
   const isMounted = useRef(true);
   const asyncFnRef = useRef(asyncFn);
 
@@ -18,6 +19,7 @@ export function useFetch(asyncFn, deps = []) {
       const result = await asyncFnRef.current();
       if (isMounted.current) {
         setData(result);
+        setFetchedAt(Date.now());
       }
     } catch (err) {
       if (isMounted.current) {
@@ -37,5 +39,5 @@ export function useFetch(asyncFn, deps = []) {
     return () => { isMounted.current = false; };
   }, [execute]);
 
-  return { data, loading, error, refetch: execute };
+  return { data, loading, error, fetchedAt, refetch: execute };
 }

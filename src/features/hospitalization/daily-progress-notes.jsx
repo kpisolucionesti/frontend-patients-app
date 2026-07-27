@@ -135,7 +135,7 @@ const DailyProgressNotes = ({ hospitalizationId }) => {
   const canCreateOrEdit = canEdit || canNurse;
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+    <Paper sx={{ p: 1.5, borderTop: 2, borderColor: 'primary.main' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <AssignmentIcon sx={{ fontSize: 18, color: '#1565c0' }} />

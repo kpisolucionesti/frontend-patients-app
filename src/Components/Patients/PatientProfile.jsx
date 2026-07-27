@@ -224,7 +224,7 @@ const PatientProfile = ({ patient, onBack }) => {
           <Alert severity="error" sx={{ mb: 1 }}>PACIENTE FALLECIDO — Solo lectura</Alert>
         )}
 
-        <Paper sx={{ p: 2, mb: 2, bgcolor: '#e3f2fd', borderLeft: '4px solid #1565c0' }}>
+        <Paper sx={{ p: 2, mb: 2, bgcolor: '#e3f2fd', borderTop: 1, borderColor: 'primary.main' }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <Box>
               <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.95rem' }}>
@@ -289,7 +289,7 @@ const PatientProfile = ({ patient, onBack }) => {
             </Grid>
 
             {recentEmergency && (
-              <Paper sx={{ p: 1.5, borderLeft: '4px solid #1976d2' }}>
+              <Paper sx={{ p: 1.5, borderTop: 1, borderColor: 'primary.main' }}>
                 <Typography variant="caption" fontWeight={600} sx={{ color: '#1976d2' }}>
                   ÚLTIMA EMERGENCIA
                 </Typography>
@@ -476,7 +476,7 @@ const PatientProfile = ({ patient, onBack }) => {
               <Paper sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin resultados de laboratorio</Typography></Paper>
             ) : (
               labData.map(({ emergency, labs }) => (
-                <Paper key={emergency.id} sx={{ p: 1.5, borderLeft: '4px solid #7b1fa2' }}>
+                <Paper key={emergency.id} sx={{ p: 1.5, borderTop: 1, borderColor: 'secondary.dark' }}>
                   <Typography variant="caption" fontWeight={600} sx={{ color: '#7b1fa2' }}>
                     {moment(emergency.ingress_date).format('DD/MM/YYYY')} — {emergency.diagnostic}
                   </Typography>
@@ -505,7 +505,7 @@ const PatientProfile = ({ patient, onBack }) => {
               <Paper sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin notas registradas</Typography></Paper>
             ) : (
               notesData.map((note) => (
-                <Paper key={note.id} sx={{ p: 1.5, borderLeft: '4px solid #7b1fa2', bgcolor: '#faf5ff' }}>
+                <Paper key={note.id} sx={{ p: 1.5, borderTop: 1, borderColor: 'secondary.dark', bgcolor: '#faf5ff' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                     <Typography variant="caption" fontWeight={600} sx={{ color: '#7b1fa2' }}>
                       {note.emergency_date ? moment(note.emergency_date).format('DD/MM/YYYY') : ''} — {note.emergency_diagnostic || ''}
@@ -600,7 +600,7 @@ const PatientProfile = ({ patient, onBack }) => {
 
         {activeTab === 'documentos' && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
-            <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+            <Paper sx={{ p: 1.5, borderTop: 1, borderColor: 'primary.main' }}>
               <DocumentsPanel attachableType="Patient" attachableId={patient.id} managePermission="pacientes.documentos" />
             </Paper>
           </Box>

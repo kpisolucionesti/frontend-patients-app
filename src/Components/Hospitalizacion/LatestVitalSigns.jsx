@@ -29,7 +29,7 @@ const LatestVitalSigns = ({ emergencyId }) => {
   if (!latest) return null;
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #c62828' }}>
+    <Paper sx={{ p: 1.5, borderTop: 2, borderColor: 'error.main' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
         <MonitorHeartIcon sx={{ fontSize: 18, color: '#c62828' }} />
         <Typography variant="caption" fontWeight={600} sx={{ color: '#c62828', fontSize: '0.8rem' }}>

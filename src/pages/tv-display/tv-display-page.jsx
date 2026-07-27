@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Chip, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { BackendAPI } from '../../services/BackendApi';
 
 const POLL_INTERVAL = 3000;
@@ -14,7 +15,7 @@ const DoctorColumn = ({ doctorData }) => {
       sx={{
         flex: '1 1 300px',
         minWidth: 280,
-        bgcolor: 'white',
+        bgcolor: 'background.paper',
         borderRadius: 3,
         p: 2,
         boxShadow: 3,
@@ -98,6 +99,7 @@ const DoctorColumn = ({ doctorData }) => {
 };
 
 const AppointmentDisplayScreen = () => {
+  useDocumentTitle('Pantalla TV');
   const { displayId } = useParams();
   const [queue, setQueue] = useState(null);
   const [displayName, setDisplayName] = useState('');

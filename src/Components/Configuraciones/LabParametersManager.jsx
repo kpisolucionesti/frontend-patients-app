@@ -251,7 +251,7 @@ const LabParametersManager = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'white' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
@@ -263,7 +263,7 @@ const LabParametersManager = () => {
         </Tabs>
       </Box>
       <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', p: 1 }}>
-        <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
+        <Paper sx={{ bgcolor: 'background.paper', boxShadow: 3, borderRadius: 1, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
           {tab === 'params' ? <MaterialReactTable table={paramTable} /> : <MaterialReactTable table={groupTable} />}
         </Paper>
       </Box>
