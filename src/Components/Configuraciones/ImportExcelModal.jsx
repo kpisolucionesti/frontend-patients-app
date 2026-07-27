@@ -15,6 +15,7 @@ import { useSnackbar } from '../../hooks/useSnackbar';
 
 const EXPECTED_COLUMNS = [
   { field: 'parameter_name', label: 'Nombre del Parámetro', required: true, aliases: ['parameter_name', 'nombre', 'parametro', 'parameter', 'name', 'nombre del parámetro'] },
+  { field: 'classification_name', label: 'Clasificación', required: true, aliases: ['classification_name', 'classification', 'clasificacion', 'clasificación', 'tipo_estudio', 'tipo'] },
   { field: 'abbreviation', label: 'Abreviatura', required: false, aliases: ['abbreviation', 'abreviatura', 'abrev', 'abbr'] },
   { field: 'unit', label: 'Unidad', required: false, aliases: ['unit', 'unidad'] },
   { field: 'group_name', label: 'Grupo', required: false, aliases: ['group_name', 'grupo', 'group'] },
@@ -55,6 +56,7 @@ function buildReferenceRanges(row) {
 const TEMPLATE_ROWS = [
   {
     parameter_name: 'Hemoglobina',
+    classification_name: 'Laboratorio',
     abbreviation: 'Hb',
     unit: 'g/dL',
     group_name: 'Hematología',
@@ -63,6 +65,7 @@ const TEMPLATE_ROWS = [
   },
   {
     parameter_name: 'Glucosa',
+    classification_name: 'Laboratorio',
     abbreviation: 'Glu',
     unit: 'mg/dL',
     group_name: 'Química Sanguínea',
@@ -71,6 +74,7 @@ const TEMPLATE_ROWS = [
   },
   {
     parameter_name: 'Proteína C Reactiva',
+    classification_name: 'Laboratorio',
     abbreviation: 'PCR',
     unit: 'mg/L',
     group_name: 'Inmunología',
@@ -78,12 +82,22 @@ const TEMPLATE_ROWS = [
     ref_female_type: 'inequality', ref_female_min: '', ref_female_max: '', ref_female_comparator: '<', ref_female_value: '5',
   },
   {
-    parameter_name: 'Factor Rh',
-    abbreviation: 'Rh',
+    parameter_name: 'Rx Tórax',
+    classification_name: 'Radiografía',
+    abbreviation: 'RxT',
     unit: '',
-    group_name: 'Inmunología',
-    ref_male_type: 'categorical', ref_male_min: '', ref_male_max: '', ref_male_comparator: '', ref_male_value: 'Positivo',
-    ref_female_type: 'categorical', ref_female_min: '', ref_female_max: '', ref_female_comparator: '', ref_female_value: 'Positivo',
+    group_name: 'Imagenología',
+    ref_male_type: '', ref_male_min: '', ref_male_max: '', ref_male_comparator: '', ref_male_value: '',
+    ref_female_type: '', ref_female_min: '', ref_female_max: '', ref_female_comparator: '', ref_female_value: '',
+  },
+  {
+    parameter_name: 'Tomografía de Cráneo',
+    classification_name: 'Tomografía',
+    abbreviation: 'TC',
+    unit: '',
+    group_name: 'Imagenología',
+    ref_male_type: '', ref_male_min: '', ref_male_max: '', ref_male_comparator: '', ref_male_value: '',
+    ref_female_type: '', ref_female_min: '', ref_female_max: '', ref_female_comparator: '', ref_female_value: '',
   },
 ];
 
@@ -124,8 +138,8 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
     return { analysis, unrecognized, valid, missingRequired };
   }, [rawColumns]);
 
-  const validRows = useMemo(() => rows.filter((r) => r.parameter_name.trim()), [rows]);
-  const invalidRows = useMemo(() => rows.filter((r) => !r.parameter_name.trim()), [rows]);
+  const validRows = useMemo(() => rows.filter((r) => r.parameter_name.trim() && r.classification_name.trim()), [rows]);
+  const invalidRows = useMemo(() => rows.filter((r) => !r.parameter_name.trim() || !r.classification_name.trim()), [rows]);
 
   const downloadTemplate = useCallback(() => {
     const ws = XLSX.utils.aoa_to_sheet([
@@ -143,7 +157,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Parámetros');
 
-    XLSX.writeFile(wb, 'plantilla_parametros_laboratorio.xlsx');
+    XLSX.writeFile(wb, 'plantilla_estudios_clinicos.xlsx');
     show('Plantilla descargada exitosamente', 'success');
   }, [show]);
 
@@ -190,16 +204,17 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
           findRawColumn(columns, OLD_COLUMN_ALIASES.reference_ranges)
         ));
         const hasNewRefColumns = !!(columns.length > 0 &&
-          findRawColumn(columns, EXPECTED_COLUMNS[4].aliases)
+          findRawColumn(columns, EXPECTED_COLUMNS[5].aliases)
         );
 
         const mapped = json.map((item, idx) => {
           const row = {
             _row: idx + 1,
             parameter_name: findVal(item, EXPECTED_COLUMNS[0].aliases),
-            abbreviation: findVal(item, EXPECTED_COLUMNS[1].aliases),
-            unit: findVal(item, EXPECTED_COLUMNS[2].aliases),
-            group_name: findVal(item, EXPECTED_COLUMNS[3].aliases),
+            classification_name: findVal(item, EXPECTED_COLUMNS[1].aliases),
+            abbreviation: findVal(item, EXPECTED_COLUMNS[2].aliases),
+            unit: findVal(item, EXPECTED_COLUMNS[3].aliases),
+            group_name: findVal(item, EXPECTED_COLUMNS[4].aliases),
           };
 
           if (hasOldRefRange && !hasNewRefColumns) {
@@ -210,16 +225,16 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
             row.ref_summary = oldRangesJson || oldRange || '';
           } else {
             const flatRow = {
-              ref_male_type: findVal(item, EXPECTED_COLUMNS[4].aliases),
-              ref_male_min: findVal(item, EXPECTED_COLUMNS[5].aliases),
-              ref_male_max: findVal(item, EXPECTED_COLUMNS[6].aliases),
-              ref_male_comparator: findVal(item, EXPECTED_COLUMNS[7].aliases),
-              ref_male_value: findVal(item, EXPECTED_COLUMNS[8].aliases),
-              ref_female_type: findVal(item, EXPECTED_COLUMNS[9].aliases),
-              ref_female_min: findVal(item, EXPECTED_COLUMNS[10].aliases),
-              ref_female_max: findVal(item, EXPECTED_COLUMNS[11].aliases),
-              ref_female_comparator: findVal(item, EXPECTED_COLUMNS[12].aliases),
-              ref_female_value: findVal(item, EXPECTED_COLUMNS[13].aliases),
+              ref_male_type: findVal(item, EXPECTED_COLUMNS[5].aliases),
+              ref_male_min: findVal(item, EXPECTED_COLUMNS[6].aliases),
+              ref_male_max: findVal(item, EXPECTED_COLUMNS[7].aliases),
+              ref_male_comparator: findVal(item, EXPECTED_COLUMNS[8].aliases),
+              ref_male_value: findVal(item, EXPECTED_COLUMNS[9].aliases),
+              ref_female_type: findVal(item, EXPECTED_COLUMNS[10].aliases),
+              ref_female_min: findVal(item, EXPECTED_COLUMNS[11].aliases),
+              ref_female_max: findVal(item, EXPECTED_COLUMNS[12].aliases),
+              ref_female_comparator: findVal(item, EXPECTED_COLUMNS[13].aliases),
+              ref_female_value: findVal(item, EXPECTED_COLUMNS[14].aliases),
             };
             const builtRanges = buildReferenceRanges(flatRow);
             row.reference_ranges = builtRanges ? JSON.stringify(builtRanges) : '';
@@ -361,7 +376,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
             </Box>
 
             <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: 'block', textAlign: 'center' }}>
-              Descarga la plantilla para ver las columnas requeridas. La columna <strong>parameter_name</strong> es obligatoria.
+              Descarga la plantilla para ver las columnas requeridas. Las columnas <strong>Nombre del Parámetro</strong> y <strong>Clasificación</strong> son obligatorias.
             </Typography>
           </>
         ) : (
@@ -438,7 +453,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
               <>
                 <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
                   {rows.length} filas leídas ({validRows.length} válidas
-                  {invalidRows.length > 0 ? `, ${invalidRows.length} sin parámetro` : ''})
+                  {invalidRows.length > 0 ? `, ${invalidRows.length} con parámetro o clasificación faltante` : ''})
                 </Typography>
 
                 <TableContainer sx={{ maxHeight: '40vh', minHeight: 200 }}>
@@ -447,6 +462,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
                       <TableRow>
                         <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>#</TableCell>
                         <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Parámetro</TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Clasificación</TableCell>
                         <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Abrev.</TableCell>
                         <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Unidad</TableCell>
                         <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Rangos Ref.</TableCell>
@@ -455,9 +471,10 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
                     </TableHead>
                     <TableBody>
                       {rows.map((r) => (
-                        <TableRow key={r._row} sx={{ bgcolor: r.parameter_name.trim() ? undefined : '#ffebee' }}>
+                        <TableRow key={r._row} sx={{ bgcolor: r.parameter_name.trim() && r.classification_name.trim() ? undefined : '#ffebee' }}>
                           <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r._row}</TableCell>
                           <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.parameter_name || <i style={{ color: '#999' }}>vacío</i>}</TableCell>
+                          <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.classification_name || <i style={{ color: '#999' }}>vacío</i>}</TableCell>
                           <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.abbreviation}</TableCell>
                           <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.unit}</TableCell>
                           <TableCell sx={{ fontSize: '0.7rem', p: 0.5 }}>{r.ref_summary || '—'}</TableCell>

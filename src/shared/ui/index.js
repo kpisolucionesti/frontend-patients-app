@@ -1,0 +1,27 @@
+// Salus FSD — shared/ui barrel
+export { default as BreadcrumbNav } from './breadcrumb-nav';
+export { default as ConfirmActionModal } from './confirm-action-modal';
+export { default as SectionSidebar } from './section-sidebar';
+export { default as GroupedTabBar } from './grouped-tab-bar';
+export { default as StatusChip } from './status-chip';
+export { default as GenderSelect } from './gender-select';
+export { default as DoctorSelect } from './doctor-select';
+export { default as SpecialtySelect } from './specialty-select';
+export { default as FileUploader } from './file-uploader';
+export { default as ExportModal } from './export-modal';
+export { default as ErrorBoundary } from './error-boundary';
+export { default as TvPinGuard } from './tv-pin-guard';
+export { default as DocumentsPanel } from './documents-panel';
+export { default as PermissionSelector } from './permission-selector';
+export { default as PermissionTable } from './permission-table';
+export { default as InformeMedicoPreview } from './informe-medico-preview';
+export { default as PatientAppointmentsSummary } from './patient-appointments-summary';
+export { default as UpdateList } from './update-list';
+export { default as DialogHeader } from './dialog-header';
+export { default as DeathDialogButton } from './death-dialog-button';
+export { default as CancelDialogButton } from './cancel-dialog-button';
+export { default as DeleteConfirmModal } from './delete-confirm-modal';
+export { mrtConfig } from './mrt-config';
+export { default as FieldRow } from './field-row';
+export { default as SectionHeader } from './section-header';
+export { default as EvaluationCard } from './evaluation-card';

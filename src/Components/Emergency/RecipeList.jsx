@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import {
-  Box, Button, IconButton, Table, TableBody, TableCell,
+  Box, Button, CircularProgress, IconButton, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Typography, Tooltip
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import MedicationIcon from '@mui/icons-material/Medication';
 import RecipeFormModal from './RecipeFormModal';
 import { BackendAPI } from '../../services/BackendApi';
 
@@ -69,35 +70,42 @@ const RecipeList = ({ emergencyId, readOnly, loggedDoctorId }) => {
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-        <Typography variant="caption" fontWeight={700} sx={{ color: 'text.secondary', fontSize: '0.65rem', letterSpacing: 0.5 }}>
-          RECETAS
-        </Typography>
+    <Paper sx={{ p: 1.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: recipes.length > 0 ? 1 : 0 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+          <MedicationIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+          <Typography variant="caption" fontWeight={700} sx={{ color: 'primary.main', fontSize: '0.75rem', letterSpacing: '0.03em' }}>
+            RECETAS
+          </Typography>
+        </Box>
         {!readOnly && (
           <Button size="small" variant="outlined" startIcon={<AddCircleOutlineIcon />} onClick={handleOpenAdd}
-            sx={{ textTransform: 'none', fontSize: '0.7rem', minWidth: 0 }}>
+            sx={{ fontSize: '0.7rem', py: 0.25, px: 1 }}>
             Agregar Receta
           </Button>
         )}
       </Box>
 
       {loading ? (
-        <Typography variant="caption" color="text.secondary">Cargando...</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 1.5 }}>
+          <CircularProgress size={18} />
+        </Box>
       ) : recipes.length === 0 ? (
-        <Typography variant="caption" color="text.disabled">Sin recetas registradas</Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', py: 1, fontSize: '0.7rem' }}>
+          Sin recetas registradas
+        </Typography>
       ) : (
-        <TableContainer component={Paper} variant="outlined">
+        <TableContainer sx={{ borderRadius: 1 }}>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Medicamento</TableCell>
-                <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Dosis</TableCell>
-                <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Frecuencia</TableCell>
-                <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Duración</TableCell>
-                <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Vía</TableCell>
-                <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Médico</TableCell>
-                {!readOnly && <TableCell sx={{ fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Acción</TableCell>}
+              <TableRow>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Medicamento</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Dosis</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Frecuencia</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Duración</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Vía</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Médico</TableCell>
+                {!readOnly && <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5, width: 72 }}>Acción</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -110,9 +118,9 @@ const RecipeList = ({ emergencyId, readOnly, loggedDoctorId }) => {
                   <TableCell sx={{ fontSize: '0.7rem', py: 0.5 }}>{r.route || '—'}</TableCell>
                   <TableCell sx={{ fontSize: '0.7rem', py: 0.5 }}>{r.doctor?.name || '—'}</TableCell>
                   {!readOnly && (
-                    <TableCell sx={{ py: 0.5 }}>
+                    <TableCell sx={{ py: 0.5, width: 72 }}>
                       {r.doctor_id === loggedDoctorId && (
-                        <>
+                        <Box sx={{ display: 'flex', gap: 0.25 }}>
                           <Tooltip title="Editar" arrow>
                             <IconButton size="small" onClick={() => handleOpenEdit(r)} sx={{ p: 0.15 }}>
                               <EditIcon sx={{ fontSize: 14 }} />
@@ -123,7 +131,7 @@ const RecipeList = ({ emergencyId, readOnly, loggedDoctorId }) => {
                               <DeleteIcon sx={{ fontSize: 14, color: '#e53935' }} />
                             </IconButton>
                           </Tooltip>
-                        </>
+                        </Box>
                       )}
                     </TableCell>
                   )}
@@ -141,7 +149,7 @@ const RecipeList = ({ emergencyId, readOnly, loggedDoctorId }) => {
         saving={saving}
         initialValues={editing}
       />
-    </Box>
+    </Paper>
   );
 };
 

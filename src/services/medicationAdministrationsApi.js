@@ -1,19 +1,24 @@
 import axiosInstance from './axiosInstance';
 
+const getEndpoint = (id, type) => {
+  if (type === 'emergency') return `/emergencies/${id}/medication_administrations`;
+  return `/hospitalizations/${id}/medication_administrations`;
+};
+
 export const medicationAdministrationsApi = {
-  getAll: async (hospitalizationId) => {
-    const res = await axiosInstance.get(`/hospitalizations/${hospitalizationId}/medication_administrations`);
+  getAll: async (id, type = 'hospitalization') => {
+    const res = await axiosInstance.get(getEndpoint(id, type));
     return res.data;
   },
-  create: async (hospitalizationId, data) => {
-    const res = await axiosInstance.post(`/hospitalizations/${hospitalizationId}/medication_administrations`, data);
+  create: async (id, data, type = 'hospitalization') => {
+    const res = await axiosInstance.post(getEndpoint(id, type), data);
     return res.data;
   },
-  update: async (hospitalizationId, adminId, data) => {
-    const res = await axiosInstance.put(`/hospitalizations/${hospitalizationId}/medication_administrations/${adminId}`, data);
+  update: async (id, adminId, data, type = 'hospitalization') => {
+    const res = await axiosInstance.put(`${getEndpoint(id, type)}/${adminId}`, data);
     return res.data;
   },
-  destroy: async (hospitalizationId, adminId) => {
-    await axiosInstance.delete(`/hospitalizations/${hospitalizationId}/medication_administrations/${adminId}`);
+  destroy: async (id, adminId, type = 'hospitalization') => {
+    await axiosInstance.delete(`${getEndpoint(id, type)}/${adminId}`);
   },
 };

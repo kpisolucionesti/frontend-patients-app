@@ -1,11 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Paper, Grid, Chip, IconButton
+  Box, Typography, Paper, Grid, Chip, IconButton, CircularProgress
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import EditIcon from '@mui/icons-material/Edit';
 import { BackendAPI } from '../../services/BackendApi';
+
+const STATUS_CONFIG = {
+  scheduled: { color: 'primary', label: 'Programada' },
+  in_progress: { color: 'warning', label: 'En Progreso' },
+  completed: { color: 'success', label: 'Culminada' },
+  cancelled: { color: 'default', label: 'Anulada' },
+};
 
 export default function ScheduleBoard({ onSelectSurgery, onEditSurgery }) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -31,25 +38,20 @@ export default function ScheduleBoard({ onSelectSurgery, onEditSurgery }) {
     setCurrentDate(d);
   };
 
-  const statusColor = {
-    scheduled: 'primary',
-    in_progress: 'warning',
-    completed: 'success',
-    cancelled: 'default'
-  };
-
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <IconButton onClick={() => changeDate(-1)}><ChevronLeftIcon /></IconButton>
+        <IconButton onClick={() => changeDate(-1)} aria-label="Día anterior"><ChevronLeftIcon /></IconButton>
         <Typography variant="h6">
           {currentDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </Typography>
-        <IconButton onClick={() => changeDate(1)}><ChevronRightIcon /></IconButton>
+        <IconButton onClick={() => changeDate(1)} aria-label="Día siguiente"><ChevronRightIcon /></IconButton>
       </Box>
 
       {loading ? (
-        <Typography>Cargando...</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }} aria-live="polite" aria-busy="true">
+          <CircularProgress />
+        </Box>
       ) : schedule ? (
         <Grid container spacing={2}>
           {schedule.areas?.length > 0 ? (
@@ -71,13 +73,14 @@ export default function ScheduleBoard({ onSelectSurgery, onEditSurgery }) {
                           '&:hover': isFinalized ? {} : { bgcolor: 'action.hover' }
                         }}
                         onClick={() => !isFinalized && onSelectSurgery(s)}
+                        {...(!isFinalized ? { role: 'button', tabIndex: 0, onKeyDown: (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); onSelectSurgery(s); } } } : {})}
                       >
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                             {s.surgery_type}
                           </Typography>
                           <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                            <Chip label={s.status === 'completed' ? 'Culminada' : s.status === 'cancelled' ? 'Anulada' : s.status} size="small" color={statusColor[s.status] || 'default'} />
+                            <Chip label={STATUS_CONFIG[s.status]?.label || s.status} size="small" color={STATUS_CONFIG[s.status]?.color || 'default'} />
                             {onEditSurgery && !isFinalized && (
                               <IconButton
                                 size="small"

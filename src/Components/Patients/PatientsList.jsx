@@ -3,6 +3,7 @@ import { Box, Chip, IconButton, Paper, TextField, Tooltip } from '@mui/material'
 import { Edit, History, Search as SearchIcon } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import moment from 'moment';
 import EditPatientData from './editPatientDataModal';
 import PatientHistoryModal from './PatientHistoryModal';
@@ -12,6 +13,7 @@ import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 
 const PatientsList = ({ onSelectPatient, embedded, initialSearch }) => {
   const permissions = usePermissions();
+  const { show } = useSnackbar();
   const [editPatient, setEditPatient] = useState(null);
   const [historyPatient, setHistoryPatient] = useState(null);
   const [tableData, setTableData] = useState([]);
@@ -41,6 +43,7 @@ const PatientsList = ({ onSelectPatient, embedded, initialSearch }) => {
       setTableData(res.data || []);
       setTotal(res.total || 0);
     } catch {
+      show('Error al cargar pacientes', 'error');
       setTableData([]);
       setTotal(0);
     }
@@ -64,13 +67,13 @@ const PatientsList = ({ onSelectPatient, embedded, initialSearch }) => {
         Cell: ({ cell, row }) => row.original.disabled
           ? <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               {cell.getValue()}
-              <Chip label="Fallecido" size="small" sx={{ bgcolor: '#212121', color: 'white', fontWeight: 600, height: 18, fontSize: '0.6rem' }} />
+              <Chip label="Fallecido" size="small" sx={{ bgcolor: 'text.primary', color: 'white', fontWeight: 600, height: 18, fontSize: '0.6rem' }} />
             </Box>
           : cell.getValue(),
       },
       { header: 'Nombre', accessorKey: 'name', size: 100 },
       { header: 'Edad', accessorKey: 'age', size: 10 },
-      { header: 'Genero', accessorKey: 'gender', size: 50 },
+      { header: 'Género', accessorKey: 'gender', size: 50 },
       { header: 'F. Nacimiento', accessorKey: 'birthday', size: 80, Cell: ({ cell }) => cell.getValue() ? moment(cell.getValue(), 'YYYY-MM-DD').format('DD-MM-YYYY') : '' },
       { header: 'Representante', accessorKey: 'representante', size: 120 },
       { header: 'Ult. Visita', accessorKey: 'last_visit_date', size: 80, Cell: ({ cell }) => cell.getValue() ? moment(cell.getValue(), 'YYYY-MM-DD').format('DD-MM-YYYY') : '-' },
@@ -95,7 +98,8 @@ const PatientsList = ({ onSelectPatient, embedded, initialSearch }) => {
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flex: 1 }}>
           <TextField
             size="small"
-            placeholder="Buscar por cédula, nombre o apellido..."
+            label="Buscar paciente"
+            placeholder="Cédula, nombre o apellido..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{ startAdornment: <SearchIcon sx={{ mr: 0.5, fontSize: 18, color: 'action.active' }} /> }}

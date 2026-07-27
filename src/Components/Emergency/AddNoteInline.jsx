@@ -3,7 +3,7 @@ import { NoteAdd } from "@mui/icons-material";
 import React, { useCallback, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 
-const AddNoteInline = ({ emergencyId, patientId, onAdded }) => {
+const AddNoteInline = ({ emergencyId, patientId, onAdded, disabled }) => {
     const [text, setText] = useState('');
 
     const handleAdd = useCallback(async () => {
@@ -19,10 +19,10 @@ const AddNoteInline = ({ emergencyId, patientId, onAdded }) => {
 
     return (
         <Stack direction="row" spacing={1} alignItems="center">
-            <TextField variant="standard" size="small" fullWidth label="Agregar nota" value={text} onChange={({ target }) => setText(target.value)} />
-            <Tooltip title="Agregar" arrow>
+            <TextField variant="standard" size="small" fullWidth label="Agregar nota" value={text} onChange={({ target }) => setText(target.value)} disabled={disabled} />
+            <Tooltip title={disabled ? 'Sin permiso' : 'Agregar'} arrow>
                 <span>
-                    <IconButton color="primary" onClick={handleAdd} disabled={!text.trim()}>
+                    <IconButton color="primary" onClick={handleAdd} disabled={disabled || !text.trim()}>
                         <NoteAdd />
                     </IconButton>
                 </span>

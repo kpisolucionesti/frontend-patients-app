@@ -46,7 +46,7 @@ const RecipeFormModal = ({ open, onClose, onSave, saving, initialValues }) => {
         {initialValues ? 'Editar Receta' : 'Nueva Receta'}
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
-        <Grid container spacing={2}>
+        <Grid container spacing={1.5}>
           <Grid item xs={12}>
             <TextField variant="standard" fullWidth required label="Medicamento" value={form.medication}
               onChange={handleChange('medication')} sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }} />
@@ -79,7 +79,7 @@ const RecipeFormModal = ({ open, onClose, onSave, saving, initialValues }) => {
         </Grid>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} variant="outlined" color="error" sx={{ fontSize: '0.7rem' }}>Cancelar</Button>
+        <Button onClick={onClose} variant="outlined" sx={{ fontSize: '0.7rem' }}>Cancelar</Button>
         <Button onClick={handleSave} variant="contained" color="primary" sx={{ fontSize: '0.7rem' }}
           disabled={saving || !form.medication.trim()}>
           {saving ? 'Guardando...' : 'Guardar'}

@@ -1,0 +1,41 @@
+import { useCallback, useState } from "react";
+import moment from 'moment';
+import { sanitizeInput } from "../utils/sanitize";
+
+const useEmergencyForm = () => {
+  const [emergencyValues, setEmergencyValues] = useState({ ingress_date: moment().format("YYYY-MM-DD"), observations: '', classification: '' });
+  const [roomSelected, setRoomSelected] = useState(null);
+  const [emergencyValidation, setEmergencyValidation] = useState(false);
+
+  const handleEmergencyFieldChange = useCallback((target) => {
+    const val = sanitizeInput(target.value, { maxLength: 2000 });
+    setEmergencyValues((prev) => ({ ...prev, [target.name]: val }));
+  }, []);
+
+  const handleIngressDateChange = useCallback((date) => {
+    setEmergencyValues((prev) => ({ ...prev, ingress_date: date ? moment(date).format('YYYY-MM-DD') : '' }));
+  }, []);
+
+  const handleRoomChange = useCallback((room) => {
+    setRoomSelected(room);
+  }, []);
+
+  const clearEmergencyFields = useCallback(() => {
+    setEmergencyValues({ ingress_date: moment().format("YYYY-MM-DD"), observations: '', classification: '' });
+    setRoomSelected(null);
+    setEmergencyValidation(false);
+  }, []);
+
+  return {
+    emergencyValues,
+    roomSelected,
+    emergencyValidation,
+    handleEmergencyFieldChange,
+    handleIngressDateChange,
+    handleRoomChange,
+    setEmergencyValidation,
+    clearEmergencyFields,
+  };
+};
+
+export default useEmergencyForm;

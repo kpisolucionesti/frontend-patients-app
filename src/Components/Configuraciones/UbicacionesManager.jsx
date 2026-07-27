@@ -8,7 +8,7 @@ const UbicacionesManager = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'white' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'white', flexShrink: 0 }}>
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
@@ -19,7 +19,14 @@ const UbicacionesManager = () => {
           <Tab label="Salas" value="salas" />
         </Tabs>
       </Box>
-      {tab === 'areas' ? <AreasManager /> : <RoomsManager />}
+      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: tab === 'areas' ? 'flex' : 'none', flex: 1, minHeight: 0, flexDirection: 'column' }}>
+          <AreasManager />
+        </Box>
+        <Box sx={{ display: tab === 'salas' ? 'flex' : 'none', flex: 1, minHeight: 0, flexDirection: 'column' }}>
+          <RoomsManager />
+        </Box>
+      </Box>
     </Box>
   );
 };

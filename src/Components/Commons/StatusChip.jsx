@@ -1,17 +1,1 @@
-import { Chip } from '@mui/material';
-
-const STATUS_MAP = {
-  0: { color: 'success', label: 'ESPERANDO' },
-  1: { color: 'warning', label: 'ATENDIDO' },
-  2: { color: 'error', label: 'ALTA' },
-  3: { color: 'info', label: 'INGRESADO' },
-  4: { color: 'default', label: 'ANULADA' },
-  5: { color: 'default', label: 'FALLECIDO' },
-};
-
-const StatusChip = ({ status }) => {
-  const config = STATUS_MAP[status] || { color: 'default', label: 'DESCONOCIDO' };
-  return <Chip color={config.color} label={config.label} />;
-};
-
-export default StatusChip;
+export { default } from '../../shared/ui/status-chip';

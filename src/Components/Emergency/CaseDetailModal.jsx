@@ -9,16 +9,19 @@ import EmergencyEditButton from "./EmergencyEditButton";
 import FamilyAntecedentsSection from "./FamilyAntecedentsSection";
 import GynecologicalHistorySection from "./GynecologicalHistorySection";
 import LifestyleHabitsSection from "./LifestyleHabitsSection";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
 import { useFetch } from "../../hooks/useFetch";
+import { useSnackbar } from "../../hooks/useSnackbar";
 import { useDoctors, useRooms } from "../../hooks/useApiData";
-import AsignRoom from "../Board/asignRoomModal";
+import AsignRoom from "../../features/emergency/assign-room-modal";
 import EditPatientData from "../Patients/editPatientDataModal";
-import IngressPatientModal from "../Board/IngressPatientModal";
-import ReleasePatient from "../Board/releasePatientModal";
+import IngressPatientModal from "../../features/emergency/ingress-patient-modal";
+import ReleasePatient from "../../features/emergency/release-patient-modal";
 import StatusChip from "../Commons/StatusChip";
 import DocumentsPanel from '../Commons/DocumentsPanel';
+import EvaluationsTab from './EvaluationsTab';
+import EvaluationCard from './EvaluationCard';
 import usePermissions from "../../hooks/usePermissions";
 import { CLASSIFICATION_OPTIONS } from '../../constants';
 import { medicalHistoryApi } from '../../services/medicalHistoryApi';
@@ -48,12 +51,17 @@ const SectionHeader = ({ title }) => (
 const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, hideHistory }) => {
     const permissions = usePermissions();
     const hasPerm = useCallback((p) => permissions.includes(p), [permissions]);
-    const [activeTab, setActiveTab] = useState(0);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const isAdmin = user?.is_admin === true;
+    const loggedDoctorId = Number(user?.doctor_id) || null;
+    const { show: showSnackbar } = useSnackbar();
+    const [activeTab, setActiveTab] = useState('resumen');
     const [historyEmergencyId, setHistoryEmergencyId] = useState(null);
     const [showEditPatient, setShowEditPatient] = useState(false);
     const [interconsultaInput, setInterconsultaInput] = useState('');
     const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
+    const [evaluations, setEvaluations] = useState([]);
     const activeEmergencyId = historyEmergencyId || emergencyId;
     const isViewingHistory = !!historyEmergencyId;
 
@@ -77,6 +85,15 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
     const { data: doctors } = useDoctors();
     const { data: rooms } = useRooms();
     const patientNotes = useMemo(() => allNotes || [], [allNotes]);
+
+    useEffect(() => {
+        if (!activeEmergencyId) return;
+        BackendAPI.evaluations.getAll(activeEmergencyId).then((data) => {
+            setEvaluations(data || []);
+        }).catch(() => {
+            setEvaluations([]);
+        });
+    }, [activeEmergencyId]);
 
     const allEmergencies = useMemo(() => patientEmergencies?.data || [], [patientEmergencies]);
 
@@ -125,9 +142,9 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
             refetch();
             if (onDataChange) onDataChange();
         } catch {
-            alert("Error al agregar interconsulta");
+            showSnackbar('Error al agregar interconsulta', 'error');
         }
-    }, [interconsultaInput, row, consultingDoctors, refetch, onDataChange]);
+    }, [interconsultaInput, row, consultingDoctors, refetch, onDataChange, showSnackbar]);
 
     const handleRemoveInterconsulta = useCallback(async (doctorId) => {
         const remainingIds = [row.primary_doctor?.id, ...consultingDoctors.filter((d) => d.id !== doctorId).map((d) => d.id)].filter(Boolean);
@@ -139,9 +156,9 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
             refetch();
             if (onDataChange) onDataChange();
         } catch {
-            alert("Error al eliminar interconsulta");
+            showSnackbar('Error al eliminar interconsulta', 'error');
         }
-    }, [row, consultingDoctors, refetch, onDataChange]);
+    }, [row, consultingDoctors, refetch, onDataChange, showSnackbar]);
 
     const handleCancelEmergency = useCallback(async () => {
         if (!cancelReason) return;
@@ -155,7 +172,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
             setCancelReason('');
             handleSubActionClose();
         } catch {
-            alert("Error al anular emergencia");
+            showSnackbar('Error al anular emergencia', 'error');
         }
     }, [row.id, cancelReason, handleSubActionClose]);
 
@@ -168,6 +185,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
         setHistoryEmergencyId(eid);
     }, [activeEmergencyId]);
 
+    const isPrimaryDoctor = isAdmin || (loggedDoctorId && Number(row.primary_doctor?.id) === loggedDoctorId);
     const effectiveReadOnly = readOnly || isViewingHistory || patient?.disabled;
 
     const classificationLabel = useMemo(() => {
@@ -194,9 +212,12 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                         </Button>
                     )}
 
-                    <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ mb: 1.5, minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0, fontSize: '0.75rem', textTransform: 'none' } }}>
-                        <Tab label="Resumen" />
-                    </Tabs>
+<Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ mb: 1.5, minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0, fontSize: '0.75rem', textTransform: 'none' } }}>
+                        <Tab label="Resumen" value="resumen" />
+                        {hasPerm('evaluaciones.view') && <Tab label="Evaluaciones" value="evaluaciones" />}
+                        {hasPerm('planes.view') && <Tab label="Planes" value="planes" />}
+                        <Tab label="Tratamiento" value="tratamiento" />
+                      </Tabs>
 
                     {patient?.disabled && (
                         <Box sx={{ bgcolor: '#212121', color: 'white', p: 0.5, borderRadius: 1, mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -205,7 +226,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                         </Box>
                     )}
 
-                    {activeTab === 0 && (
+                    {activeTab === 'resumen' && (
                     <>
                     {/* Patient Header */}
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
@@ -232,23 +253,31 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                                 </Typography>
                             )}
                         </Box>
-                        {!effectiveReadOnly && (
+                        {!effectiveReadOnly && isPrimaryDoctor && (
                             <Box sx={{ display: 'flex', gap: 0.25 }}>
-                                {hasPerm('pacientes.edit') && (
-                                    <Tooltip title="Editar datos del paciente" arrow>
-                                        <IconButton size="small" color="warning" onClick={() => setShowEditPatient(true)} sx={{ p: 0.25 }}>
+                                <Tooltip title={hasPerm('pacientes.edit') ? 'Editar datos del paciente' : 'Sin permiso'} arrow>
+                                    <span>
+                                        <IconButton size="small" color="warning" onClick={() => setShowEditPatient(true)} sx={{ p: 0.25 }} disabled={!hasPerm('pacientes.edit')}>
                                             <Edit fontSize="small" />
                                         </IconButton>
-                                    </Tooltip>
+                                    </span>
+                                </Tooltip>
+                                {hasPerm('emergencia.assign_room') ? <AsignRoom row={row} onStatusChange={handleSubActionRefresh} /> : (
+                                    <Tooltip title="Sin permiso" arrow><span><IconButton size="small" disabled sx={{ p: 0.25 }}><Edit fontSize="small" /></IconButton></span></Tooltip>
                                 )}
-                                {hasPerm('emergencia.assign_room') && <AsignRoom row={row} onStatusChange={handleSubActionRefresh} />}
-                                {hasPerm('emergencia.edit') && <IngressPatientModal row={row} onStatusChange={handleSubActionClose} />}
-                                {hasPerm('emergencia.discharge') && <ReleasePatient row={row} onStatusChange={handleSubActionClose} />}
-                                {hasPerm('emergencia.edit') && row.status === 1 && (
-                                    <Tooltip title="Anular Emergencia" arrow>
-                                        <IconButton size="small" color="error" onClick={() => setCancelDialogOpen(true)} sx={{ p: 0.25 }}>
-                                            <Cancel fontSize="small" />
-                                        </IconButton>
+                                {hasPerm('emergencia.edit') ? <IngressPatientModal row={row} onStatusChange={handleSubActionClose} /> : (
+                                    <Tooltip title="Sin permiso" arrow><span><IconButton size="small" disabled sx={{ p: 0.25 }}><Edit fontSize="small" /></IconButton></span></Tooltip>
+                                )}
+                                {hasPerm('emergencia.discharge') ? <ReleasePatient row={row} onStatusChange={handleSubActionClose} /> : (
+                                    <Tooltip title="Sin permiso" arrow><span><IconButton size="small" disabled sx={{ p: 0.25 }}><Edit fontSize="small" /></IconButton></span></Tooltip>
+                                )}
+                                {row.status === 1 && (
+                                    <Tooltip title={hasPerm('emergencia.edit') ? 'Anular Emergencia' : 'Sin permiso'} arrow>
+                                        <span>
+                                            <IconButton size="small" color="error" onClick={() => setCancelDialogOpen(true)} sx={{ p: 0.25 }} disabled={!hasPerm('emergencia.edit')}>
+                                                <Cancel fontSize="small" />
+                                            </IconButton>
+                                        </span>
                                     </Tooltip>
                                 )}
                             </Box>
@@ -281,9 +310,11 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                                 <Grid item xs={6}><FieldItem label="H. Egreso" value={moment(row.egress_at).format('DD/MM/YYYY HH:mm')} /></Grid>
                             )}
                             <Grid item xs={6}><FieldItem label="Clasificación" value={classificationLabel} /></Grid>
-                            {!effectiveReadOnly && (
+                            {!effectiveReadOnly && isPrimaryDoctor && (
                                 <Grid item xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
-                                    {hasPerm('emergencia.edit') && <EmergencyEditButton row={row} onRefresh={refetch} />}
+                                    {hasPerm('emergencia.edit') ? <EmergencyEditButton row={row} onRefresh={refetch} /> : (
+                                        <Tooltip title="Sin permiso" arrow><span><IconButton size="small" disabled><Edit fontSize="small" /></IconButton></span></Tooltip>
+                                    )}
                                 </Grid>
                             )}
                         </Grid>
@@ -319,24 +350,24 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                                         </Typography>
                                         {consultingDoctors.map((d) => (
                                             <Chip key={d.id} label={d.name} size="small" color="info"
-                                                onDelete={!effectiveReadOnly && hasPerm('emergencia.edit') ? () => handleRemoveInterconsulta(d.id) : undefined}
+                                                onDelete={!effectiveReadOnly && isPrimaryDoctor && hasPerm('emergencia.edit') ? () => handleRemoveInterconsulta(d.id) : undefined}
                                                 sx={{ height: 18, '& .MuiChip-label': { fontSize: '0.6rem', px: 0.5 } }} />
                                         ))}
                                     </Box>
                                 </Grid>
                             )}
                         </Grid>
-                        {!effectiveReadOnly && hasPerm('emergencia.edit') && availableConsultingDoctors.length > 0 && (
+                        {!effectiveReadOnly && isPrimaryDoctor && availableConsultingDoctors.length > 0 && (
                             <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
-                                <Autocomplete size="small" fullWidth
+                                <Autocomplete size="small" fullWidth disabled={!hasPerm('emergencia.edit')}
                                     options={availableConsultingDoctors}
                                     getOptionLabel={(option) => option.name}
                                     value={availableConsultingDoctors.find((d) => d.id === interconsultaInput) || null}
                                     onChange={(_event, newValue) => setInterconsultaInput(newValue?.id || '')}
                                     renderInput={(params) => (<TextField variant="standard" {...params} label="Agregar Interconsulta" sx={{ '& .MuiInputBase-input': { fontSize: '0.7rem' } }} />)}
                                     sx={{ '& .MuiAutocomplete-option': { fontSize: '0.7rem' } }} />
-                                <Tooltip title="Agregar Interconsulta" arrow>
-                                    <span><IconButton color="primary" onClick={handleAddInterconsulta} disabled={!interconsultaInput}><MedicalServices /></IconButton></span>
+                                <Tooltip title={hasPerm('emergencia.edit') ? 'Agregar Interconsulta' : 'Sin permiso'} arrow>
+                                    <span><IconButton color="primary" onClick={handleAddInterconsulta} disabled={!hasPerm('emergencia.edit') || !interconsultaInput}><MedicalServices /></IconButton></span>
                                 </Tooltip>
                             </Stack>
                         )}
@@ -369,8 +400,8 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                                 )
                             ))
                         )}
-                        {!effectiveReadOnly && hasPerm('notes.create') && (
-                            <Box sx={{ mt: 1 }}><AddNoteInline emergencyId={activeEmergencyId} patientId={patientId} onAdded={refetchNotes} /></Box>
+                        {!effectiveReadOnly && (
+                            <Box sx={{ mt: 1 }}><AddNoteInline emergencyId={activeEmergencyId} patientId={patientId} onAdded={refetchNotes} disabled={!hasPerm('notes.create')} /></Box>
                         )}
                     </Box>
 
@@ -453,7 +484,30 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                             </TableContainer>
                         </Box>
                     )}
+
+                    {/* Evaluations */}
+                    {evaluations.length > 0 && (
+                        <Box sx={{ bgcolor: '#f8f9fa', borderRadius: 1, p: 1, mb: 1.5 }}>
+                            <SectionHeader title="EVALUACIONES" />
+                            {evaluations.map((ev) => (
+                                <EvaluationCard
+                                    key={ev.id}
+                                    evaluation={ev}
+                                    isPrimary={ev.doctor_id === row.primary_doctor?.id}
+                                />
+                            ))}
+                        </Box>
+                    )}
                     </>
+                )}
+                {activeTab === 'evaluaciones' && hasPerm('evaluaciones.view') && (
+                  <EvaluationsTab emergency={row} readOnly={effectiveReadOnly} onDataChange={handleSubActionRefresh} />
+                )}
+                {activeTab === 'planes' && hasPerm('planes.view') && (
+                  <MedicalPlanSection emergencyId={activeEmergencyId} readOnly={effectiveReadOnly} />
+                )}
+                {activeTab === 'tratamiento' && (
+                  <MedicalPlanSection emergencyId={activeEmergencyId} readOnly={true} />
                 )}
                 </DialogContent>
                 <DialogActions sx={{ p: '0.5rem 1rem' }}>
@@ -462,7 +516,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
             </Dialog>
 
             <Dialog open={cancelDialogOpen} onClose={() => { setCancelDialogOpen(false); setCancelReason(''); }} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ bgcolor: '#616161', color: 'white', fontSize: '0.8rem' }}>
+                <DialogTitle sx={{ bgcolor: 'error.main', color: 'white', fontSize: '0.8rem' }}>
                     ANULAR EMERGENCIA
                 </DialogTitle>
                 <DialogContent style={{ paddingTop: 24 }}>

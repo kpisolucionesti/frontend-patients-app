@@ -57,7 +57,7 @@ export default function SurgeryTeamForm({ surgeryId, readOnly = false }) {
         <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'flex-end' }}>
           <TextField select variant="standard" label="Doctor" value={selectedDoctor}
             onChange={(e) => setSelectedDoctor(e.target.value)} sx={{ minWidth: 200 }} size="small">
-            {doctors.map(d =>
+            {(doctors || []).map(d =>
               <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
             )}
           </TextField>

@@ -32,6 +32,7 @@ const usePatientLookup = () => {
       }
       if (found) {
         setPatientValues({
+          id: found.id,
           ci: found.ci,
           name: found.name || '',
           lastname: found.lastname || '',
@@ -65,6 +66,7 @@ const usePatientLookup = () => {
     BackendAPI.patients.findByCi(ci).then((found) => {
       if (found) {
         setPatientValues({
+          id: found.id,
           ci: found.ci,
           name: found.name || '',
           lastname: found.lastname || '',
@@ -80,6 +82,7 @@ const usePatientLookup = () => {
   const loadPatient = useCallback((patient) => {
     if (!patient) return;
     setPatientValues({
+      id: patient.id,
       ci: patient.ci || '',
       name: patient.name || '',
       lastname: patient.lastname || '',

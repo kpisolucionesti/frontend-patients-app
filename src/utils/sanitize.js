@@ -5,7 +5,6 @@ export const sanitizeInput = (value, options = {}) => {
   v = v.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
   v = v.replace(/javascript\s*:/gi, '');
   v = v.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
-  v = v.trim();
   if (options.maxLength) v = v.slice(0, options.maxLength);
   return v;
 };
@@ -27,7 +26,6 @@ export const sanitizeAlphanumeric = (value, options = {}) => {
   let v = String(value ?? '');
   v = v.replace(/<[^>]*>/g, '');
   v = v.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
-  v = v.trim();
   if (options.maxLength) v = v.slice(0, options.maxLength);
   return v;
 };

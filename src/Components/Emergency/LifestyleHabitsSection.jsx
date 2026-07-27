@@ -1,25 +1,24 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { BackendAPI } from '../../services/BackendApi';
+import { useFetch } from '../../hooks/useFetch';
 
 const EMPTY = { habito: '', concurrencia: '', observaciones: '' };
 
 const LifestyleHabitsSection = ({ patientId, readOnly }) => {
-  const [records, setRecords] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
 
-  const fetch = useCallback(async () => {
-    if (!patientId) return;
-    try { const data = await BackendAPI.lifestyleHabits.getAll(patientId); setRecords(data || []); } catch { setRecords([]); }
-  }, [patientId]);
-
-  useEffect(() => { fetch(); }, [fetch]);
+  const { data, refetch } = useFetch(
+    () => patientId ? BackendAPI.lifestyleHabits.getAll(patientId) : Promise.resolve([]),
+    [patientId],
+  );
+  const records = data || [];
 
   const handleChange = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
 
@@ -33,44 +32,50 @@ const LifestyleHabitsSection = ({ patientId, readOnly }) => {
       if (editing) await BackendAPI.lifestyleHabits.update(patientId, editing.id, form);
       else await BackendAPI.lifestyleHabits.create(patientId, form);
       setDialogOpen(false);
-      fetch();
+      refetch();
     } catch { /* ignore */ }
     setSaving(false);
   };
 
   const handleDelete = async (id) => {
-    try { await BackendAPI.lifestyleHabits.delete(patientId, id); fetch(); } catch { /* ignore */ }
+    try { await BackendAPI.lifestyleHabits.delete(patientId, id); refetch(); } catch { /* ignore */ }
   };
 
   if (!patientId) return null;
 
   return (
     <Paper sx={{ p: 1.5 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-        <Typography variant="caption" fontWeight={600} sx={{ color: '#2e7d32' }}>ESTILO DE VIDA</Typography>
-        {!readOnly && <Tooltip title="Agregar" arrow><IconButton size="small" onClick={handleOpenAdd} sx={{ p: 0.25 }}><AddCircleOutlineIcon fontSize="small" /></IconButton></Tooltip>}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: (records || []).length > 0 ? 1 : 0 }}>
+        <Typography variant="caption" fontWeight={700} sx={{ color: 'primary.main', fontSize: '0.75rem', letterSpacing: '0.03em' }}>
+          HÁBITOS PSICOBIOLÓGICOS
+        </Typography>
+        {!readOnly && (
+          <Tooltip title="Agregar" arrow>
+            <IconButton size="small" onClick={handleOpenAdd} sx={{ p: 0.25 }}><AddCircleOutlineIcon fontSize="small" /></IconButton>
+          </Tooltip>
+        )}
       </Box>
-      {records.length > 0 ? (
-        <TableContainer component={Paper} variant="outlined">
+      {(records || []).length > 0 ? (
+        <TableContainer sx={{ borderRadius: 1 }}>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ bgcolor: '#2e7d32' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Hábito</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Concurrencia</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '0.65rem', py: 0.5 }}>Observaciones</TableCell>
-                {!readOnly && <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '0.65rem', py: 0.5 }} width={60} />}
+              <TableRow>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', py: 0.5 }}>Hábito</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', py: 0.5 }}>Concurrencia</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', py: 0.5 }}>Observaciones</TableCell>
+                {!readOnly && <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', py: 0.5 }} width={60} />}
               </TableRow>
             </TableHead>
             <TableBody>
-              {records.map((r) => (
+              {(records || []).map((r) => (
                 <TableRow key={r.id}>
-                  <TableCell sx={{ fontSize: '0.7rem', py: 0.5 }}>{r.habito}</TableCell>
-                  <TableCell sx={{ fontSize: '0.7rem', py: 0.5 }}>{r.concurrencia || '—'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.7rem', py: 0.5 }}>{r.observaciones || '—'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.72rem', py: 0.5 }}>{r.habito}</TableCell>
+                  <TableCell sx={{ fontSize: '0.72rem', py: 0.5 }}>{r.concurrencia || '—'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.72rem', py: 0.5 }}>{r.observaciones || '—'}</TableCell>
                   {!readOnly && (
                     <TableCell sx={{ py: 0.5 }}>
-                      <Tooltip title="Editar" arrow><IconButton size="small" onClick={() => handleOpenEdit(r)} sx={{ p: 0.15 }}><EditIcon sx={{ fontSize: 12 }} /></IconButton></Tooltip>
-                      <Tooltip title="Eliminar" arrow><IconButton size="small" onClick={() => handleDelete(r.id)} sx={{ p: 0.15 }}><DeleteIcon sx={{ fontSize: 12, color: '#e53935' }} /></IconButton></Tooltip>
+                      <IconButton size="small" onClick={() => handleOpenEdit(r)} sx={{ p: 0.15 }} aria-label="Editar"><EditIcon sx={{ fontSize: 14 }} /></IconButton>
+                      <IconButton size="small" onClick={() => handleDelete(r.id)} sx={{ p: 0.15, color: 'error.main' }} aria-label="Eliminar"><DeleteIcon sx={{ fontSize: 14 }} /></IconButton>
                     </TableCell>
                   )}
                 </TableRow>
@@ -79,11 +84,13 @@ const LifestyleHabitsSection = ({ patientId, readOnly }) => {
           </Table>
         </TableContainer>
       ) : (
-        <Typography variant="caption" color="text.secondary">Sin hábitos registrados</Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>Sin hábitos registrados</Typography>
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem' }}>{editing ? 'Editar Hábito' : 'Agregar Hábito'}</DialogTitle>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem' }}>
+          {editing ? 'Editar Hábito' : 'Agregar Hábito'}
+        </DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <TextField variant="standard" size="small" label="Hábito" value={form.habito} onChange={(e) => handleChange('habito', e.target.value)} required fullWidth />

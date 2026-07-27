@@ -84,7 +84,7 @@ export default function QuirofanoDetail({ open, onClose, surgery, onSaved, onEdi
   return (
     <>
       <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ bgcolor: surgeryData.status === 'cancelled' ? '#b71c1c' : surgeryData.status === 'completed' ? '#2e7d32' : '#00695c', color: 'white', fontWeight: 'bold' }}>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
               <span>Detalle de Cirugía</span>
@@ -281,7 +281,7 @@ export default function QuirofanoDetail({ open, onClose, surgery, onSaved, onEdi
         <DialogActions>
           <Button onClick={() => setCloseDialogOpen(false)} disabled={actionLoading}>Cancelar</Button>
           <Button onClick={handleClose} variant="contained" color="success" disabled={actionLoading}>
-            {actionLoading ? <CircularProgress size={20} /> : 'Sí, culminar'}
+            {actionLoading ? <CircularProgress size={20} /> : 'Culminar cirugía'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -307,7 +307,7 @@ export default function QuirofanoDetail({ open, onClose, surgery, onSaved, onEdi
         <DialogActions>
           <Button onClick={() => setCancelDialogOpen(false)} disabled={actionLoading}>Cancelar</Button>
           <Button onClick={handleCancel} variant="contained" color="error" disabled={actionLoading}>
-            {actionLoading ? <CircularProgress size={20} /> : 'Sí, anular'}
+            {actionLoading ? <CircularProgress size={20} /> : 'Anular cirugía'}
           </Button>
         </DialogActions>
       </Dialog>

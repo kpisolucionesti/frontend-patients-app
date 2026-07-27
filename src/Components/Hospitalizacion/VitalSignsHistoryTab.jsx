@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Paper, Typography, Grid, TextField, Button, IconButton, Collapse,
+  Box, Typography, Grid, TextField, Button, IconButton, Collapse,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Chip, CircularProgress
+  Paper, CircularProgress
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
 
@@ -76,20 +75,12 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
   const latest = vitalSigns[0];
 
   return (
-    <Paper sx={{ p: 1.5, borderLeft: '4px solid #c62828', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <MonitorHeartIcon sx={{ fontSize: 18, color: '#c62828' }} />
-          <Typography variant="caption" fontWeight={600} sx={{ color: '#c62828', fontSize: '0.8rem' }}>
-            SIGNOS VITALES
-          </Typography>
-          {latest?.recorded_at && (
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
-              (Último: {new Date(latest.recorded_at).toLocaleString()})
-            </Typography>
-          )}
-        </Box>
-      </Box>
+    <Box>
+      {latest?.recorded_at && (
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', display: 'block', mb: 1 }}>
+          Último: {new Date(latest.recorded_at).toLocaleString()}
+        </Typography>
+      )}
 
       {latest && (
         <Paper variant="outlined" sx={{ p: 1, mb: 1.5, bgcolor: '#fff8f8' }}>
@@ -222,17 +213,17 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Fecha / Hora</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>PA</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FC</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FR</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Temp</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>SpO2</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>GLC</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Talla</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Peso</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>IMC</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Registrado por</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Fecha / Hora</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>PA</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FC</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FR</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Temp</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>SpO2</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>GLC</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Talla</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Peso</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>IMC</TableCell>
+                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Registrado por</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -257,7 +248,7 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
           </Table>
         </TableContainer>
       )}
-    </Paper>
+    </Box>
   );
 };
 

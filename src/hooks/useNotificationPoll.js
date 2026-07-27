@@ -15,16 +15,21 @@ export default function useNotificationPoll() {
       if (lastPollRef.current) {
         params.since = lastPollRef.current;
       }
+      const isInitial = !lastPollRef.current;
       const data = await BackendAPI.notifications.getAll(params);
       if (Array.isArray(data) && data.length > 0) {
-        setNotifications((prev) => {
-          const existingIds = new Set(prev.map((n) => n.id));
-          const fresh = data.filter((n) => !existingIds.has(n.id));
-          if (fresh.length > 0) {
-            setNewItems((q) => [...q, ...fresh]);
-          }
-          return [...fresh, ...prev];
-        });
+        if (isInitial) {
+          setNotifications(data);
+        } else {
+          setNotifications((prev) => {
+            const existingIds = new Set(prev.map((n) => n.id));
+            const fresh = data.filter((n) => !existingIds.has(n.id));
+            if (fresh.length > 0) {
+              setNewItems((q) => [...q, ...fresh]);
+            }
+            return [...fresh, ...prev];
+          });
+        }
       }
       if (Array.isArray(data) && data.length > 0) {
         lastPollRef.current = data[0].created_at;

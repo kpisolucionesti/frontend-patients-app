@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Box, Typography, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Chip, IconButton,
-  Button, Alert, CircularProgress
+  Button, Alert, CircularProgress, useTheme
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -13,14 +13,8 @@ import moment from 'moment';
 const DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-const STATUS_COLORS = {
-  scheduled: { bg: '#e3f2fd', color: '#1565c0' },
-  in_progress: { bg: '#fff3e0', color: '#e65100' },
-  completed: { bg: '#e8f5e9', color: '#2e7d32' },
-  cancelled: { bg: '#f5f5f5', color: '#9e9e9e' },
-};
-
 export default function WeeklySchedule({ onSelectSurgery, onEditSurgery }) {
+  const theme = useTheme();
   const [weekStart, setWeekStart] = useState(moment().startOf('isoWeek'));
   const [schedule, setSchedule] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -30,6 +24,13 @@ export default function WeeklySchedule({ onSelectSurgery, onEditSurgery }) {
   const weekEndStr = useMemo(() => moment(weekStart).endOf('isoWeek').format('YYYY-MM-DD'), [weekStart]);
   const weekEnd = useMemo(() => moment(weekStart).endOf('isoWeek'), [weekStart]);
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => moment(weekStart).add(i, 'days')), [weekStart]);
+
+  const STATUS_COLORS = {
+    scheduled: { bg: theme.palette.primary.light, color: theme.palette.primary.main },
+    in_progress: { bg: theme.palette.warning.light, color: theme.palette.warning.dark },
+    completed: { bg: '#e8f5e9', color: theme.palette.success.main },
+    cancelled: { bg: theme.palette.grey[100], color: theme.palette.grey[500] },
+  };
 
   const loadWeek = useCallback(async () => {
     setLoading(true);
@@ -60,13 +61,13 @@ export default function WeeklySchedule({ onSelectSurgery, onEditSurgery }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton onClick={() => setWeekStart(moment(weekStart).subtract(1, 'week'))}>
+          <IconButton onClick={() => setWeekStart(moment(weekStart).subtract(1, 'week'))} aria-label="Semana anterior">
             <ChevronLeftIcon />
           </IconButton>
           <Typography variant="subtitle1" fontWeight={600}>
             {weekStart.format('DD MMM')} — {weekEnd.format('DD MMM YYYY')}
           </Typography>
-          <IconButton onClick={() => setWeekStart(moment(weekStart).add(1, 'week'))}>
+          <IconButton onClick={() => setWeekStart(moment(weekStart).add(1, 'week'))} aria-label="Semana siguiente">
             <ChevronRightIcon />
           </IconButton>
           <Button size="small" variant="outlined" onClick={() => setWeekStart(moment().startOf('isoWeek'))}>
@@ -91,7 +92,7 @@ export default function WeeklySchedule({ onSelectSurgery, onEditSurgery }) {
                 <TableRow>
                   <TableCell
                     sx={{
-                      fontWeight: 700, minWidth: 60, bgcolor: '#f5f7fa',
+                      fontWeight: 700, minWidth: 60, bgcolor: theme.palette.grey[100],
                       position: 'sticky', left: 0, zIndex: 3
                     }}
                   >
@@ -105,7 +106,7 @@ export default function WeeklySchedule({ onSelectSurgery, onEditSurgery }) {
                         align="center"
                         sx={{
                           fontWeight: 700, minWidth: 130,
-                          bgcolor: isToday ? '#e3f2fd' : '#f5f7fa',
+                          bgcolor: isToday ? theme.palette.primary.light : theme.palette.grey[100],
                         }}
                       >
                         {DAYS[day.isoWeekday() - 1]}<br />
@@ -120,8 +121,8 @@ export default function WeeklySchedule({ onSelectSurgery, onEditSurgery }) {
                   <TableRow key={hour}>
                     <TableCell
                       sx={{
-                        fontWeight: 600, color: '#666',
-                        borderRight: '1px solid #e0e0e0', bgcolor: '#fafafa',
+                        fontWeight: 600, color: theme.palette.text.secondary,
+                        borderRight: `1px solid ${theme.palette.divider}`, bgcolor: theme.palette.grey[50],
                         position: 'sticky', left: 0, zIndex: 1,
                         whiteSpace: 'nowrap',
                       }}
@@ -137,7 +138,7 @@ export default function WeeklySchedule({ onSelectSurgery, onEditSurgery }) {
                           sx={{
                             p: 0.25, height: 48, verticalAlign: 'top',
                             bgcolor: isToday ? '#fafbff' : 'white',
-                            borderLeft: '1px solid #f0f0f0',
+                            borderLeft: `1px solid ${theme.palette.divider}`,
                           }}
                         >
                           {surgeries.map((s) => {
@@ -148,33 +149,42 @@ export default function WeeklySchedule({ onSelectSurgery, onEditSurgery }) {
                               ? moment(s.scheduled_end_time).format('HH:mm')
                               : null;
                             return (
-                              <Chip
-                                key={s.id}
-                                label={
-                                  <Box sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-                                    <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.6rem' }}>
-                                      {timeStr}{endTimeStr ? `-${endTimeStr}` : ''} | {s.surgery_type}
-                                    </Typography>
-                                    <Typography variant="caption" sx={{ fontSize: '0.55rem' }}>
-                                      {s.patient?.name} {s.patient?.lastname}
-                                    </Typography>
-                                    <Typography variant="caption" sx={{ fontSize: '0.55rem' }}>
-                                      {s.area?.name || 'S/Q'} | {s.surgeon_name || 'S/C'}
-                                    </Typography>
-                                  </Box>
-                                }
-                                size="small"
-                                sx={{
-                                  mb: 0.25, width: '100%', height: 'auto', py: 0.5,
-                                  bgcolor: sc.bg, color: sc.color, fontWeight: 600,
-                                  cursor: isFinalized ? 'default' : 'pointer',
-                                  opacity: s.status === 'cancelled' ? 0.5 : 1,
-                                  '& .MuiChip-label': { display: 'block', whiteSpace: 'normal', p: 0.5 },
-                                }}
-                                onClick={() => !isFinalized && onSelectSurgery?.(s)}
-                                onDelete={onEditSurgery && !isFinalized ? (e) => { e.stopPropagation(); onEditSurgery(s); } : undefined}
-                                deleteIcon={onEditSurgery && !isFinalized ? <EditIcon sx={{ fontSize: 12, color: sc.color }} /> : undefined}
-                              />
+                              <Box key={s.id} sx={{ position: 'relative', mb: 0.25 }}>
+                                <Chip
+                                  label={
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+                                      <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.6rem' }}>
+                                        {timeStr}{endTimeStr ? `-${endTimeStr}` : ''} | {s.surgery_type}
+                                      </Typography>
+                                      <Typography variant="caption" sx={{ fontSize: '0.55rem' }}>
+                                        {s.patient?.name} {s.patient?.lastname}
+                                      </Typography>
+                                      <Typography variant="caption" sx={{ fontSize: '0.55rem' }}>
+                                        {s.area?.name || 'S/Q'} | {s.surgeon_name || 'S/C'}
+                                      </Typography>
+                                    </Box>
+                                  }
+                                  size="small"
+                                  sx={{
+                                    width: '100%', height: 'auto', py: 0.5,
+                                    bgcolor: sc.bg, color: sc.color, fontWeight: 600,
+                                    cursor: isFinalized ? 'default' : 'pointer',
+                                    opacity: s.status === 'cancelled' ? 0.5 : 1,
+                                    '& .MuiChip-label': { display: 'block', whiteSpace: 'normal', p: 0.5 },
+                                  }}
+                                  onClick={() => !isFinalized && onSelectSurgery?.(s)}
+                                />
+                                {onEditSurgery && !isFinalized && (
+                                  <IconButton
+                                    size="small"
+                                    aria-label="Editar cirugía"
+                                    onClick={(e) => { e.stopPropagation(); onEditSurgery(s); }}
+                                    sx={{ position: 'absolute', top: 0, right: 0, p: 0.25 }}
+                                  >
+                                    <EditIcon sx={{ fontSize: 12, color: sc.color }} />
+                                  </IconButton>
+                                )}
+                              </Box>
                             );
                           })}
                         </TableCell>

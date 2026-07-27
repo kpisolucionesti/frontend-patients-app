@@ -2,10 +2,13 @@ import { Box, Button, IconButton, Stack, TextField, Typography } from "@mui/mate
 import { Delete, Edit } from "@mui/icons-material";
 import React, { useCallback, useState } from "react";
 import { BackendAPI } from "../../services/BackendApi";
+import DeleteConfirmModal from "../../shared/ui/delete-confirm-modal";
 
 const NoteItem = ({ note, onRefresh, canEdit, canDelete }) => {
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(note.note);
+    const [showDelete, setShowDelete] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     const handleSave = useCallback(async () => {
         if (!text.trim()) return;
@@ -18,13 +21,16 @@ const NoteItem = ({ note, onRefresh, canEdit, canDelete }) => {
         }
     }, [text, note.id, note.patient_id, onRefresh]);
 
-    const handleDelete = useCallback(async () => {
+    const handleDeleteConfirm = useCallback(async () => {
+        setDeleting(true);
         try {
             await BackendAPI.notes.delete(note.id);
+            setShowDelete(false);
             onRefresh();
         } catch {
             alert("Error al eliminar la nota");
         }
+        setDeleting(false);
     }, [note.id, onRefresh]);
 
     if (editing) {
@@ -38,6 +44,7 @@ const NoteItem = ({ note, onRefresh, canEdit, canDelete }) => {
     }
 
     return (
+        <>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5, p: 0.75, bgcolor: 'rgba(255,255,255,0.6)', borderRadius: 1 }}>
             <Typography variant="body2" sx={{ flexGrow: 1 }}>{note.note}</Typography>
             <Box>
@@ -47,12 +54,20 @@ const NoteItem = ({ note, onRefresh, canEdit, canDelete }) => {
                     </IconButton>
                 )}
                 {canDelete && (
-                    <IconButton size="small" color="error" onClick={handleDelete}>
+                    <IconButton size="small" color="error" onClick={() => setShowDelete(true)}>
                         <Delete fontSize="small" />
                     </IconButton>
                 )}
             </Box>
         </Box>
+        <DeleteConfirmModal
+          open={showDelete}
+          onClose={() => setShowDelete(false)}
+          onConfirm={handleDeleteConfirm}
+          loading={deleting}
+          message="¿Eliminar esta nota?"
+        />
+        </>
     );
 };
 

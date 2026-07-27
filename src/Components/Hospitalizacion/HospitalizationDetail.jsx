@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Paper, Grid, Chip, Button,
   CircularProgress, Alert, TextField, Dialog, DialogTitle,
-  DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel,
-  Autocomplete
+  DialogContent, DialogActions, Autocomplete
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -17,62 +16,52 @@ import ScienceIcon from '@mui/icons-material/Science';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import HistoryIcon from '@mui/icons-material/History';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import PeopleIcon from '@mui/icons-material/People';
-import MedicationIcon from '@mui/icons-material/Medication';
 import DescriptionIcon from '@mui/icons-material/Description';
-import RestoreIcon from '@mui/icons-material/Restore';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import { BackendAPI } from '../../services/BackendApi';
 import { useDoctors, useRooms } from '../../hooks/useApiData';
+import AsignRoom from '../../features/emergency/assign-room-modal';
+import DeathDialogButton from '../../shared/ui/death-dialog-button';
+import CancelDialogButton from '../../shared/ui/cancel-dialog-button';
 import PatientInfoPanel from '../Portal/PatientInfoPanel';
-import VitalSignsHistoryTab from './VitalSignsHistoryTab';
-import LabResultsPanel from '../Portal/LabResultsPanel';
-import MedicalPlansDetail from '../Portal/MedicalPlansDetail';
-import AllergiesSection from '../Portal/AllergiesSection';
-import AntecedentsSection from '../Portal/AntecedentsSection';
-import DailyProgressNotes from './DailyProgressNotes';
+import LabResultsPanel from '../Emergency/LabResultsPanel';
+import MedicalPlansDetail from '../Emergency/MedicalPlansDetail';
+import AllergiesSection from '../Emergency/AllergiesSection';
+import AntecedentsSection from '../Emergency/AntecedentsSection';
+import FamilyAntecedentsSection from '../Emergency/FamilyAntecedentsSection';
+import GynecologicalHistorySection from '../Emergency/GynecologicalHistorySection';
+import LifestyleHabitsSection from '../Emergency/LifestyleHabitsSection';
+import EvaluationsTab from '../Emergency/EvaluationsTab';
 import FluidBalancePanel from './FluidBalancePanel';
-import MedicationAdminPanel from './MedicationAdminPanel';
 import LatestVitalSigns from './LatestVitalSigns';
-import InterconsultationsTab from './InterconsultationsTab';
 import ParaclinicalStudiesTab from './ParaclinicalStudiesTab';
 import SurgeriesTab from './SurgeriesTab';
 import NotesSection from './NotesSection';
 import PatientAppointmentsSummary from '../Commons/PatientAppointmentsSummary';
 import DocumentsPanel from '../Commons/DocumentsPanel';
-import HistoricalCasePanel from '../Portal/HistoricalCasePanel';
 import GroupedTabBar from '../Commons/GroupedTabBar';
 import usePermissions from '../../hooks/usePermissions';
+import { useSnackbar } from '../../hooks/useSnackbar';
 import { medicalHistoryApi } from '../../services/medicalHistoryApi';
 import { generateHospitalizationReport } from '../../services/medicalHistoryReport';
 
 const STANDALONE_TABS = [
   { key: 'resumen', label: 'Resumen', icon: <InfoIcon /> },
+  { key: 'antecedentes', label: 'Antecedentes', icon: <HistoryIcon /> },
+  { key: 'evaluaciones', label: 'Evaluaciones', icon: <AssignmentIcon /> },
+  { key: 'balance_hidrico', label: 'Balance Hídrico', icon: <ScienceIcon /> },
+  { key: 'cirugias', label: 'Cirugías', icon: <LocalHospitalIcon /> },
   { key: 'documentos', label: 'Documentos', icon: <DescriptionIcon /> },
 ];
 
 const TAB_GROUPS = [
   {
-    key: 'clinico',
-    label: 'Clínico',
-    icon: <HistoryIcon />,
+    key: 'estudios',
+    label: 'Estudios',
+    icon: <ScienceIcon />,
     sections: [
-      { key: 'evolucion', label: 'Evolución', icon: <HistoryIcon /> },
-      { key: 'vitales', label: 'Signos Vitales', icon: <FavoriteIcon /> },
-      { key: 'paraclinicos', label: 'Paraclínicos', icon: <ScienceIcon /> },
       { key: 'laboratorio', label: 'Laboratorio', icon: <ScienceIcon /> },
-      { key: 'historial', label: 'Historial', icon: <RestoreIcon /> },
-    ],
-  },
-  {
-    key: 'tratamientos',
-    label: 'Tratamientos',
-    icon: <MedicationIcon />,
-    sections: [
-      { key: 'interconsultas', label: 'Interconsultas', icon: <PeopleIcon /> },
-      { key: 'balance_hidrico', label: 'Balance Hídrico', icon: <ScienceIcon /> },
-      { key: 'medicamentos', label: 'Medicamentos', icon: <MedicationIcon /> },
-      { key: 'cirugias', label: 'Cirugías', icon: <LocalHospitalIcon /> },
+      { key: 'paraclinicos', label: 'Paraclínicos', icon: <ScienceIcon /> },
     ],
   },
 ];
@@ -97,8 +86,15 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
   const [editingHospData, setEditingHospData] = useState(false);
   const [originalRoomId, setOriginalRoomId] = useState(null);
   const [originalDoctorId, setOriginalDoctorId] = useState(null);
+  const [currentDiagnosis, setCurrentDiagnosis] = useState('');
+  const [finalDiagnosis, setFinalDiagnosis] = useState('');
+  const [originalCurrentDiagnosis, setOriginalCurrentDiagnosis] = useState('');
+  const [originalFinalDiagnosis, setOriginalFinalDiagnosis] = useState('');
+
+  const [saving, setSaving] = useState(false);
 
   const canEdit = permissions.includes('hospitalizacion.edit');
+  const { show: showSnackbar } = useSnackbar();
 
   const goBack = () => {
     if (onBack) {
@@ -118,12 +114,8 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
     const eUpdated = emergency?.updated_at;
     const hUpdated = hospitalization?.updated_at;
     return {
-      evolucion: isRecent(hUpdated) || isRecent(eUpdated),
-      vitales: isRecent(eUpdated),
-      interconsultas: isRecent(eUpdated),
       paraclinicos: isRecent(eUpdated),
       balance_hidrico: isRecent(hUpdated),
-      medicamentos: isRecent(hUpdated),
       cirugias: isRecent(hUpdated),
       laboratorio: isRecent(eUpdated),
     };
@@ -143,6 +135,8 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
       if (hospData) {
         setSelectedRoomId(hospData.room_id || '');
         setSelectedDoctorId(hospData.attending_doctor_id || hospData.admitting_doctor_id || '');
+        setCurrentDiagnosis(hospData.current_diagnosis || '');
+        setFinalDiagnosis(hospData.final_diagnosis || '');
       }
     } catch {
       setError('Error al cargar datos del paciente');
@@ -153,22 +147,19 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
 
   useEffect(() => {
     loadData();
-
   }, [loadData]);
-
-  const hospRooms = useMemo(() =>
-    (allRooms || []).filter((r) => r.area_id === 5 && (!r.patient_id || r.patient_id === emergency?.patient?.id)),
-    [allRooms, emergency],
-  );
 
   const handleStartEdit = () => {
     setOriginalRoomId(selectedRoomId);
     setOriginalDoctorId(selectedDoctorId);
+    setOriginalCurrentDiagnosis(currentDiagnosis);
+    setOriginalFinalDiagnosis(finalDiagnosis);
     setEditingHospData(true);
   };
 
   const handleSaveHospData = async () => {
-    if (!hospitalization) return;
+    if (!hospitalization || saving) return;
+    setSaving(true);
     setSavingRoom(true);
     try {
       const changes = {};
@@ -177,6 +168,12 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
       }
       if (selectedDoctorId !== (hospitalization.attending_doctor_id || hospitalization.admitting_doctor_id || '')) {
         changes.attending_doctor_id = selectedDoctorId || null;
+      }
+      if (currentDiagnosis !== (hospitalization.current_diagnosis || '')) {
+        changes.current_diagnosis = currentDiagnosis;
+      }
+      if (finalDiagnosis !== (hospitalization.final_diagnosis || '')) {
+        changes.final_diagnosis = finalDiagnosis;
       }
       if (Object.keys(changes).length > 0) {
         const updated = await BackendAPI.hospitalizations.update(emergencyId, changes);
@@ -193,32 +190,43 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
         if (newRoom) await BackendAPI.rooms.update({ ...newRoom, patient_id: emergency?.patient?.id }).catch(() => {});
       }
       setEditingHospData(false);
+      showSnackbar('Datos de hospitalización actualizados', 'success');
     } catch {
-      setError('Error al guardar cambios');
+      showSnackbar('Error al guardar cambios', 'error');
     } finally {
       setSavingRoom(false);
+      setSaving(false);
     }
   };
 
   const handleCancelEdit = () => {
     setSelectedRoomId(originalRoomId);
     setSelectedDoctorId(originalDoctorId);
+    setCurrentDiagnosis(originalCurrentDiagnosis);
+    setFinalDiagnosis(originalFinalDiagnosis);
     setEditingHospData(false);
   };
 
   const handleDischarge = async () => {
+    if (!dischargeForm.discharge_diagnosis.trim()) {
+      showSnackbar('El diagnóstico de alta es requerido', 'warning');
+      return;
+    }
     setDischarging(true);
     try {
       await BackendAPI.hospitalizations.discharge(emergencyId, dischargeForm);
       const updatedHosp = await BackendAPI.hospitalizations.getByEmergency(emergencyId);
       setHospitalization(updatedHosp);
       setDischargeDialogOpen(false);
+      showSnackbar('Alta hospitalaria registrada', 'success');
     } catch {
-      setError('Error al dar de alta');
+      showSnackbar('Error al dar de alta', 'error');
     } finally {
       setDischarging(false);
     }
   };
+
+  const isDirectAdmission = emergency?.transfer === 'Hospitalizacion';
 
   if (loading) {
     return (
@@ -230,7 +238,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
 
   if (error) {
     return (
-      <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: '100%' }}>
+      <Box sx={{ p: 3, bgcolor: 'background.default', minHeight: '100%' }}>
         <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
         <Button startIcon={<ArrowBackIcon />} onClick={goBack} sx={{ mt: 2 }}>
           Volver al censo
@@ -241,7 +249,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
 
   if (!emergency) {
     return (
-      <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: '100%' }}>
+      <Box sx={{ p: 3, bgcolor: 'background.default', minHeight: '100%' }}>
         <Alert severity="warning">Paciente no encontrado</Alert>
         <Button startIcon={<ArrowBackIcon />} onClick={goBack} sx={{ mt: 2 }}>
           Volver al censo
@@ -253,7 +261,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
   const p = emergency.patient || {};
 
   return (
-    <Box sx={{ bgcolor: '#f0f4ff', minHeight: '100%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
       <Box sx={{ px: 3, pt: 2 }}>
         <Button
           startIcon={<ArrowBackIcon />}
@@ -263,12 +271,12 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
           Volver al censo
         </Button>
 
-        <Paper sx={{ p: 1.5, bgcolor: '#e3f2fd', borderLeft: '4px solid #1565c0', mb: 1.5 }}>
+        <Paper sx={{ p: 1.5, bgcolor: 'primary.light', mb: 1.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                <PersonIcon sx={{ fontSize: 18, color: '#1565c0' }} />
-                <Typography variant="body1" fontWeight={700} sx={{ color: '#1565c0' }}>
+                <PersonIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+                <Typography variant="body1" fontWeight={700} sx={{ color: 'primary.main', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {p.name || ''} {p.lastname || ''}
                 </Typography>
               </Box>
@@ -312,7 +320,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
         />
       </Box>
 
-      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', px: 3, pb: 3, pt: 1.5 }}>
+      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', px: 3, pb: 3, pt: 1.5 }} role="tabpanel" id={`tabpanel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === 'resumen' && (
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -320,38 +328,62 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
             </Box>
             <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {hospitalization && (
-                <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                <Paper sx={{ p: 1.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, flexWrap: 'wrap', gap: 0.5 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <InfoIcon sx={{ fontSize: 18, color: 'primary.main' }} />
                       <Typography variant="caption" fontWeight={600} sx={{ color: 'primary.main', fontSize: '0.8rem' }}>
                         DATOS DE HOSPITALIZACIÓN
                       </Typography>
                     </Box>
-                    {canEdit && (
-                      editingHospData ? (
-                        <Box sx={{ display: 'flex', gap: 0.5 }}>
-                          <Button size="small" variant="outlined" onClick={handleCancelEdit} disabled={savingRoom} sx={{ fontSize: '0.7rem', py: 0.25, px: 1 }}>
-                            Cancelar
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                      {hospitalization?.status === 'active' && canEdit && (
+                        <>
+                          <AsignRoom row={{ ...emergency, patient: p }} onStatusChange={loadData} />
+                          <DeathDialogButton emergencyId={emergencyId} patientId={p.id} onSuccess={goBack} />
+                          {isDirectAdmission && (
+                            <CancelDialogButton
+                              emergencyId={emergencyId}
+                              dialogTitle="ANULAR HOSPITALIZACIÓN"
+                              successMessage="Hospitalización anulada"
+                              onSuccess={goBack}
+                              extraAction={async () => {
+                                if (hospitalization) {
+                                  await BackendAPI.hospitalizations.update(emergencyId, { status: 'discharged', discharge_date: new Date().toISOString() });
+                                }
+                              }}
+                            />
+                          )}
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            startIcon={editingHospData ? <SaveIcon /> : <EditIcon />}
+                            onClick={editingHospData ? handleSaveHospData : handleStartEdit}
+                            disabled={savingRoom}
+                            sx={{ fontSize: '0.7rem', py: 0.25, px: 1 }}
+                          >
+                            {editingHospData ? (savingRoom ? 'Guardando...' : 'Guardar') : 'Editar'}
                           </Button>
-                          <Button size="small" variant="outlined" startIcon={<SaveIcon />} onClick={handleSaveHospData} disabled={savingRoom} sx={{ fontSize: '0.7rem', py: 0.25, px: 1 }}>
-                            {savingRoom ? 'Guardando...' : 'Guardar'}
-                          </Button>
-                        </Box>
-                      ) : (
-                        <Button size="small" variant="outlined" startIcon={<EditIcon />} onClick={handleStartEdit} sx={{ fontSize: '0.7rem', py: 0.25, px: 1 }}>
-                          Editar
-                        </Button>
-                      )
-                    )}
+                        </>
+                      )}
+                    </Box>
                   </Box>
                   <Grid container spacing={1.5}>
-                    <Grid item xs={6}>
-                      <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Diagnóstico de Ingreso</Typography>
-                      <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{hospitalization.admission_diagnosis || emergency.diagnostic || '-'}</Typography>
+                    <Grid item xs={4}>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Fecha y Hora de Ingreso</Typography>
+                      <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{hospitalization.admission_date ? new Date(hospitalization.admission_date).toLocaleString() : '-'}</Typography>
                     </Grid>
+                    <Grid item xs={4}>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Fecha y Hora de Egreso</Typography>
+                      <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{hospitalization.discharge_date ? new Date(hospitalization.discharge_date).toLocaleString() : '—'}</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Días de Estancia</Typography>
+                      <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{hospitalization.length_of_stay_days || 0} días</Typography>
+                    </Grid>
+
                     <Grid item xs={6}>
-                      <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Médico de Cabecera</Typography>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Médico de Cabecera</Typography>
                       {editingHospData ? (
                         <Autocomplete
                           size="small"
@@ -373,42 +405,51 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
                       )}
                     </Grid>
                     <Grid item xs={6}>
-                      <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Fecha de Ingreso</Typography>
-                      <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{hospitalization.admission_date ? new Date(hospitalization.admission_date).toLocaleString() : '-'}</Typography>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Cama</Typography>
+                      <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>
+                        {hospitalization.room?.name || 'Sin asignar'}
+                      </Typography>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Cama</Typography>
+
+                    <Grid item xs={12}>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Diagnóstico de Ingreso</Typography>
+                      <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{hospitalization.admission_diagnosis || emergency.diagnostic || '-'}</Typography>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Diagnóstico Actual</Typography>
                       {editingHospData ? (
-                        <FormControl variant="standard" size="small" sx={{ mt: 0.5, minWidth: 120 }}>
-                          <Select
-                            value={selectedRoomId || ''}
-                            onChange={(e) => setSelectedRoomId(e.target.value || '')}
-                            sx={{ fontSize: '0.75rem' }}
-                          >
-                            <MenuItem value=""><em>Sin asignar</em></MenuItem>
-                            {hospRooms.map((r) => (
-                              <MenuItem key={r.id} value={r.id}>{r.name} {r.area_name ? `(${r.area_name})` : ''}</MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
+                        <TextField variant="standard" size="small" fullWidth multiline rows={2}
+                          value={currentDiagnosis}
+                          onChange={(e) => setCurrentDiagnosis(e.target.value)}
+                          inputProps={{ maxLength: 2000 }}
+                          sx={{ mt: 0.5, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
                       ) : (
-                        <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>
-                          {hospitalization.room?.name || 'Sin asignar'}
-                        </Typography>
+                        <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{currentDiagnosis || hospitalization.current_diagnosis || '-'}</Typography>
                       )}
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Días de Estancia</Typography>
-                      <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{hospitalization.length_of_stay_days || 0} días</Typography>
+
+                    <Grid item xs={12}>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Diagnóstico Final</Typography>
+                      {editingHospData ? (
+                        <TextField variant="standard" size="small" fullWidth multiline rows={2}
+                          value={finalDiagnosis}
+                          onChange={(e) => setFinalDiagnosis(e.target.value)}
+                          inputProps={{ maxLength: 2000 }}
+                          sx={{ mt: 0.5, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+                      ) : (
+                        <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{finalDiagnosis || hospitalization.final_diagnosis || '-'}</Typography>
+                      )}
                     </Grid>
+
                     {hospitalization.discharge_date && (
                       <>
                         <Grid item xs={6}>
-                          <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Fecha de Alta</Typography>
+                          <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Fecha de Alta</Typography>
                           <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{new Date(hospitalization.discharge_date).toLocaleString()}</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                          <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.7rem' }}>Diagnóstico de Alta</Typography>
+                          <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.7rem' }}>Diagnóstico de Alta</Typography>
                           <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{hospitalization.discharge_diagnosis || '-'}</Typography>
                         </Grid>
                       </>
@@ -417,52 +458,21 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
                 </Paper>
               )}
               <LatestVitalSigns emergencyId={emergency.id} />
-              <Paper sx={{ p: 1.5 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <ScienceIcon sx={{ fontSize: 18, color: '#1565c0' }} />
-                    <Typography variant="caption" fontWeight={600} sx={{ color: '#1565c0', fontSize: '0.8rem' }}>
-                      LABORATORIOS
-                    </Typography>
-                  </Box>
-                  <Button size="small" sx={{ fontSize: '0.7rem', minWidth: 'auto' }} onClick={() => setTab('laboratorio')}>
-                    Ver resultados
-                  </Button>
-                </Box>
-              </Paper>
               <MedicalPlansDetail emergencyId={emergency.id} readOnly={!canEdit} />
               {emergencyId && (
                 <NotesSection emergencyId={emergency.id} readOnly={!canEdit} />
               )}
               <PatientAppointmentsSummary patientId={p.id} />
-              <AllergiesSection patientId={p.id} readOnly={!canEdit} />
-              <AntecedentsSection patientId={p.id} readOnly={!canEdit} />
             </Box>
           </Box>
         )}
 
-        {tab === 'evolucion' && hospitalization && (
-          <DailyProgressNotes hospitalizationId={hospitalization.id} />
-        )}
-
-        {tab === 'interconsultas' && (
-          <InterconsultationsTab emergencyId={emergency.id} />
-        )}
-
-        {tab === 'vitales' && (
-          <VitalSignsHistoryTab emergencyId={emergency.id} readOnly={!canEdit} />
+        {tab === 'balance_hidrico' && hospitalization && (
+          <FluidBalancePanel hospitalizationId={hospitalization.id} readOnly={true} />
         )}
 
         {tab === 'paraclinicos' && (
           <ParaclinicalStudiesTab emergencyId={emergency.id} />
-        )}
-
-        {tab === 'balance_hidrico' && hospitalization && (
-          <FluidBalancePanel hospitalizationId={hospitalization.id} />
-        )}
-
-        {tab === 'medicamentos' && hospitalization && (
-          <MedicationAdminPanel hospitalizationId={hospitalization.id} />
         )}
 
         {tab === 'cirugias' && hospitalization && (
@@ -470,20 +480,14 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
         )}
 
         {tab === 'laboratorio' && (
-          <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+          <Paper sx={{ p: 1.5, borderLeft: 3, borderColor: 'primary.main' }}>
             <LabResultsPanel emergencyId={emergency.id} patientGender={p.gender} />
-          </Paper>
-        )}
-
-        {tab === 'historial' && (
-          <Paper sx={{ p: 1.5 }}>
-            <HistoricalCasePanel patient={p} currentEmergencyId={emergency.id} />
           </Paper>
         )}
 
         {tab === 'documentos' && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Paper sx={{ p: 1.5, borderLeft: '4px solid #1565c0' }}>
+            <Paper sx={{ p: 1.5, borderLeft: 3, borderColor: 'primary.main' }}>
               <DocumentsPanel
                 attachableType="Hospitalization"
                 attachableId={hospitalization?.id}
@@ -491,7 +495,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
               />
             </Paper>
             {hospitalization?.status !== 'active' && (
-              <Paper sx={{ p: 1.5, borderLeft: '4px solid #2e7d32' }}>
+              <Paper sx={{ p: 1.5, borderLeft: 3, borderColor: 'success.main' }}>
                 <Button
                   variant="contained"
                   color="success"
@@ -508,10 +512,24 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
             )}
           </Box>
         )}
+
+        {tab === 'antecedentes' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <AllergiesSection patientId={p.id} readOnly={!canEdit} />
+            <AntecedentsSection patientId={p.id} readOnly={!canEdit} />
+            <FamilyAntecedentsSection patientId={p.id} readOnly={!canEdit} />
+            <GynecologicalHistorySection patientId={p.id} readOnly={!canEdit} patientGender={p.gender} />
+            <LifestyleHabitsSection patientId={p.id} readOnly={!canEdit} />
+          </Box>
+        )}
+
+        {tab === 'evaluaciones' && (
+          <EvaluationsTab emergency={emergency} readOnly={!canEdit} onDataChange={() => {}} />
+        )}
       </Box>
 
       <Dialog open={dischargeDialogOpen} onClose={() => setDischargeDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ bgcolor: '#e65100', color: 'white', fontSize: '0.85rem', fontWeight: 700 }}>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontSize: '0.85rem', fontWeight: 700 }}>
           ALTA HOSPITALARIA
         </DialogTitle>
         <DialogContent>

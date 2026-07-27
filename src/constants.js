@@ -16,3 +16,12 @@ export const STATUS_LABELS = {
   4: 'ANULADA',
   5: 'FALLECIDO',
 };
+
+export const STATUS_CONFIG = {
+  0: { label: 'Esperando',  chipColor: 'warning', bg: '#ed6c02' },
+  1: { label: 'Atendido',   chipColor: 'info',    bg: '#1565c0' },
+  2: { label: 'Alta Médica',chipColor: 'success', bg: '#2e7d32' },
+  3: { label: 'Ingreso a Hospitalización', chipColor: 'secondary', bg: '#7b1fa2' },
+  4: { label: 'Anulada',    chipColor: 'default', bg: '#9e9e9e' },
+  5: { label: 'Fallecido',  chipColor: 'default', bg: '#212121' },
+};

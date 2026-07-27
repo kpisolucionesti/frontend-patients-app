@@ -38,7 +38,7 @@ const SessionTimeoutModal = ({ open, onContinue }) => {
 
   return (
     <Dialog open={open} maxWidth="xs" fullWidth disableEscapeKeyDown>
-      <DialogTitle sx={{ textAlign: 'center' }}>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
         Sesión próxima a expirar
       </DialogTitle>
       <DialogContent sx={{ textAlign: 'center' }}>

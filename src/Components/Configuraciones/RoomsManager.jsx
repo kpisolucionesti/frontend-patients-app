@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Chip, IconButton, Paper, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, IconButton, Tooltip } from '@mui/material';
 import { Add, Delete, Edit, LockOpen } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import { useRooms } from '../../hooks/useApiData';
 import { useSnackbar } from '../../hooks/useSnackbar';
-import { useQueryClient } from '@tanstack/react-query';
 import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 import RoomFormModal from './RoomFormModal';
 
@@ -17,13 +16,8 @@ const ROOM_TYPE_LABELS = {
 const RoomsManager = () => {
   const { data: rooms, isLoading: loading, isError, error, refetch } = useRooms();
   const { show } = useSnackbar();
-  const queryClient = useQueryClient();
 
   const [formModal, setFormModal] = useState(null);
-
-  useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ['rooms'] });
-  }, [queryClient]);
 
   useEffect(() => {
     if (isError) {
@@ -145,9 +139,7 @@ const RoomsManager = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <Paper sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
-        <MaterialReactTable table={table} />
-      </Paper>
+      <MaterialReactTable key="salas" table={table} />
       {formModal && (
         <RoomFormModal
           open={!!formModal}

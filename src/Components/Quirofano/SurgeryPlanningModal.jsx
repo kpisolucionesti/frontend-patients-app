@@ -7,6 +7,7 @@ import {
 import { BackendAPI } from '../../services/BackendApi';
 import { SURGERY_TYPES, STATUS_OPTIONS } from '../Hospitalizacion/SurgeriesTab';
 import { sanitizeInput } from '../../utils/sanitize';
+import { useDoctors } from '../../hooks/useApiData';
 
 const ANESTHESIA_TYPES = [
   'General', 'Regional', 'Local', 'Sedación', 'Bloqueo', 'Mixta'
@@ -31,6 +32,7 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [error, setError] = useState(null);
   const searchTimer = useRef(null);
+  const { data: doctors = [] } = useDoctors();
 
   useEffect(() => {
     BackendAPI.areas.getAll().then(setAreas).catch(() => setError('Error al cargar quirófanos'));
@@ -121,7 +123,7 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ bgcolor: '#00695c', color: 'white', fontWeight: 'bold' }}>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold' }}>
         {surgery ? 'Editar Cirugía' : 'Planificar Cirugía'}
       </DialogTitle>
       <DialogContent>
@@ -153,8 +155,16 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
               </TextField>
             </Grid>
             <Grid item xs={6}>
-              <TextField variant="standard" size="small" fullWidth label="Nombre del Cirujano" value={form.surgeon_name}
-                onChange={handleChange('surgeon_name')} disabled={isFinalized} />
+              <Autocomplete
+                freeSolo
+                options={doctors.map(d => d.name)}
+                value={form.surgeon_name || ''}
+                onInputChange={(_e, v) => setForm(prev => ({ ...prev, surgeon_name: sanitizeInput(v, { maxLength: 2000 }) }))}
+                disabled={isFinalized}
+                renderInput={(params) => (
+                  <TextField {...params} variant="standard" size="small" label="Nombre del Cirujano" />
+                )}
+              />
             </Grid>
 
             {form.ambulatory && (
@@ -225,8 +235,16 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
             </Grid>
 
             <Grid item xs={6}>
-              <TextField variant="standard" size="small" fullWidth label="Anestesiólogo" value={form.anesthesiologist}
-                onChange={handleChange('anesthesiologist')} disabled={isFinalized} />
+              <Autocomplete
+                freeSolo
+                options={doctors.map(d => d.name)}
+                value={form.anesthesiologist || ''}
+                onInputChange={(_e, v) => setForm(prev => ({ ...prev, anesthesiologist: sanitizeInput(v, { maxLength: 2000 }) }))}
+                disabled={isFinalized}
+                renderInput={(params) => (
+                  <TextField {...params} variant="standard" size="small" label="Anestesiólogo" />
+                )}
+              />
             </Grid>
             <Grid item xs={6}>
               <TextField select variant="standard" size="small" fullWidth label="Tipo de Anestesia" value={form.anesthesia_type}
