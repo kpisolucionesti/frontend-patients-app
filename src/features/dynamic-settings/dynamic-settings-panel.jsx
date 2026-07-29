@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Button, CircularProgress } from '@mui/material';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DynamicFormGroup from './dynamic-form-group';
 import { dynamicSettingsApi } from '../../entities/dynamic-setting/api';
@@ -11,6 +11,8 @@ const DynamicSettingsPanel = ({ category = 'general', companyId = null }) => {
   const [values, setValues] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const CATEGORY_TITLES = { seguridad: 'Seguridad', regional: 'Regional', ui: 'Interfaz', notificaciones: 'Notificaciones', general: 'Configuracion' };
 
   useEffect(() => {
     setLoading(true);
@@ -58,6 +60,9 @@ const DynamicSettingsPanel = ({ category = 'general', companyId = null }) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1rem' }}>
+        {CATEGORY_TITLES[category] || 'Configuracion'}
+      </Typography>
       {Object.entries(groups).map(([groupName, fields]) => (
         <DynamicFormGroup
           key={groupName}
@@ -68,10 +73,10 @@ const DynamicSettingsPanel = ({ category = 'general', companyId = null }) => {
         />
       ))}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="outlined" color="success" size="small"
+        <Button variant="contained" size="small"
           startIcon={<SaveIcon sx={{ fontSize: 16 }} />}
           onClick={handleSave} disabled={saving}
-          sx={{ fontSize: '0.7rem', py: 0.25 }}>
+          sx={{ fontSize: '0.75rem', py: 0.25 }}>
           {saving ? 'Guardando...' : 'Guardar'}
         </Button>
       </Box>

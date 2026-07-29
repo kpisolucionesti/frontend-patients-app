@@ -76,8 +76,8 @@ const EmailSettingsForm = () => {
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', p: 2 }}>
       <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" fontWeight="bold" sx={{ mb: 3, color: 'primary.dark' }}>
-          CONFIGURACION DE CORREO SMTP
+        <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1rem', mb: 3 }}>
+          Configuracion de correo SMTP
         </Typography>
         {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -99,10 +99,12 @@ const EmailSettingsForm = () => {
           <TextField variant="standard" fullWidth size="small" label="Correo Remitente" name="sender_email" value={values.sender_email} onChange={handleChange} placeholder="noreply@ejemplo.com" />
           <FormControlLabel control={<Switch name="enable_starttls_auto" checked={values.enable_starttls_auto} onChange={handleChange} />} label="Habilitar STARTTLS" />
           <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-            <Button variant="outlined" color="success" onClick={handleSave} disabled={saving}>
+            <Button variant="contained" size="small" onClick={handleSave} disabled={saving}
+              sx={{ fontSize: '0.75rem' }}>
               {saving ? <CircularProgress size={20} /> : 'Guardar'}
             </Button>
-            <Button variant="outlined" color="info" onClick={handleTest} disabled={testing || !values.smtp_address}>
+            <Button variant="outlined" size="small" onClick={handleTest} disabled={testing || !values.smtp_address}
+              sx={{ fontSize: '0.75rem' }}>
               {testing ? <CircularProgress size={20} /> : 'Probar Conexion'}
             </Button>
           </Box>

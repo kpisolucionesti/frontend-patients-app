@@ -14,10 +14,12 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { BackendAPI } from "../../services/BackendApi";
 import { useAuth } from "../../hooks/useAuth";
+import useCompanySettings from "../../hooks/useCompanySettings";
 import ForcePasswordChange from "./force-password-change";
 
 const SignIn = () => {
   const { signIn } = useAuth();
+  const { companyName } = useCompanySettings();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [values, setValues] = useState({ username: "", password: "" });
@@ -80,7 +82,7 @@ const SignIn = () => {
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
               <Typography component="span" fontWeight={700} color="primary" sx={{ fontSize: '1.25rem', display: 'block' }}>
-              EMERBOARD
+              {companyName}
             </Typography>
               <Typography variant="h1" fontWeight={700} sx={{ mt: 1, fontSize: '1.25rem' }}>
               INICIAR SESION

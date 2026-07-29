@@ -13,6 +13,9 @@ export const MRT_DEFAULTS = {
   muiTableContainerProps: {
     sx: { flex: 1, overflow: 'auto' },
   },
+  muiTableHeadCellProps: {
+    sx: { bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: '4px 6px' },
+  },
   initialState: {
     pagination: { pageSize: 25 },
     density: 'compact',

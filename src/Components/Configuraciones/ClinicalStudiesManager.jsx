@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Box, Chip, FormControlLabel, IconButton, Switch, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Chip, FormControlLabel, IconButton, Switch, Tab, Tabs, Tooltip, Typography } from '@mui/material';
 import { Add, Delete, Edit, FileUpload, RestoreFromTrash } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -138,14 +138,14 @@ const ClinicalStudiesManager = () => {
       return (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title="Editar" arrow>
-            <IconButton color="warning" size="small" onClick={() => setParamModal(p)}>
-              <Edit fontSize="small" />
+            <IconButton size="small" onClick={() => setParamModal(p)}>
+              <Edit sx={{ fontSize: 15 }} />
             </IconButton>
           </Tooltip>
           {isActive ? (
             <Tooltip title="Suspender" arrow>
-              <IconButton color="error" size="small" onClick={() => handleDeleteParam(p)}>
-                <Delete fontSize="small" />
+              <IconButton size="small" onClick={() => handleDeleteParam(p)} sx={{ p: 0.25, color: 'error.main' }}>
+                <Delete sx={{ fontSize: 15 }} />
               </IconButton>
             </Tooltip>
           ) : (
@@ -161,11 +161,10 @@ const ClinicalStudiesManager = () => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <Tooltip title="Agregar parámetro" arrow>
-            <IconButton color="primary" onClick={() => setParamModal({})}>
-              <Add />
-            </IconButton>
-          </Tooltip>
+          <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
+            onClick={() => setParamModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
+            Agregar
+          </Button>
           <Tooltip title="Importar desde Excel" arrow>
             <IconButton color="secondary" onClick={() => setImportOpen(true)}>
               <FileUpload />
@@ -236,14 +235,14 @@ const ClinicalStudiesManager = () => {
       return (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title="Editar" arrow>
-            <IconButton color="warning" size="small" onClick={() => setGroupModal(g)}>
-              <Edit fontSize="small" />
+            <IconButton size="small" onClick={() => setGroupModal(g)}>
+              <Edit sx={{ fontSize: 15 }} />
             </IconButton>
           </Tooltip>
           {isActive ? (
             <Tooltip title="Suspender" arrow>
-              <IconButton color="error" size="small" onClick={() => handleDeleteGroup(g)}>
-                <Delete fontSize="small" />
+              <IconButton size="small" onClick={() => handleDeleteGroup(g)} sx={{ p: 0.25, color: 'error.main' }}>
+                <Delete sx={{ fontSize: 15 }} />
               </IconButton>
             </Tooltip>
           ) : (
@@ -259,11 +258,10 @@ const ClinicalStudiesManager = () => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <Tooltip title="Agregar grupo" arrow>
-            <IconButton color="primary" onClick={() => setGroupModal({})}>
-              <Add />
-            </IconButton>
-          </Tooltip>
+          <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
+            onClick={() => setGroupModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
+            Agregar
+          </Button>
           <FormControlLabel
             control={<Switch checked={showInactive} onChange={(_, v) => setShowInactive(v)} size="small" />}
             label="Mostrar suspendidos"
@@ -330,14 +328,14 @@ const ClinicalStudiesManager = () => {
       return (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title="Editar" arrow>
-            <IconButton color="warning" size="small" onClick={() => setClassModal(c)}>
-              <Edit fontSize="small" />
+            <IconButton size="small" onClick={() => setClassModal(c)}>
+              <Edit sx={{ fontSize: 15 }} />
             </IconButton>
           </Tooltip>
           {isActive ? (
             <Tooltip title="Suspender" arrow>
-              <IconButton color="error" size="small" onClick={() => handleDeleteClass(c)}>
-                <Delete fontSize="small" />
+              <IconButton size="small" onClick={() => handleDeleteClass(c)} sx={{ p: 0.25, color: 'error.main' }}>
+                <Delete sx={{ fontSize: 15 }} />
               </IconButton>
             </Tooltip>
           ) : (
@@ -353,11 +351,10 @@ const ClinicalStudiesManager = () => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <Tooltip title="Agregar clasificación" arrow>
-            <IconButton color="primary" onClick={() => setClassModal({})}>
-              <Add />
-            </IconButton>
-          </Tooltip>
+          <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
+            onClick={() => setClassModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
+            Agregar
+          </Button>
           <FormControlLabel
             control={<Switch checked={showInactive} onChange={(_, v) => setShowInactive(v)} size="small" />}
             label="Mostrar suspendidos"
@@ -374,7 +371,8 @@ const ClinicalStudiesManager = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+      <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1rem', px: 2, py: 1.25, flexShrink: 0 }}>Estudios Clinicos</Typography>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
@@ -386,7 +384,7 @@ const ClinicalStudiesManager = () => {
           <Tab label="Clasificación" value="classifications" />
         </Tabs>
       </Box>
-      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', p: 1 }}>
+      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         {tab === 'params' && <MaterialReactTable table={paramTable} />}
         {tab === 'groups' && <MaterialReactTable table={groupTable} />}
         {tab === 'classifications' && <MaterialReactTable table={classTable} />}

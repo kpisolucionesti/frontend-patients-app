@@ -4,6 +4,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { BackendAPI } from '../../services/BackendApi';
+import { catalogsApi } from '../../services/catalogsApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import { sanitizeNumber } from '../../utils/sanitize';
 
@@ -17,7 +18,12 @@ const VitalSignsPanel = ({ emergencyId, vitalSigns, onCreated, readOnly }) => {
   const [open, setOpen] = useState((vitalSigns || []).length === 0);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [ranges, setRanges] = useState([]);
   const { show: showSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    catalogsApi.vitalSignsRanges.list().then(setRanges).catch(() => {});
+  }, []);
 
   const latest = vitalSigns?.[0];
 
@@ -39,6 +45,18 @@ const VitalSignsPanel = ({ emergencyId, vitalSigns, onCreated, readOnly }) => {
   }, [open]);
 
   const hasValues = !!latest;
+
+  const getVitalSignColor = (param, val) => {
+    if (!val || ranges.length === 0) return undefined;
+    const range = ranges.find((r) => r.parameter === param && r.sex === 'all');
+    if (!range) return undefined;
+    const v = Number(val);
+    if (range.min_alert && v < Number(range.min_alert)) return 'error.main';
+    if (range.max_alert && v > Number(range.max_alert)) return 'error.main';
+    if (range.min_normal && v < Number(range.min_normal)) return 'warning.dark';
+    if (range.max_normal && v > Number(range.max_normal)) return 'warning.dark';
+    return undefined;
+  };
 
   const handleFieldChange = (field, value) => {
     const sanitized = sanitizeNumber(value);
@@ -96,37 +114,45 @@ const VitalSignsPanel = ({ emergencyId, vitalSigns, onCreated, readOnly }) => {
           {latest.systolic_bp && (
             <Grid item xs={4}>
               <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600 }}>PA</Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.systolic_bp}/{latest.diastolic_bp}</Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'baseline' }}>
+                <Typography variant="body2" sx={{ fontSize: '0.8rem', color: getVitalSignColor('systolic_bp', latest.systolic_bp) }}>
+                  {latest.systolic_bp}
+                </Typography>
+                <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>/</Typography>
+                <Typography variant="body2" sx={{ fontSize: '0.8rem', color: getVitalSignColor('diastolic_bp', latest.diastolic_bp) }}>
+                  {latest.diastolic_bp}
+                </Typography>
+              </Box>
             </Grid>
           )}
           {latest.heart_rate && (
             <Grid item xs={4}>
               <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600 }}>FC</Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.heart_rate} lpm</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem', color: getVitalSignColor('heart_rate', latest.heart_rate) }}>{latest.heart_rate} lpm</Typography>
             </Grid>
           )}
           {latest.temperature && (
             <Grid item xs={4}>
               <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600 }}>Temp</Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.temperature} °C</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem', color: getVitalSignColor('temperature', latest.temperature) }}>{latest.temperature} °C</Typography>
             </Grid>
           )}
           {latest.oxygen_saturation && (
             <Grid item xs={4}>
               <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600 }}>SpO2</Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.oxygen_saturation}%</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem', color: getVitalSignColor('oxygen_saturation', latest.oxygen_saturation) }}>{latest.oxygen_saturation}%</Typography>
             </Grid>
           )}
           {latest.respiratory_rate && (
             <Grid item xs={4}>
               <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600 }}>FR</Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.respiratory_rate} rpm</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem', color: getVitalSignColor('respiratory_rate', latest.respiratory_rate) }}>{latest.respiratory_rate} rpm</Typography>
             </Grid>
           )}
           {latest.glucose && (
             <Grid item xs={4}>
               <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600 }}>GLC</Typography>
-              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{latest.glucose} mg/dL</Typography>
+              <Typography variant="body2" sx={{ fontSize: '0.8rem', color: getVitalSignColor('glucose', latest.glucose) }}>{latest.glucose} mg/dL</Typography>
             </Grid>
           )}
           {latest.height && (

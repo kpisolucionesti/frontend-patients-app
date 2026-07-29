@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, IconButton, Paper, Tooltip } from '@mui/material';
+import { Box, Button, IconButton, Paper, Tooltip, Typography } from '@mui/material';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -70,23 +70,22 @@ const DisplaysManager = () => {
     renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', gap: 0.5 }}>
         <Tooltip title="Editar" arrow>
-          <IconButton color="warning" size="small" onClick={() => setFormModal(row.original)}>
-            <Edit fontSize="small" />
+          <IconButton size="small" onClick={() => setFormModal(row.original)}>
+            <Edit sx={{ fontSize: 15 }} />
           </IconButton>
         </Tooltip>
         <Tooltip title="Eliminar" arrow>
-          <IconButton color="error" size="small" onClick={() => handleDelete(row.original)}>
-            <Delete fontSize="small" />
+          <IconButton size="small" onClick={() => handleDelete(row.original)} sx={{ p: 0.25, color: 'error.main' }}>
+            <Delete sx={{ fontSize: 15 }} />
           </IconButton>
         </Tooltip>
       </Box>
     ),
     renderTopToolbarCustomActions: useCallback(() => (
-      <Tooltip title="Agregar pantalla" arrow>
-        <IconButton color="primary" onClick={() => setFormModal({})}>
-          <Add />
-        </IconButton>
-      </Tooltip>
+      <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
+        onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
+        Agregar
+      </Button>
     ), []),
     getRowId: (row) => row.id?.toString(),
     initialState: { pagination: { pageSize: 25 }, density: 'compact' },
@@ -95,6 +94,9 @@ const DisplaysManager = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <Box sx={{ px: 2, py: 1.25, flexShrink: 0 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1rem' }}>Pantallas Citas</Typography>
+      </Box>
       <Paper sx={{ bgcolor: 'background.paper', boxShadow: 3, borderRadius: 1, overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', '& .MuiTablePagination-root': { marginTop: 0 } }}>
         <MaterialReactTable table={table} />
       </Paper>

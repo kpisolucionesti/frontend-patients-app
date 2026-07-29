@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Chip, IconButton, Paper, Tab, Tabs, Tooltip } from '@mui/material';
+import { Box, Button, Chip, IconButton, Paper, Tab, Tabs, Tooltip, Typography } from '@mui/material';
 import { Add, Block, CheckCircle, Edit, Lock, LockClock, AdminPanelSettings, History, LockOpen } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -126,8 +126,8 @@ const UsersList = () => {
         <>
           {permissions.includes('usuarios.edit') && (
             <Tooltip title="Editar usuario" arrow>
-              <IconButton color="warning" size="small" onClick={() => setFormModal(u)}>
-                <Edit fontSize="small" />
+              <IconButton size="small" onClick={() => setFormModal(u)}>
+                <Edit sx={{ fontSize: 15 }} />
               </IconButton>
             </Tooltip>
           )}
@@ -181,11 +181,10 @@ const UsersList = () => {
       () => (
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           {tab === 'activos' && permissions.includes('usuarios.create') && (
-            <Tooltip title="Agregar usuario" arrow>
-              <IconButton color="primary" onClick={() => setFormModal({})}>
-                <Add />
-              </IconButton>
-            </Tooltip>
+            <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
+              onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
+              Agregar
+            </Button>
           )}
         </Box>
       ),
@@ -209,6 +208,9 @@ const UsersList = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <Box sx={{ px: 2, py: 1.25, flexShrink: 0 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1rem' }}>Usuarios</Typography>
+      </Box>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
           value={tab}

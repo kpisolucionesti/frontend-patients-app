@@ -1,18 +1,22 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { BackendAPI } from "../../services/BackendApi";
+import { catalogsApi } from "../../services/catalogsApi";
 import { Button, Dialog, DialogContent, DialogTitle, Stack, FormControl, Select, InputLabel, MenuItem, DialogActions, TextField, Alert, IconButton, Tooltip, Typography } from "@mui/material";
 import { HealthAndSafetyOutlined } from "@mui/icons-material";
 import { useRooms } from '../../hooks/useApiData';
-
-const EXIT_REASONS = ['Mejoria Medica', 'Referencia', 'Contra opinion Medica', 'Muerte'];
 
 const ReleasePatient = ({ row, onStatusChange }) => {
   const [open, setOpen] = useState(false);
   const [extraData, setExtraData] = useState({ medical_exit: '', observations: '', cause_of_death: '', death_at: '' });
   const [validation, setValidation] = useState(false);
   const [error, setError] = useState('');
+  const [dischargeTypes, setDischargeTypes] = useState([]);
 
   const { data: rooms = [] } = useRooms();
+
+  useEffect(() => {
+    catalogsApi.dischargeTypes.list().then(setDischargeTypes).catch(() => {});
+  }, []);
 
   const handleOpen = () => setOpen(true);
 
@@ -25,7 +29,8 @@ const ReleasePatient = ({ row, onStatusChange }) => {
     setExtraData((prev) => ({ ...prev, [target.name]: target.value }));
   }, []);
 
-  const isDeath = extraData.medical_exit === 'Muerte';
+  const selectedDischargeType = dischargeTypes.find((d) => d.name === extraData.medical_exit);
+  const isDeath = selectedDischargeType?.requires_cause_of_death || false;
 
   const handleReleasePatient = useCallback(() => {
     if (!extraData.medical_exit) { setValidation(true); setError('Seleccione la causa de egreso'); return; }
@@ -76,7 +81,7 @@ const ReleasePatient = ({ row, onStatusChange }) => {
               <InputLabel id="release-cause-label">Causa de egreso</InputLabel>
               <Select labelId="release-cause-label" variant="standard" value={extraData.medical_exit}
                 onChange={({ target }) => handleValueChange(target)} name="medical_exit">
-                {EXIT_REASONS.map((r) => (<MenuItem key={r} value={r}>{r}</MenuItem>))}
+                {dischargeTypes.map((r) => (<MenuItem key={r.id || r.name} value={r.name}>{r.name}</MenuItem>))}
               </Select>
             </FormControl>
             {isDeath && (

@@ -1,15 +1,16 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, Paper, TextField, Button, Select, MenuItem, FormControl,
   InputLabel, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-  Chip, Alert, CircularProgress
+  Chip, Alert, CircularProgress, Autocomplete
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BackendAPI } from '../../services/BackendApi';
+import { catalogsApi } from '../../services/catalogsApi';
 import DeleteConfirmModal from '../../shared/ui/delete-confirm-modal';
 import usePermissions from '../../hooks/usePermissions';
 
@@ -19,16 +20,6 @@ const STATUS_OPTIONS = [
   { value: 'missed', label: 'No Administrado', color: 'error' },
   { value: 'refused', label: 'Rechazado', color: 'warning' },
   { value: 'held', label: 'Suspendido', color: 'default' },
-];
-
-const ROUTE_OPTIONS = [
-  { value: 'oral', label: 'Oral' },
-  { value: 'intravenous', label: 'Intravenoso' },
-  { value: 'intramuscular', label: 'Intramuscular' },
-  { value: 'subcutaneous', label: 'Subcutáneo' },
-  { value: 'topical', label: 'Tópico' },
-  { value: 'inhalation', label: 'Inhalación' },
-  { value: 'rectal', label: 'Rectal' },
 ];
 
 const initialForm = {
@@ -47,6 +38,9 @@ const MedicationAdminPanel = ({ hospitalizationId, emergencyId, readOnly }) => {
   const permissions = usePermissions();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [routeOptions, setRouteOptions] = useState([]);
+  const [medOptions, setMedOptions] = useState([]);
+  const medSearchTimer = useRef(null);
   const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
@@ -77,6 +71,10 @@ const MedicationAdminPanel = ({ hospitalizationId, emergencyId, readOnly }) => {
   }, [parentId, parentType]);
 
   useEffect(() => { loadRecords(); }, [loadRecords]);
+
+  useEffect(() => {
+    catalogsApi.medicationRoutes.list().then(setRouteOptions).catch(() => {});
+  }, []);
 
   const handleOpenCreate = () => {
     setEditingRecord(null);
@@ -130,6 +128,17 @@ const MedicationAdminPanel = ({ hospitalizationId, emergencyId, readOnly }) => {
     }
     setDeleting(false);
     setDeleteTarget(null);
+  };
+
+  const handleMedSearch = (q) => {
+    if (medSearchTimer.current) clearTimeout(medSearchTimer.current);
+    if (!q || q.length < 2) { setMedOptions([]); return; }
+    medSearchTimer.current = setTimeout(async () => {
+      try {
+        const data = await catalogsApi.medications.list({ q });
+        setMedOptions(Array.isArray(data) ? data : []);
+      } catch { setMedOptions([]); }
+    }, 300);
   };
 
   const handleAdminister = async (record) => {
@@ -235,13 +244,25 @@ const MedicationAdminPanel = ({ hospitalizationId, emergencyId, readOnly }) => {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField size="small" label="Medicamento" value={form.medication_name} fullWidth
-              onChange={(e) => setForm({ ...form, medication_name: e.target.value })} />
+            <Autocomplete
+              freeSolo
+              options={medOptions}
+              getOptionLabel={(o) => (typeof o === 'string' ? o : o.name || '')}
+              value={form.medication_name}
+              onInputChange={(_e, v) => { setForm({ ...form, medication_name: v }); handleMedSearch(v); }}
+              renderInput={(params) => (
+                <TextField {...params} size="small" label="Medicamento" fullWidth
+                  placeholder="Escriba al menos 2 caracteres" />
+              )}
+              noOptionsText="Sin resultados"
+            />
             <Box sx={{ display: 'flex', gap: 2 }}>
               <FormControl size="small" sx={{ flex: 1 }}>
-                <InputLabel>Vía</InputLabel>
-                <Select value={form.route} label="Vía" onChange={(e) => setForm({ ...form, route: e.target.value })}>
-                  {ROUTE_OPTIONS.map((r) => <MenuItem key={r.value} value={r.value}>{r.label}</MenuItem>)}
+                <InputLabel>Via</InputLabel>
+                <Select value={form.route} label="Via" onChange={(e) => setForm({ ...form, route: e.target.value })}>
+                  {(routeOptions.length > 0 ? routeOptions : [{ id: 0, name: 'oral' }]).map((r) => (
+                    <MenuItem key={r.id || 0} value={r.name?.toLowerCase() || r.value || r}>{r.name || r.label || r}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <TextField size="small" label="Dosis" value={form.dosage} fullWidth sx={{ flex: 1 }}

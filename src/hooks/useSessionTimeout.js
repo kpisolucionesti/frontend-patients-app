@@ -1,17 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { dynamicSettingsApi } from '../entities/dynamic-setting/api';
 
-const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
+const DEFAULT_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 const WARNING_BEFORE_MS = 2 * 60 * 1000;
-const WARNING_AT_MS = IDLE_TIMEOUT_MS - WARNING_BEFORE_MS;
 
 const ACTIVITY_EVENTS = ['mousedown', 'mousemove', 'keydown', 'click', 'scroll', 'touchstart', 'wheel'];
 
 const useSessionTimeout = (onExpired) => {
   const [warning, setWarning] = useState(false);
+  const [idleTimeoutMs, setIdleTimeoutMs] = useState(DEFAULT_IDLE_TIMEOUT_MS);
   const timerRef = useRef(null);
   const warningTimerRef = useRef(null);
   const expiredRef = useRef(false);
   const lastActivityRef = useRef(Date.now());
+
+  useEffect(() => {
+    dynamicSettingsApi.show('seguridad')
+      .then((data) => {
+        const minutes = data.settings_data?.idle_timeout_minutes;
+        if (minutes && Number(minutes) > 0) {
+          setIdleTimeoutMs(Number(minutes) * 60 * 1000);
+        }
+      })
+      .catch(() => { /* fallback to default */ });
+  }, []);
 
   const clearTimers = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -25,16 +37,18 @@ const useSessionTimeout = (onExpired) => {
     setWarning(false);
     expiredRef.current = false;
 
+    const warningAt = idleTimeoutMs - WARNING_BEFORE_MS;
+
     warningTimerRef.current = setTimeout(() => {
       setWarning(true);
-    }, WARNING_AT_MS);
+    }, warningAt);
 
     timerRef.current = setTimeout(() => {
       expiredRef.current = true;
       setWarning(false);
       onExpired?.();
-    }, IDLE_TIMEOUT_MS);
-  }, [clearTimers, onExpired]);
+    }, idleTimeoutMs);
+  }, [clearTimers, onExpired, idleTimeoutMs]);
 
   const resetTimer = useCallback(() => {
     startTimers();
@@ -64,7 +78,7 @@ const useSessionTimeout = (onExpired) => {
     const onVisibilityChange = () => {
       if (document.hidden) return;
       const elapsed = Date.now() - lastActivityRef.current;
-      if (elapsed >= IDLE_TIMEOUT_MS && !expiredRef.current) {
+      if (elapsed >= idleTimeoutMs && !expiredRef.current) {
         expiredRef.current = true;
         setWarning(false);
         onExpired?.();
@@ -72,7 +86,7 @@ const useSessionTimeout = (onExpired) => {
     };
     document.addEventListener('visibilitychange', onVisibilityChange);
     return () => document.removeEventListener('visibilitychange', onVisibilityChange);
-  }, [onExpired]);
+  }, [onExpired, idleTimeoutMs]);
 
   return { warning, resetTimer };
 };

@@ -1,17 +1,29 @@
-import { useState, useCallback } from 'react';
-import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem } from '@mui/material';
+import { useState, useCallback, useRef } from 'react';
+import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Autocomplete } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { BackendAPI } from '../../../services/BackendApi';
+import { catalogsApi } from '../../../services/catalogsApi';
 import { useFetch } from '../../../hooks/useFetch';
 
 const EMPTY = { allergy: '', severity: '' };
 
-const AllergyForm = ({ values, onChange }) => (
+const AllergyForm = ({ values, onChange, allergenOptions, onAllergenSearch }) => (
   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-    <TextField variant="standard" size="small" label="Alergia" value={values.allergy} onChange={(e) => onChange('allergy', e.target.value)} required fullWidth />
+    <Autocomplete
+      freeSolo
+      options={allergenOptions || []}
+      getOptionLabel={(o) => (typeof o === 'string' ? o : o.name || '')}
+      value={values.allergy}
+      onInputChange={(_e, v) => { onChange('allergy', v); onAllergenSearch(v); }}
+      renderInput={(params) => (
+        <TextField {...params} variant="standard" size="small" label="Alergia" required fullWidth
+          placeholder="Escriba o busque del catalogo" />
+      )}
+      noOptionsText="Sin coincidencias"
+    />
     <TextField select variant="standard" size="small" label="Severidad" value={values.severity} onChange={(e) => onChange('severity', e.target.value)} fullWidth>
       <MenuItem value="">Sin especificar</MenuItem>
       <MenuItem value="leve">Leve</MenuItem>
@@ -28,6 +40,8 @@ const AllergiesSection = ({ patientId, readOnly }) => {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [allergenOptions, setAllergenOptions] = useState([]);
+  const allergenTimer = useRef(null);
 
   const { data, refetch } = useFetch(
     () => patientId ? BackendAPI.allergies.getAll(patientId) : Promise.resolve([]),
@@ -38,6 +52,17 @@ const AllergiesSection = ({ patientId, readOnly }) => {
   const handleChange = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
   const handleOpenAdd = () => { setEditing(null); setForm(EMPTY); setDialogOpen(true); };
   const handleOpenEdit = (a) => { setEditing(a); setForm({ allergy: a.allergy, severity: a.severity || '' }); setDialogOpen(true); };
+
+  const handleAllergenSearch = (q) => {
+    if (allergenTimer.current) clearTimeout(allergenTimer.current);
+    if (!q || q.length < 2) { setAllergenOptions([]); return; }
+    allergenTimer.current = setTimeout(async () => {
+      try {
+        const data = await catalogsApi.allergens.list({ q });
+        setAllergenOptions(Array.isArray(data) ? data : []);
+      } catch { setAllergenOptions([]); }
+    }, 300);
+  };
 
   const handleSave = async () => {
     if (!form.allergy) return;
@@ -85,7 +110,7 @@ const AllergiesSection = ({ patientId, readOnly }) => {
       )}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>{editing ? 'Editar Alergia' : 'Agregar Alergia'}</DialogTitle>
-        <DialogContent style={{ paddingTop: 24 }}><AllergyForm values={form} onChange={handleChange} /></DialogContent>
+        <DialogContent style={{ paddingTop: 24 }}><AllergyForm values={form} onChange={handleChange} allergenOptions={allergenOptions} onAllergenSearch={handleAllergenSearch} /></DialogContent>
         <DialogActions>
           <Button size="small" variant="outlined" onClick={() => setDialogOpen(false)}>Cancelar</Button>
           <Button size="small" variant="outlined" onClick={handleSave} disabled={saving || !form.allergy}>{saving ? 'Guardando...' : 'Guardar'}</Button>

@@ -28,6 +28,7 @@ import HelpPanel from '../../Components/Commons/HelpPanel';
 import { BackendAPI } from '../../services/BackendApi';
 import { APP_VERSION } from '../../version';
 import usePermissions from '../../hooks/usePermissions';
+import useCompanySettings from '../../hooks/useCompanySettings';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '@mui/material/styles';
 import ColorModeContext from '../../context/ColorModeContext';
@@ -87,6 +88,7 @@ const GlobalSidebar = () => {
   const theme = useTheme();
   const { toggleColorMode } = useContext(ColorModeContext);
   const isAdmin = user?.is_admin;
+  const { companyName } = useCompanySettings();
   const [collapsed, setCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
@@ -183,7 +185,7 @@ const GlobalSidebar = () => {
           {!collapsed && (
             <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5, minWidth: 0 }}>
               <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ fontSize: '0.85rem', lineHeight: 1.2 }}>
-                Emerboard
+                {companyName}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.6rem', flexShrink: 0 }}>
                 v{APP_VERSION}

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Chip, IconButton, Tooltip } from '@mui/material';
+import { Box, Button, Chip, IconButton, Tooltip } from '@mui/material';
 import { Add, Delete, Edit, LockOpen } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -110,13 +110,13 @@ const RoomsManager = () => {
             </Tooltip>
           )}
           <Tooltip title="Editar" arrow>
-            <IconButton color="warning" size="small" onClick={() => setFormModal(room)}>
-              <Edit fontSize="small" />
+            <IconButton size="small" onClick={() => setFormModal(room)}>
+              <Edit sx={{ fontSize: 15 }} />
             </IconButton>
           </Tooltip>
           <Tooltip title="Eliminar" arrow>
-            <IconButton color="error" size="small" onClick={() => handleDelete(room)}>
-              <Delete fontSize="small" />
+            <IconButton size="small" onClick={() => handleDelete(room)} sx={{ p: 0.25, color: 'error.main' }}>
+              <Delete sx={{ fontSize: 15 }} />
             </IconButton>
           </Tooltip>
         </Box>
@@ -124,11 +124,10 @@ const RoomsManager = () => {
     },
     renderTopToolbarCustomActions: useCallback(
       () => (
-        <Tooltip title="Agregar sala" arrow>
-          <IconButton color="primary" onClick={() => setFormModal({})}>
-            <Add />
-          </IconButton>
-        </Tooltip>
+        <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
+          onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
+          Agregar
+        </Button>
       ),
       [],
     ),

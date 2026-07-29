@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, IconButton, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+import { Box, Button, IconButton, Tab, Tabs, Tooltip, Typography } from '@mui/material';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { Add, Block, CheckCircle, Edit, History as HistoryIcon } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
@@ -75,8 +75,8 @@ const DoctorsList = () => {
       <>
         {permissions.includes('medicos.edit') && (
           <Tooltip title="Editar medico" arrow>
-            <IconButton color="warning" size="small" onClick={() => setFormModal(row.original)}>
-              <Edit fontSize="small" />
+            <IconButton size="small" onClick={() => setFormModal(row.original)}>
+              <Edit sx={{ fontSize: 15 }} />
             </IconButton>
           </Tooltip>
         )}
@@ -103,11 +103,10 @@ const DoctorsList = () => {
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <ExportModal data={currentData} columns={columns} filename="Medicos" />
           {tab === 'activos' && permissions.includes('medicos.create') && (
-            <Tooltip title="Agregar medico" arrow>
-              <IconButton color="primary" onClick={() => setFormModal({})}>
-                <Add />
-              </IconButton>
-            </Tooltip>
+            <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
+              onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
+              Agregar
+            </Button>
           )}
         </Box>
       ),

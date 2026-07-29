@@ -14,21 +14,17 @@ const ConfirmActionModal = ({ open, onClose, entityType, entityName, action, onC
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <DialogTitle sx={{ bgcolor: config.bgcolor, color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: '0.95rem' }}>
-        {config.label.toUpperCase()} {upperType}
+      <DialogTitle sx={{ bgcolor: config.bgcolor, color: 'white', textAlign: 'center', fontWeight: 700, fontSize: '1rem' }}>
+        {config.label} {upperType}
       </DialogTitle>
       <DialogContent sx={{ textAlign: 'center' }}>
         <DialogContentText>
-          ¿Está seguro que desea {config.verb} al {entityType.toLowerCase()} {entityName}?
+          ¿Esta seguro que desea {config.verb} al {entityType.toLowerCase()} {entityName}?
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'center' }}>
-        <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
-        <Button
-          onClick={() => onConfirm()}
-          variant="outlined"
-          color={config.color}
-        >
+        <Button onClick={onClose} size="small" variant="outlined" sx={{ fontSize: '0.75rem' }}>Cancelar</Button>
+        <Button onClick={() => onConfirm()} size="small" variant="contained" color={config.color} sx={{ fontSize: '0.75rem' }}>
           {config.label}
         </Button>
       </DialogActions>

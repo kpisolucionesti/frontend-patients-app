@@ -5,13 +5,10 @@ import {
   FormControlLabel, Checkbox, Typography, Divider
 } from '@mui/material';
 import { BackendAPI } from '../../services/BackendApi';
-import { SURGERY_TYPES, STATUS_OPTIONS } from '../Hospitalizacion/SurgeriesTab';
+import { catalogsApi } from '../../services/catalogsApi';
+import { STATUS_OPTIONS } from '../Hospitalizacion/SurgeriesTab';
 import { sanitizeInput } from '../../utils/sanitize';
 import { useDoctors } from '../../hooks/useApiData';
-
-const ANESTHESIA_TYPES = [
-  'General', 'Regional', 'Local', 'Sedación', 'Bloqueo', 'Mixta'
-];
 
 const EXTENDED_STATUS_OPTIONS = [
   ...STATUS_OPTIONS,
@@ -31,11 +28,15 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
   const [patientOptions, setPatientOptions] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [error, setError] = useState(null);
+  const [surgeryTypes, setSurgeryTypes] = useState([]);
+  const [anesthesiaTypes, setAnesthesiaTypes] = useState([]);
   const searchTimer = useRef(null);
   const { data: doctors = [] } = useDoctors();
 
   useEffect(() => {
     BackendAPI.areas.getAll().then(setAreas).catch(() => setError('Error al cargar quirófanos'));
+    catalogsApi.surgeryProcedures.list().then(setSurgeryTypes).catch(() => {});
+    catalogsApi.anesthesiaTypes.list().then(setAnesthesiaTypes).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -149,9 +150,11 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
             </Grid>
 
             <Grid item xs={6}>
-              <TextField select variant="standard" size="small" fullWidth label="Tipo de Cirugía" value={form.surgery_type}
+              <TextField select variant="standard" size="small" fullWidth label="Tipo de Cirugia" value={form.surgery_type}
                 onChange={handleChange('surgery_type')} required disabled={isFinalized}>
-                {SURGERY_TYPES.map(t => <MenuItem key={t.key} value={t.key}>{t.label}</MenuItem>)}
+                {(surgeryTypes.length > 0 ? surgeryTypes : [{ name: 'Cargando...', id: '' }]).map((t) => (
+                  <MenuItem key={t.id || t.name} value={t.name}>{t.name}</MenuItem>
+                ))}
               </TextField>
             </Grid>
             <Grid item xs={6}>
@@ -249,7 +252,9 @@ export default function SurgeryPlanningModal({ open, onClose, onSaved, surgery }
             <Grid item xs={6}>
               <TextField select variant="standard" size="small" fullWidth label="Tipo de Anestesia" value={form.anesthesia_type}
                 onChange={handleChange('anesthesia_type')} disabled={isFinalized}>
-                {ANESTHESIA_TYPES.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+                {(anesthesiaTypes.length > 0 ? anesthesiaTypes : [{ name: 'Cargando...' }]).map((t) => (
+                  <MenuItem key={t.name} value={t.name}>{t.name}</MenuItem>
+                ))}
               </TextField>
             </Grid>
 
