@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Box, Button, Chip, FormControlLabel, IconButton, Switch, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, FormControlLabel, IconButton, Switch, Tab, Tabs, Tooltip, Typography } from '@mui/material';
 import { Add, Delete, Edit, FileUpload, RestoreFromTrash } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -161,10 +161,9 @@ const ClinicalStudiesManager = () => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-            onClick={() => setParamModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-            Agregar
-          </Button>
+          <Tooltip title="Agregar parametro" arrow>
+            <IconButton size="small" color="primary" onClick={() => setParamModal({})}><Add fontSize="small" /></IconButton>
+          </Tooltip>
           <Tooltip title="Importar desde Excel" arrow>
             <IconButton color="secondary" onClick={() => setImportOpen(true)}>
               <FileUpload />
@@ -258,10 +257,9 @@ const ClinicalStudiesManager = () => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-            onClick={() => setGroupModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-            Agregar
-          </Button>
+          <Tooltip title="Agregar grupo" arrow>
+            <IconButton size="small" color="primary" onClick={() => setGroupModal({})}><Add fontSize="small" /></IconButton>
+          </Tooltip>
           <FormControlLabel
             control={<Switch checked={showInactive} onChange={(_, v) => setShowInactive(v)} size="small" />}
             label="Mostrar suspendidos"
@@ -351,10 +349,9 @@ const ClinicalStudiesManager = () => {
     renderTopToolbarCustomActions: useCallback(
       () => (
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-            onClick={() => setClassModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-            Agregar
-          </Button>
+          <Tooltip title="Agregar clasificacion" arrow>
+            <IconButton size="small" color="primary" onClick={() => setClassModal({})}><Add fontSize="small" /></IconButton>
+          </Tooltip>
           <FormControlLabel
             control={<Switch checked={showInactive} onChange={(_, v) => setShowInactive(v)} size="small" />}
             label="Mostrar suspendidos"

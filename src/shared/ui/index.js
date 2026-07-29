@@ -27,3 +27,4 @@ export { default as SectionHeader } from './section-header';
 export { default as EvaluationCard } from './evaluation-card';
 export { default as EmptyState } from './empty-state';
 export { default as ClinicalStudiesPanel } from './clinical-studies-panel';
+export { default as ImportExcelModal } from './import-excel-modal';

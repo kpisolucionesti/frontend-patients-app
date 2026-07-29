@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Button, Chip, IconButton, Paper, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, IconButton, Paper, Tab, Tabs, Tooltip, Typography } from '@mui/material';
 import { Add, Block, CheckCircle, Edit, Lock, LockClock, AdminPanelSettings, History, LockOpen } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -181,10 +181,9 @@ const UsersList = () => {
       () => (
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           {tab === 'activos' && permissions.includes('usuarios.create') && (
-            <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-              onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-              Agregar
-            </Button>
+            <Tooltip title="Agregar usuario" arrow>
+              <IconButton size="small" color="primary" onClick={() => setFormModal({})}><Add fontSize="small" /></IconButton>
+            </Tooltip>
           )}
         </Box>
       ),

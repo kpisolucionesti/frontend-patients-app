@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   Box, Paper, Typography, Grid, Chip, Button, Table,
   TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -19,6 +19,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DescriptionIcon from '@mui/icons-material/Description';
 import RestoreIcon from '@mui/icons-material/Restore';
 import DownloadIcon from '@mui/icons-material/Download';
+import ChildCareIcon from '@mui/icons-material/ChildCare';
 import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import moment from 'moment';
@@ -37,10 +38,20 @@ import SurgeryDetailModal from './SurgeryDetailModal';
 import { SURGERY_TYPES } from '../Hospitalizacion/SurgeriesTab';
 import { generateSurgeryReport } from '../../services/surgeryReport';
 
-const STANDALONE_TABS = [
-  { key: 'resumen', label: 'Resumen', icon: <SummarizeIcon /> },
-  { key: 'documentos', label: 'Documentos', icon: <DescriptionIcon /> },
-];
+const GENDER_MAP = { M: 'Masculino', F: 'Femenino' };
+
+const PATIENT_CATEGORY_CHIP = {
+  recien_nacido: { label: 'Recién Nacido', bg: '#e0f7fa', color: '#006064', border: '#00bcd4' },
+  pediatrico:    { label: 'Pediátrico',    bg: '#fff3e0', color: '#e65100', border: '#ff9800' },
+};
+
+const STATUS_LABELS = {
+  1: { label: 'Atendido', color: '#1976d2' },
+  2: { label: 'Alta', color: '#2e7d32' },
+  3: { label: 'Ingresado', color: '#e65100' },
+  4: { label: 'Anulada', color: '#757575' },
+  5: { label: 'Fallecido', color: '#c62828' },
+};
 
 const TAB_GROUPS = [
   {
@@ -67,17 +78,7 @@ const TAB_GROUPS = [
   },
 ];
 
-const GENDER_MAP = { M: 'Masculino', F: 'Femenino' };
-
-const STATUS_LABELS = {
-  1: { label: 'Atendido', color: '#1976d2' },
-  2: { label: 'Alta', color: '#2e7d32' },
-  3: { label: 'Ingresado', color: '#e65100' },
-  4: { label: 'Anulada', color: '#757575' },
-  5: { label: 'Fallecido', color: '#c62828' },
-};
-
-const PatientProfile = ({ patient, onBack }) => {
+const PatientProfile = ({ patient, onBack, onViewPatient }) => {
   const [activeTab, setActiveTab] = useState('resumen');
   const [stats, setStats] = useState(null);
   const [emergencies, setEmergencies] = useState([]);
@@ -99,6 +100,8 @@ const PatientProfile = ({ patient, onBack }) => {
   const [surgeries, setSurgeries] = useState([]);
   const [loadingSurgeries, setLoadingSurgeries] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [childrenData, setChildrenData] = useState([]);
+  const [loadingChildren, setLoadingChildren] = useState(false);
   const { show: showSnackbar } = useSnackbar();
 
   const PER_PAGE = 5;
@@ -161,6 +164,21 @@ const PatientProfile = ({ patient, onBack }) => {
     if (activeTab === 'cirugias') fetchSurgeries();
   }, [activeTab, fetchSurgeries]);
 
+  const fetchChildren = async () => {
+    setLoadingChildren(true);
+    try {
+      const data = await BackendAPI.patients.getChildren(patient.id);
+      setChildrenData(data || []);
+    } catch { setChildrenData([]); }
+    setLoadingChildren(false);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'hijos' && childrenData.length === 0 && !loadingChildren) {
+      fetchChildren();
+    }
+  }, [activeTab]);
+
   const fetchLabData = async () => {
     setLoadingLab(true);
     try {
@@ -205,6 +223,17 @@ const PatientProfile = ({ patient, onBack }) => {
     showSnackbar('Paciente actualizado', 'success');
   };
 
+  const standaloneTabs = useMemo(() => {
+    const tabs = [
+      { key: 'resumen', label: 'Resumen', icon: <SummarizeIcon /> },
+      { key: 'documentos', label: 'Documentos', icon: <DescriptionIcon /> },
+    ];
+    if (patient?.gender === 'F') {
+      tabs.push({ key: 'hijos', label: 'Hijos', icon: <ChildCareIcon /> });
+    }
+    return tabs;
+  }, [patient?.gender]);
+
   const handleEmergenciesPageChange = (_e, newPage) => setEmergenciesPage(newPage);
   const handleHospitalizationsPageChange = (_e, newPage) => setHospitalizationsPage(newPage);
 
@@ -232,6 +261,15 @@ const PatientProfile = ({ patient, onBack }) => {
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 CI: {patient.ci || 'N/A'} &nbsp;|&nbsp; Nro. Historia: {patient.medical_history_number || 'N/A'} &nbsp;|&nbsp; {patient.age || '?'} años &nbsp;|&nbsp; {GENDER_MAP[patient.gender] || patient.gender || 'N/A'}
+                {PATIENT_CATEGORY_CHIP[patient.patient_category] && (
+                  <Chip component="span" label={PATIENT_CATEGORY_CHIP[patient.patient_category].label} size="small"
+                    sx={{
+                      ml: 1, bgcolor: PATIENT_CATEGORY_CHIP[patient.patient_category].bg,
+                      color: PATIENT_CATEGORY_CHIP[patient.patient_category].color,
+                      border: 1, borderColor: PATIENT_CATEGORY_CHIP[patient.patient_category].border,
+                      fontWeight: 700, height: 20, fontSize: '0.6rem', verticalAlign: 'middle',
+                    }} />
+                )}
               </Typography>
               <Box sx={{ display: 'flex', gap: 3, mt: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -254,7 +292,7 @@ const PatientProfile = ({ patient, onBack }) => {
 
         <GroupedTabBar
           groups={TAB_GROUPS}
-          standaloneTabs={STANDALONE_TABS}
+          standaloneTabs={standaloneTabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
         />
@@ -604,6 +642,49 @@ const PatientProfile = ({ patient, onBack }) => {
               <DocumentsPanel attachableType="Patient" attachableId={patient.id} managePermission="pacientes.documentos" />
             </Paper>
           </Box>
+        )}
+
+        {activeTab === 'hijos' && (
+          <Paper sx={{ p: 2 }}>
+            {loadingChildren ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}><CircularProgress /></Box>
+            ) : childrenData.length === 0 ? (
+              <Box sx={{ p: 3, textAlign: 'center' }}>
+                <Typography color="text.secondary">Sin hijos registrados</Typography>
+              </Box>
+            ) : (
+              <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+                <Table size="small" stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Nombre</TableCell>
+                      <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Sexo</TableCell>
+                      <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Edad</TableCell>
+                      <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>CI</TableCell>
+                      <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>HC</TableCell>
+                      <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem' }}>Acciones</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {childrenData.map((child) => (
+                      <TableRow key={child.id} hover>
+                        <TableCell sx={{ fontWeight: 600 }}>{child.name} {child.lastname}</TableCell>
+                        <TableCell>{child.gender === 'M' ? 'Masculino' : child.gender === 'F' ? 'Femenino' : '—'}</TableCell>
+                        <TableCell>{child.age || '—'}</TableCell>
+                        <TableCell>{child.ci || '—'}</TableCell>
+                        <TableCell>{child.medical_history_number || '—'}</TableCell>
+                        <TableCell>
+                          <Button size="small" onClick={() => {
+                            if (onViewPatient) onViewPatient(child);
+                          }}>Ver perfil</Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Paper>
         )}
       </Box>
 

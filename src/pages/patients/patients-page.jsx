@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box } from '@mui/material';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import { BackendAPI } from '../../services/BackendApi';
 import PatientsList from '../../Components/Patients/PatientsList';
 import PatientProfile from '../../Components/Patients/PatientProfile';
 
@@ -12,6 +13,13 @@ const PatientsModule = () => {
     setSelectedPatient(patient);
   };
 
+  const handleViewPatient = async (child) => {
+    try {
+      const full = await BackendAPI.patients.getById(child.id);
+      setSelectedPatient(full);
+    } catch { /* ignore */ }
+  };
+
   const handleBack = () => {
     setSelectedPatient(null);
   };
@@ -19,7 +27,7 @@ const PatientsModule = () => {
   if (selectedPatient) {
     return (
       <Box sx={{ height: '100%', overflow: 'hidden', bgcolor: 'background.default' }}>
-        <PatientProfile patient={selectedPatient} onBack={handleBack} />
+        <PatientProfile patient={selectedPatient} onBack={handleBack} onViewPatient={handleViewPatient} />
       </Box>
     );
   }

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Button, IconButton, Paper, Tooltip, Typography } from '@mui/material';
+import { Box, IconButton, Paper, Tooltip, Typography } from '@mui/material';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -82,10 +82,9 @@ const DisplaysManager = () => {
       </Box>
     ),
     renderTopToolbarCustomActions: useCallback(() => (
-      <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-        onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-        Agregar
-      </Button>
+      <Tooltip title="Agregar pantalla" arrow>
+        <IconButton size="small" color="primary" onClick={() => setFormModal({})}><Add fontSize="small" /></IconButton>
+      </Tooltip>
     ), []),
     getRowId: (row) => row.id?.toString(),
     initialState: { pagination: { pageSize: 25 }, density: 'compact' },

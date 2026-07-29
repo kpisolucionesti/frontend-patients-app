@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Button, IconButton, Paper, Tooltip, Typography } from '@mui/material';
+import { Box, IconButton, Paper, Tooltip, Typography } from '@mui/material';
 import { Add, Edit, Delete, People } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -78,10 +78,9 @@ const ProfilesList = () => {
       () => (
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           {permissions.includes('perfiles.create') && (
-            <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-              onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-              Agregar
-            </Button>
+            <Tooltip title="Agregar perfil" arrow>
+              <IconButton size="small" color="primary" onClick={() => setFormModal({})}><Add fontSize="small" /></IconButton>
+            </Tooltip>
           )}
         </Box>
       ),

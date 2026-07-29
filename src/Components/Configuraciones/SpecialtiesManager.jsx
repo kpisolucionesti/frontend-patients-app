@@ -1,12 +1,23 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Button, IconButton, Paper, Tooltip, Typography } from '@mui/material';
-import { Add, Delete, Edit } from '@mui/icons-material';
+import { Box, IconButton, Paper, Tooltip, Typography } from '@mui/material';
+import { Add, Delete, Edit, FileUpload } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import { useFetch } from '../../hooks/useFetch';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 import SpecialtyFormModal from './SpecialtyFormModal';
+import ImportModal from '../../shared/ui/import-excel-modal';
+
+const SPEC_COLUMNS = [
+  { field: 'name', label: 'Nombre', required: true, aliases: ['name', 'nombre', 'especialidad'] },
+  { field: 'description', label: 'Descripcion', required: false, aliases: ['description', 'descripcion'] },
+];
+
+const SPEC_TEMPLATE = [
+  { name: 'Medicina Interna', description: 'Especialidad en medicina interna general' },
+  { name: 'Cardiologia', description: 'Especialidad en cardiologia' },
+];
 
 const SpecialtiesManager = () => {
   const { data: specialties, loading, refetch } = useFetch(
@@ -15,6 +26,7 @@ const SpecialtiesManager = () => {
   const { show } = useSnackbar();
 
   const [formModal, setFormModal] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const handleSaved = useCallback(() => {
     refetch();
@@ -74,10 +86,14 @@ const SpecialtiesManager = () => {
     },
     renderTopToolbarCustomActions: useCallback(
       () => (
-        <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-          onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-          Agregar
-        </Button>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Tooltip title="Agregar especialidad" arrow>
+            <IconButton size="small" color="primary" onClick={() => setFormModal({})}><Add fontSize="small" /></IconButton>
+          </Tooltip>
+          <Tooltip title="Importar desde Excel" arrow>
+            <IconButton size="small" color="info" onClick={() => setImportOpen(true)}><FileUpload fontSize="small" /></IconButton>
+          </Tooltip>
+        </Box>
       ),
       [],
     ),
@@ -102,6 +118,18 @@ const SpecialtiesManager = () => {
           onSaved={handleSaved}
         />
       )}
+      <ImportModal open={importOpen} onClose={() => setImportOpen(false)}
+        onImported={handleSaved} sectionLabel="Especialidades" templateName="plantilla_especialidades"
+        columns={SPEC_COLUMNS} templateRows={SPEC_TEMPLATE}
+        apiImportFn={async (rows) => {
+          const errors = []; let created = 0;
+          for (const row of rows) {
+            try { await BackendAPI.specialties.create({ name: row.name, description: row.description }); created++; }
+            catch { errors.push({ row: row._row, error: 'Error al crear' }); }
+          }
+          return { created, errors };
+        }}
+      />
     </Box>
   );
 };

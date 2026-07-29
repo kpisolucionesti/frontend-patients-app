@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Button, Chip, IconButton, Paper, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, IconButton, Paper, Tooltip, Typography } from '@mui/material';
 import { Add, Delete, Edit, History, PowerSettingsNew, VpnKey } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
@@ -140,10 +140,9 @@ const TvScreensManager = () => {
     },
     renderTopToolbarCustomActions: useCallback(
       () => (
-        <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-          onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-          Agregar
-        </Button>
+        <Tooltip title="Agregar pantalla TV" arrow>
+          <IconButton size="small" color="primary" onClick={() => setFormModal({})}><Add fontSize="small" /></IconButton>
+        </Tooltip>
       ),
       [],
     ),

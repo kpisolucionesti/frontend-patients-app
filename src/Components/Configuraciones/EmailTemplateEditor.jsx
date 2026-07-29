@@ -97,10 +97,9 @@ const EmailTemplateEditor = () => {
       </Box>
     ),
     renderTopToolbarCustomActions: useCallback(() => (
-      <Button size="small" variant="outlined" startIcon={<AddIcon sx={{ fontSize: 16 }} />}
-        onClick={handleOpenAdd} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-        Nueva Plantilla
-      </Button>
+      <Tooltip title="Nueva plantilla" arrow>
+        <IconButton size="small" color="primary" onClick={handleOpenAdd}><AddIcon fontSize="small" /></IconButton>
+      </Tooltip>
     ), []),
     getRowId: (r) => r.id?.toString() || '',
     state: { isLoading: loading },

@@ -1,12 +1,24 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Button, Chip, IconButton, Paper, Tooltip } from '@mui/material';
-import { Add, Delete, Edit } from '@mui/icons-material';
+import { Box, Chip, IconButton, Paper, Tooltip } from '@mui/material';
+import { Add, Delete, Edit, FileUpload } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
+import ImportModal from '../../shared/ui/import-excel-modal';
 import { useFetch } from '../../hooks/useFetch';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 import AreaFormModal from './AreaFormModal';
+
+const AREA_IMPORT_COLS = [
+  { field: 'name', label: 'Nombre', required: true, aliases: ['name', 'nombre', 'area'] },
+  { field: 'room_type', label: 'Tipo', required: false, aliases: ['room_type', 'tipo', 'type'] },
+  { field: 'description', label: 'Descripcion', required: false, aliases: ['description', 'descripcion'] },
+];
+const AREA_IMPORT_TMPL = [
+  { name: 'Emergencia Adultos', room_type: 'adulto', description: 'Area de emergencia adultos' },
+  { name: 'Emergencia Pediatria', room_type: 'pediatria', description: '' },
+];
+
 
 const ROOM_TYPE_LABELS = {
   adulto: 'Adultos',
@@ -23,6 +35,7 @@ const AreasManager = () => {
   const { show } = useSnackbar();
 
   const [formModal, setFormModal] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const handleSaved = useCallback(() => {
     refetch();
@@ -93,12 +106,15 @@ const AreasManager = () => {
     },
     renderTopToolbarCustomActions: useCallback(
       () => (
-        <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-          onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-          Agregar
-        </Button>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Tooltip title="Agregar area" arrow>
+            <IconButton size="small" color="primary" onClick={() => setFormModal({})}><Add fontSize="small" /></IconButton>
+          </Tooltip>
+          <Tooltip title="Importar desde Excel" arrow>
+            <IconButton size="small" color="info" onClick={() => setImportOpen(true)}><FileUpload fontSize="small" /></IconButton>
+          </Tooltip>
+        </Box>
       ),
-      [],
     ),
     getRowId: (row) => row.id?.toString(),
     initialState: { pagination: { pageSize: 25 }, density: 'compact' },
@@ -111,13 +127,21 @@ const AreasManager = () => {
         <MaterialReactTable table={table} />
       </Paper>
       {formModal && (
-        <AreaFormModal
-          open={!!formModal}
-          onClose={() => setFormModal(null)}
-          area={formModal.id ? formModal : null}
-          onSaved={handleSaved}
-        />
+        <AreaFormModal open={!!formModal} onClose={() => setFormModal(null)}
+          area={formModal.id ? formModal : null} onSaved={handleSaved} />
       )}
+      <ImportModal open={importOpen} onClose={() => setImportOpen(false)}
+        onImported={handleSaved} sectionLabel="Areas" templateName="plantilla_areas"
+        columns={AREA_IMPORT_COLS} templateRows={AREA_IMPORT_TMPL}
+        apiImportFn={async (rows) => {
+          const errors = []; let created = 0;
+          for (const row of rows) {
+            try { await BackendAPI.areas.create({ name: row.name, room_type: row.room_type || null, description: row.description }); created++; }
+            catch { errors.push({ row: row._row, error: 'Error al crear' }); }
+          }
+          return { created, errors };
+        }}
+      />
     </Box>
   );
 };

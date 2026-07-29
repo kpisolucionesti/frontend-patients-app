@@ -1,12 +1,22 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Button, Chip, IconButton, Tooltip } from '@mui/material';
-import { Add, Delete, Edit, LockOpen } from '@mui/icons-material';
+import { Box, Chip, IconButton, Tooltip } from '@mui/material';
+import { Add, Delete, Edit, FileUpload, LockOpen } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import { useRooms } from '../../hooks/useApiData';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 import RoomFormModal from './RoomFormModal';
+import ImportModal from '../../shared/ui/import-excel-modal';
+
+const ROOM_IMPORT_COLS = [
+  { field: 'name', label: 'Nombre', required: true, aliases: ['name', 'nombre', 'sala'] },
+  { field: 'area', label: 'Area', required: false, aliases: ['area', 'nombre area', 'area_name'] },
+];
+const ROOM_IMPORT_TMPL = [
+  { name: 'Cubiculo 1', area: 'Emergencia Adultos' },
+  { name: 'Cubiculo 2', area: '' },
+];
 
 const ROOM_TYPE_LABELS = {
   adulto: 'Adultos',
@@ -18,6 +28,7 @@ const RoomsManager = () => {
   const { show } = useSnackbar();
 
   const [formModal, setFormModal] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   useEffect(() => {
     if (isError) {
@@ -124,10 +135,14 @@ const RoomsManager = () => {
     },
     renderTopToolbarCustomActions: useCallback(
       () => (
-        <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-          onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-          Agregar
-        </Button>
+      <>
+        <Tooltip title="Agregar sala" arrow>
+          <IconButton size="small" color="primary" onClick={() => setFormModal({})}><Add fontSize="small" /></IconButton>
+        </Tooltip>
+        <Tooltip title="Importar desde Excel" arrow>
+          <IconButton size="small" color="info" onClick={() => setImportOpen(true)}><FileUpload fontSize="small" /></IconButton>
+        </Tooltip>
+      </>
       ),
       [],
     ),
@@ -147,6 +162,18 @@ const RoomsManager = () => {
           onSaved={handleSaved}
         />
       )}
+      <ImportModal open={importOpen} onClose={() => setImportOpen(false)}
+        onImported={handleSaved} sectionLabel="Salas" templateName="plantilla_salas"
+        columns={ROOM_IMPORT_COLS} templateRows={ROOM_IMPORT_TMPL}
+        apiImportFn={async (rows) => {
+          const errors = []; let created = 0;
+          for (const row of rows) {
+            try { await BackendAPI.rooms.create({ name: row.name, area_name: row.area }); created++; }
+            catch { errors.push({ row: row._row, error: 'Error al crear' }); }
+          }
+          return { created, errors };
+        }}
+      />
     </Box>
   );
 };

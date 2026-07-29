@@ -12,6 +12,7 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
+import ChildCareIcon from '@mui/icons-material/ChildCare';
 import moment from 'moment';
 import { BackendAPI } from '../../../services/BackendApi';
 import { useFetch } from '../../../hooks/useFetch';
@@ -23,10 +24,16 @@ import MedicalPlanSection from '../../Emergency/MedicalPlanSection';
 import MedicationAdminPanel from '../../Hospitalizacion/MedicationAdminPanel';
 import DeleteConfirmModal from '../../../shared/ui/delete-confirm-modal';
 import FluidBalancePanel from '../../Hospitalizacion/FluidBalancePanel';
+import BirthRegistrationModal from '../../../features/nursing/birth-registration-modal';
 import { CLASSIFICATION_OPTIONS } from '../../../constants';
 import { toFrontendKey } from '../../../entities/emergency/config';
 import { sanitizeNumber } from '../../../utils/sanitize';
 import { useSnackbar } from '../../../hooks/useSnackbar';
+
+const PATIENT_CATEGORY_CHIP = {
+  recien_nacido: { label: 'Recién Nacido', bg: '#e0f7fa', color: '#006064', border: '#00bcd4' },
+  pediatrico:    { label: 'Pediátrico',    bg: '#fff3e0', color: '#e65100', border: '#ff9800' },
+};
 
 const EMPTY_VITAL_FORM = {
   systolic_bp: '', diastolic_bp: '', heart_rate: '', respiratory_rate: '',
@@ -70,6 +77,9 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
   const [vitalForm, setVitalForm] = useState({ ...EMPTY_VITAL_FORM });
   const [savingVitals, setSavingVitals] = useState(false);
   const [vitalRefreshKey, setVitalRefreshKey] = useState(0);
+
+  // ── Birth registration modal ──
+  const [birthModalOpen, setBirthModalOpen] = useState(false);
 
   // ── Handlers: notes ──
   const handleSaveNursingNote = async () => {
@@ -151,6 +161,16 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
           <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', flexShrink: 0 }}>
             {p.age || '?'}a · {p.gender === 'M' ? 'Masculino' : p.gender === 'F' ? 'Femenino' : '—'}
           </Typography>
+          {PATIENT_CATEGORY_CHIP[p.patient_category] && (
+            <Chip label={PATIENT_CATEGORY_CHIP[p.patient_category].label} size="small"
+              sx={{
+                bgcolor: PATIENT_CATEGORY_CHIP[p.patient_category].bg,
+                color: PATIENT_CATEGORY_CHIP[p.patient_category].color,
+                border: 1,
+                borderColor: PATIENT_CATEGORY_CHIP[p.patient_category].border,
+                fontWeight: 700, height: 20, fontSize: '0.6rem', flexShrink: 0,
+              }} />
+          )}
           {classificationOpt && (
             <Chip label={classificationOpt.label} size="small"
               sx={{ bgcolor: classificationOpt.color, color: ['yellow', 'green'].includes(classificationKey) ? '#212121' : 'white', fontWeight: 600, height: 20, fontSize: '0.65rem', ml: 'auto', flexShrink: 0 }} />
@@ -168,6 +188,12 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
           onClick={() => setNursingNoteOpen(true)} sx={{ fontSize: '0.7rem', py: 0.25, flexShrink: 0 }}>
           Nueva Nota
         </Button>
+        {p?.gender === 'F' && (
+          <Button variant="outlined" size="small" color="secondary" startIcon={<ChildCareIcon sx={{ fontSize: 16 }} />}
+            onClick={() => setBirthModalOpen(true)} sx={{ fontSize: '0.7rem', py: 0.25, flexShrink: 0 }}>
+            Registrar Nacimiento
+          </Button>
+        )}
         <Box sx={{ flex: 1 }} />
       </Box>
 
@@ -325,6 +351,18 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* ── Birth registration modal ── */}
+      <BirthRegistrationModal
+        open={birthModalOpen}
+        onClose={() => setBirthModalOpen(false)}
+        motherPatient={p}
+        motherEmergencyId={emergencyId}
+        onCreated={() => {
+          refetchNursingNotes();
+          showSnackbar('Bebé(s) registrado(s) exitosamente. Acceda desde el perfil de la madre.', 'success');
+        }}
+      />
     </Box>
   );
 };

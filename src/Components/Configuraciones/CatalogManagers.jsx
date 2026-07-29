@@ -2,6 +2,19 @@ import { useState, useEffect } from 'react';
 import CatalogManager from './CatalogManager';
 import { catalogsApi } from '../../services/catalogsApi';
 
+const CAT_1COL = [{ field: 'name', label: 'Nombre', required: true, aliases: ['name', 'nombre'] }];
+const CAT_1TMPL = [{ name: 'Ejemplo 1' }, { name: 'Ejemplo 2' }];
+const makeApiImport = (api, fieldMap) => async (rows) => {
+  const errors = []; let created = 0;
+  for (const row of rows) {
+    try { if (fieldMap) { const d = {}; Object.entries(fieldMap).forEach(([k, v]) => { d[k] = row[v]; }); await api.create(d); }
+      else { await api.create({ name: row.name }); }
+      created++;
+    } catch { errors.push({ row: row._row, error: 'Error al crear' }); }
+  }
+  return { created, errors };
+};
+
 const VIAS_FIELDS = [
   { name: 'name', label: 'Nombre', required: true },
 ];
@@ -72,21 +85,24 @@ export const ViasManager = () => (
   <CatalogManager apiService={catalogsApi.medicationRoutes}
     title="Vias de Administracion"
     columns={[{ key: 'name', label: 'Nombre' }]}
-    fields={VIAS_FIELDS} />
+    fields={VIAS_FIELDS}
+    importConfig={{ sectionLabel: 'Vias', templateName: 'plantilla_vias', columns: CAT_1COL, templateRows: CAT_1TMPL, apiImportFn: makeApiImport(catalogsApi.medicationRoutes) }} />
 );
 
 export const PresentacionesManager = () => (
   <CatalogManager apiService={catalogsApi.medicationPresentations}
     title="Presentaciones"
     columns={[{ key: 'name', label: 'Nombre' }]}
-    fields={VIAS_FIELDS} />
+    fields={VIAS_FIELDS}
+    importConfig={{ sectionLabel: 'Presentaciones', templateName: 'plantilla_presentaciones', columns: CAT_1COL, templateRows: CAT_1TMPL, apiImportFn: makeApiImport(catalogsApi.medicationPresentations) }} />
 );
 
 export const ConcentracionesManager = () => (
   <CatalogManager apiService={catalogsApi.medicationConcentrations}
     title="Concentraciones"
     columns={[{ key: 'name', label: 'Nombre' }]}
-    fields={VIAS_FIELDS} />
+    fields={VIAS_FIELDS}
+    importConfig={{ sectionLabel: 'Concentraciones', templateName: 'plantilla_concentraciones', columns: CAT_1COL, templateRows: CAT_1TMPL, apiImportFn: makeApiImport(catalogsApi.medicationConcentrations) }} />
 );
 
 export const MedicamentosManager = () => {
@@ -116,6 +132,12 @@ export const MedicamentosManager = () => {
         presentation: makeLabelOptions(presentations),
         concentration: makeLabelOptions(concentrations),
       }}
+      importConfig={{ sectionLabel: 'Medicamentos', templateName: 'plantilla_medicamentos',
+        columns: [
+          { field: 'name', label: 'Nombre', required: true, aliases: ['name', 'nombre', 'medicamento'] },
+          { field: 'generic_name', label: 'Generico', required: false, aliases: ['generic_name', 'generico'] },
+        ], templateRows: [{ name: 'Paracetamol', generic_name: 'Acetaminofen' }],
+        apiImportFn: makeApiImport(catalogsApi.medications, { name: 'name', generic_name: 'generic_name' }) }}
     />
   );
 };
@@ -128,14 +150,23 @@ export const DiagnosticosManager = () => (
       { key: 'description', label: 'Descripcion' },
       { key: 'category', label: 'Categoria' },
     ]}
-    fields={DIAGNOSTICOS_FIELDS} />
+    fields={DIAGNOSTICOS_FIELDS}
+    importConfig={{ sectionLabel: 'Diagnosticos', templateName: 'plantilla_diagnosticos',
+      columns: [
+        { field: 'code', label: 'Codigo CIE-10', required: true, aliases: ['code', 'codigo'] },
+        { field: 'description', label: 'Descripcion', required: true, aliases: ['description', 'descripcion'] },
+        { field: 'category', label: 'Categoria', required: false, aliases: ['category', 'categoria'] },
+      ], templateRows: [{ code: 'J15', description: 'Neumonia bacteriana', category: 'Respiratorio' }],
+      apiImportFn: makeApiImport(catalogsApi.diagnoses, { code: 'code', description: 'description', category: 'category' }) }}
+  />
 );
 
 export const CategoriasAlergiasManager = () => (
   <CatalogManager apiService={catalogsApi.allergenCategories}
     title="Categorias de Alergias"
     columns={[{ key: 'name', label: 'Nombre' }]}
-    fields={VIAS_FIELDS} />
+    fields={VIAS_FIELDS}
+    importConfig={{ sectionLabel: 'Categorias Alergias', templateName: 'plantilla_catalergias', columns: CAT_1COL, templateRows: CAT_1TMPL, apiImportFn: makeApiImport(catalogsApi.allergenCategories) }} />
 );
 
 export const AlergenosManager = () => {
@@ -154,6 +185,12 @@ export const AlergenosManager = () => {
       ]}
       fields={ALERGENOS_FIELDS_WITH_CAT}
       referenceData={{ category: makeLabelOptions(categories) }}
+      importConfig={{ sectionLabel: 'Alergias', templateName: 'plantilla_alergias',
+        columns: [
+          { field: 'name', label: 'Nombre', required: true, aliases: ['name', 'nombre', 'alergeno'] },
+          { field: 'category', label: 'Categoria', required: false, aliases: ['category', 'categoria'] },
+        ], templateRows: [{ name: 'Penicilina', category: 'Medicamentos' }],
+        apiImportFn: makeApiImport(catalogsApi.allergens, { name: 'name', category: 'category' }) }}
     />
   );
 };
@@ -162,15 +199,13 @@ export const CategoriasCirugiaManager = () => (
   <CatalogManager apiService={catalogsApi.surgeryCategories}
     title="Categorias de Cirugia"
     columns={[{ key: 'name', label: 'Nombre' }]}
-    fields={VIAS_FIELDS} />
+    fields={VIAS_FIELDS}
+    importConfig={{ sectionLabel: 'Categorias Cirugia', templateName: 'plantilla_catcirugia', columns: CAT_1COL, templateRows: CAT_1TMPL, apiImportFn: makeApiImport(catalogsApi.surgeryCategories) }} />
 );
 
 export const ProcedimientosQuirurgicosManager = () => {
   const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    catalogsApi.surgeryCategories.list().then(setCategories).catch(() => {});
-  }, []);
+  useEffect(() => { catalogsApi.surgeryCategories.list().then(setCategories).catch(() => {}); }, []);
 
   return (
     <CatalogManager apiService={catalogsApi.surgeryProcedures}
@@ -182,6 +217,12 @@ export const ProcedimientosQuirurgicosManager = () => {
       ]}
       fields={PROCEDIMIENTOS_FIELDS_WITH_CAT}
       referenceData={{ category: makeLabelOptions(categories) }}
+      importConfig={{ sectionLabel: 'Procedimientos Qx', templateName: 'plantilla_procqx',
+        columns: [
+          { field: 'name', label: 'Nombre', required: true, aliases: ['name', 'nombre', 'procedimiento'] },
+          { field: 'code', label: 'Codigo', required: false, aliases: ['code', 'codigo'] },
+        ], templateRows: [{ name: 'Apendicectomia', code: 'APX' }],
+        apiImportFn: makeApiImport(catalogsApi.surgeryProcedures, { name: 'name', code: 'code' }) }}
     />
   );
 };
@@ -190,7 +231,8 @@ export const AnestesiaManager = () => (
   <CatalogManager apiService={catalogsApi.anesthesiaTypes}
     title="Tipos de Anestesia"
     columns={[{ key: 'name', label: 'Nombre' }]}
-    fields={ANESTESIA_FIELDS} />
+    fields={ANESTESIA_FIELDS}
+    importConfig={{ sectionLabel: 'Anestesia', templateName: 'plantilla_anestesia', columns: CAT_1COL, templateRows: CAT_1TMPL, apiImportFn: makeApiImport(catalogsApi.anesthesiaTypes) }} />
 );
 
 export const TiposAltaManager = () => (
@@ -200,7 +242,8 @@ export const TiposAltaManager = () => (
       { key: 'name', label: 'Nombre' },
       { key: 'requires_cause_of_death', label: 'Requiere Causa de Muerte', render: (r) => r.requires_cause_of_death ? 'Si' : 'No' },
     ]}
-    fields={ALTA_FIELDS} />
+    fields={ALTA_FIELDS}
+    importConfig={{ sectionLabel: 'Tipos de Alta', templateName: 'plantilla_alta', columns: CAT_1COL, templateRows: CAT_1TMPL, apiImportFn: makeApiImport(catalogsApi.dischargeTypes) }} />
 );
 
 export const RangosSignosVitalesManager = () => (

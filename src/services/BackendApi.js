@@ -45,6 +45,7 @@ import { appointmentRecordsApi } from './appointmentRecordsApi';
 import { appointmentDisplaysApi } from './appointmentDisplaysApi';
 import { quirofanoApi } from './quirofanoApi';
 import { surgeryTeamApi } from './surgeryTeamApi';
+import { birthRecordsApi } from './birthRecordsApi';
 
 
 export const BackendAPI = {
@@ -92,4 +93,5 @@ export const BackendAPI = {
   quirofano: quirofanoApi,
   surgeryTeam: surgeryTeamApi,
   notifications: notificationsApi,
+  birthRecords: birthRecordsApi,
 };

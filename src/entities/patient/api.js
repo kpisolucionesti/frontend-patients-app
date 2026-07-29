@@ -46,4 +46,9 @@ export const patientsApi = {
     const res = await axiosInstance.get(`/patients/${patientId}/surgeries?${query}`);
     return res.data;
   },
+
+  getChildren: async (patientId) => {
+    const res = await axiosInstance.get(`/patients/${patientId}/children`);
+    return res.data;
+  },
 };

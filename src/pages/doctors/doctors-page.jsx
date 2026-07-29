@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Button, IconButton, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+import { Box, IconButton, Tab, Tabs, Tooltip, Typography } from '@mui/material';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { Add, Block, CheckCircle, Edit, History as HistoryIcon } from '@mui/icons-material';
+import { Add, Block, CheckCircle, Edit, History as HistoryIcon, FileUpload } from '@mui/icons-material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { BackendAPI } from '../../services/BackendApi';
 import { useDoctors } from '../../hooks/useApiData';
@@ -11,6 +11,20 @@ import usePermissions from '../../hooks/usePermissions';
 import { MRT_DEFAULTS } from '../../Components/Commons/mrtConfig';
 import DoctorHistoryModal from '../../Components/Doctors/DoctorHistoryModal';
 import ExportModal from '../../Components/Commons/ExportModal';
+import ImportModal from '../../shared/ui/import-excel-modal';
+import { useSnackbar } from '../../hooks/useSnackbar';
+
+const DOCTOR_IMPORT_COLUMNS = [
+  { field: 'name', label: 'Nombre', required: true, aliases: ['name', 'nombre', 'nombre del medico'] },
+  { field: 'specialty', label: 'Especialidad', required: false, aliases: ['specialty', 'especialidad'] },
+  { field: 'email', label: 'Correo', required: false, aliases: ['email', 'correo', 'correo electronico'] },
+  { field: 'phone', label: 'Teléfono', required: false, aliases: ['phone', 'telefono', 'tel'] },
+];
+
+const DOCTOR_TEMPLATE_ROWS = [
+  { name: 'Dr. Juan Pérez', specialty: 'Medicina Interna', email: 'jperez@hospital.com', phone: '+58 412 1234567' },
+  { name: 'Dra. María García', specialty: 'Cardiología', email: 'mgarcia@hospital.com', phone: '' },
+];
 
 const DoctorsList = () => {
   useDocumentTitle('Médicos');
@@ -21,6 +35,8 @@ const DoctorsList = () => {
   const [formModal, setFormModal] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null);
   const [historyDoctor, setHistoryDoctor] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const { show: showSnack } = useSnackbar();
 
   const activeDoctors = useMemo(
     () => (doctors || []).filter((d) => d.status !== 'suspended'),
@@ -100,13 +116,17 @@ const DoctorsList = () => {
     ),
     renderTopToolbarCustomActions: useCallback(
       () => (
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
           <ExportModal data={currentData} columns={columns} filename="Medicos" />
           {tab === 'activos' && permissions.includes('medicos.create') && (
-            <Button size="small" variant="outlined" startIcon={<Add sx={{ fontSize: 16 }} />}
-              onClick={() => setFormModal({})} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-              Agregar
-            </Button>
+            <>
+              <Tooltip title="Agregar médico" arrow>
+                <IconButton size="small" color="primary" onClick={() => setFormModal({})}><Add fontSize="small" /></IconButton>
+              </Tooltip>
+              <Tooltip title="Importar desde Excel" arrow>
+                <IconButton size="small" color="info" onClick={() => setImportOpen(true)}><FileUpload fontSize="small" /></IconButton>
+              </Tooltip>
+            </>
           )}
         </Box>
       ),
@@ -165,6 +185,18 @@ const DoctorsList = () => {
           doctor={historyDoctor}
         />
       )}
+      <ImportModal open={importOpen} onClose={() => setImportOpen(false)}
+        onImported={refetch} sectionLabel="Medicos" templateName="plantilla_medicos"
+        columns={DOCTOR_IMPORT_COLUMNS} templateRows={DOCTOR_TEMPLATE_ROWS}
+        apiImportFn={async (rows) => {
+          const errors = []; let created = 0;
+          for (const row of rows) {
+            try { await BackendAPI.doctors.create({ name: row.name, specialty_name: row.specialty, email: row.email, phone: row.phone }); created++; }
+            catch { errors.push({ row: row._row, error: 'Error al crear' }); }
+          }
+          return { created, errors };
+        }}
+      />
     </Box>
   );
 };

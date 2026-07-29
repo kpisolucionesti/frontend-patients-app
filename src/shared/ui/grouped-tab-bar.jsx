@@ -5,7 +5,7 @@ const findActiveGroup = (groups, activeTab) => {
   return groups.find((g) => g.sections.some((s) => s.key === activeTab)) || null;
 };
 
-export default function GroupedTabBar({ groups, standaloneTab, standaloneTabs, activeTab, onTabChange, sectionBadges }) {
+export default function GroupedTabBar({ groups = [], standaloneTab, standaloneTabs, activeTab, onTabChange, sectionBadges }) {
   const allStandalone = standaloneTabs || (standaloneTab ? [standaloneTab] : []);
   const activeGroup = findActiveGroup(groups, activeTab);
   const isStandaloneActive = allStandalone.some((s) => s.key === activeTab);

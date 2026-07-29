@@ -8,10 +8,12 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import { MRT_DEFAULTS } from '../Commons/mrtConfig';
 import DeleteConfirmModal from '../../shared/ui/delete-confirm-modal';
+import ImportModal from '../../shared/ui/import-excel-modal';
 
 const CatalogManager = ({
   apiService,
@@ -19,6 +21,7 @@ const CatalogManager = ({
   columns,
   fields,
   referenceData,
+  importConfig,
 }) => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +33,7 @@ const CatalogManager = ({
   const [deleting, setDeleting] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const { show: showSnackbar } = useSnackbar();
 
   const fetchRecords = useCallback(async () => {
@@ -180,12 +184,18 @@ const CatalogManager = ({
     ),
     renderTopToolbarCustomActions: useCallback(
       () => (
-        <Button size="small" variant="outlined" startIcon={<AddIcon sx={{ fontSize: 16 }} />}
-          onClick={handleOpenAdd} sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-          Agregar
-        </Button>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Tooltip title="Agregar" arrow>
+            <IconButton size="small" color="primary" onClick={handleOpenAdd}><AddIcon fontSize="small" /></IconButton>
+          </Tooltip>
+          {importConfig && (
+            <Tooltip title="Importar desde Excel" arrow>
+              <IconButton size="small" color="info" onClick={() => setImportOpen(true)}><FileUploadIcon fontSize="small" /></IconButton>
+            </Tooltip>
+          )}
+        </Box>
       ),
-      [],
+      [importConfig],
     ),
     getRowId: (row) => row.id?.toString() || '',
     state: { isLoading: loading },
@@ -251,6 +261,13 @@ const CatalogManager = ({
         loading={deleting}
         message={`¿Eliminar "${deleteTarget?.name || deleteTarget?.code || deleteTarget?.id}"?`}
       />
+      {importConfig && (
+        <ImportModal open={importOpen} onClose={() => setImportOpen(false)}
+          onImported={fetchRecords} sectionLabel={importConfig.sectionLabel}
+          templateName={importConfig.templateName}
+          columns={importConfig.columns} templateRows={importConfig.templateRows}
+          apiImportFn={importConfig.apiImportFn} />
+      )}
     </Box>
   );
 };

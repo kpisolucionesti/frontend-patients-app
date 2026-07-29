@@ -79,11 +79,11 @@ const ApiKeyManager = () => {
       </Box>
     ),
     renderTopToolbarCustomActions: useCallback(() => (
-      <Button size="small" variant="outlined" startIcon={<AddIcon sx={{ fontSize: 16 }} />}
-        onClick={() => { setForm({ name: '', expires_at: '' }); setDialogOpen(true); }}
-        sx={{ fontSize: '0.75rem', py: 0.25, px: 1 }}>
-        Generar Token
-      </Button>
+      <Tooltip title="Generar token" arrow>
+        <IconButton size="small" color="primary" onClick={() => { setForm({ name: '', expires_at: '' }); setDialogOpen(true); }}>
+          <AddIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
     ), []),
     getRowId: (r) => r.id?.toString() || '',
     state: { isLoading: loading },
