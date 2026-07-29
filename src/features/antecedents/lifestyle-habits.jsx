@@ -88,7 +88,7 @@ const LifestyleHabitsSection = ({ patientId, readOnly }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem' }}>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>
           {editing ? 'Editar Hábito' : 'Agregar Hábito'}
         </DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>

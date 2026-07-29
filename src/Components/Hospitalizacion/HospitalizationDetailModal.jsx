@@ -38,7 +38,7 @@ const HospitalizationDetailModal = ({ open, hospitalizationId, onClose }) => {
 
   return (
     <Dialog fullWidth maxWidth='md' open={open} onClose={onClose}>
-      <DialogTitle textAlign="center" sx={{ bgcolor: 'success.main', color: 'white', fontWeight: 'bold', py: 0.75, fontSize: '0.9rem' }}>
+      <DialogTitle sx={{ bgcolor: 'success.main', color: 'white', fontWeight: 'bold', textAlign: 'center', fontSize: '0.95rem' }}>
         DETALLE DE HOSPITALIZACIÓN
       </DialogTitle>
       <DialogContent sx={{

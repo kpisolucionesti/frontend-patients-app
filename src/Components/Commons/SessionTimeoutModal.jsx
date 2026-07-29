@@ -38,7 +38,7 @@ const SessionTimeoutModal = ({ open, onContinue }) => {
 
   return (
     <Dialog open={open} maxWidth="xs" fullWidth onClose={handleContinue}>
-      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', textAlign: 'center', fontWeight: 700, fontSize: '0.95rem' }}>
         Sesión próxima a expirar
       </DialogTitle>
       <DialogContent sx={{ textAlign: 'center' }}>
@@ -52,7 +52,7 @@ const SessionTimeoutModal = ({ open, onContinue }) => {
           Presione "Continuar sesión" para mantenerla activa.
         </Typography>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+      <DialogActions sx={{ justifyContent: 'center' }}>
         <Button variant="outlined" size="large" onClick={handleContinue}>
           Continuar sesión
         </Button>

@@ -68,7 +68,7 @@ const IngressPatientModal = ({ row, onStatusChange }) => {
         </span>
       </Tooltip>
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem', textAlign: 'center' }}>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem', textAlign: 'center' }}>
           NUEVO INGRESO
           <Typography variant="caption" sx={{ display: 'block', opacity: 0.85, mt: 0.25, fontSize: '0.7rem', fontWeight: 400 }}>
             {row.patient?.name} {row.patient?.lastname} · CI: {row.patient?.ci || '—'}
@@ -116,12 +116,12 @@ const IngressPatientModal = ({ row, onStatusChange }) => {
             </Box>
           )}
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleClose} variant="outlined" color="error" disabled={ingressing} sx={{ fontSize: '0.7rem' }}>Cancelar</Button>
+        <DialogActions>
+          <Button onClick={handleClose} variant="outlined" color="error" disabled={ingressing} size="small">Cancelar</Button>
           {activeStep === 0 ? (
-            <Button variant="contained" onClick={handleNext} sx={{ fontSize: '0.7rem' }}>Siguiente</Button>
+            <Button variant="contained" onClick={handleNext} size="small">Siguiente</Button>
           ) : (
-            <Button variant="outlined" color="success" onClick={handleIngressPatient} disabled={ingressing || !transfer} sx={{ fontSize: '0.7rem' }}>
+            <Button variant="outlined" color="success" onClick={handleIngressPatient} disabled={ingressing || !transfer} size="small">
               {ingressing ? <CircularProgress size={20} /> : 'Confirmar Ingreso'}
             </Button>
           )}

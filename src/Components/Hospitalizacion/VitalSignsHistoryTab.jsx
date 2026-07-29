@@ -83,62 +83,62 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
       )}
 
       {latest && (
-        <Paper variant="outlined" sx={{ p: 1, mb: 1.5, bgcolor: '#fff8f8' }}>
-          <Typography variant="caption" fontWeight={600} sx={{ fontSize: '0.7rem', color: '#c62828', display: 'block', mb: 0.5 }}>
+        <Paper variant="outlined" sx={{ p: 1, mb: 1.5, bgcolor: 'background.paper', borderLeft: 3, borderColor: 'error.main' }}>
+          <Typography variant="caption" fontWeight={600} sx={{ fontSize: '0.7rem', color: 'error.main', display: 'block', mb: 0.5 }}>
             ÚLTIMO REGISTRO
           </Typography>
           <Grid container spacing={0.5}>
             {latest.systolic_bp && (
               <Grid item xs={3} sm={2}>
-                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>PA</Typography>
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>PA</Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.systolic_bp}/{latest.diastolic_bp}</Typography>
               </Grid>
             )}
             {latest.heart_rate && (
               <Grid item xs={3} sm={2}>
-                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>FC</Typography>
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>FC</Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.heart_rate} lpm</Typography>
               </Grid>
             )}
             {latest.temperature && (
               <Grid item xs={3} sm={2}>
-                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Temp</Typography>
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>Temp</Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.temperature} °C</Typography>
               </Grid>
             )}
             {latest.oxygen_saturation && (
               <Grid item xs={3} sm={2}>
-                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>SpO2</Typography>
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>SpO2</Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.oxygen_saturation}%</Typography>
               </Grid>
             )}
             {latest.respiratory_rate && (
               <Grid item xs={3} sm={2}>
-                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>FR</Typography>
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>FR</Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.respiratory_rate} rpm</Typography>
               </Grid>
             )}
             {latest.glucose && (
               <Grid item xs={3} sm={2}>
-                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>GLC</Typography>
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>GLC</Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.glucose} mg/dL</Typography>
               </Grid>
             )}
             {latest.height && (
               <Grid item xs={3} sm={2}>
-                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Talla</Typography>
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>Talla</Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.height} cm</Typography>
               </Grid>
             )}
             {latest.weight && (
               <Grid item xs={3} sm={2}>
-                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Peso</Typography>
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>Peso</Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.weight} kg</Typography>
               </Grid>
             )}
             {latest.bmi && (
               <Grid item xs={3} sm={2}>
-                <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>IMC</Typography>
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>IMC</Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.bmi}</Typography>
               </Grid>
             )}
@@ -149,7 +149,7 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
       {!readOnly && (
         <Paper variant="outlined" sx={{ p: 1, mb: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant="caption" fontWeight={600} sx={{ fontSize: '0.7rem', color: '#c62828' }}>
+            <Typography variant="caption" fontWeight={600} sx={{ fontSize: '0.7rem', color: 'error.main' }}>
               NUEVO REGISTRO
             </Typography>
             <IconButton size="small" onClick={() => setOpen(!open)}>
@@ -198,7 +198,7 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
         </Paper>
       )}
 
-      <Typography variant="caption" fontWeight={600} sx={{ fontSize: '0.7rem', color: '#c62828', mb: 0.5, display: 'block' }}>
+      <Typography variant="caption" fontWeight={600} sx={{ fontSize: '0.7rem', color: 'error.main', mb: 0.5, display: 'block' }}>
         HISTORIAL
       </Typography>
 
@@ -213,17 +213,17 @@ const VitalSignsHistoryTab = ({ emergencyId, readOnly }) => {
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Fecha / Hora</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>PA</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FC</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FR</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Temp</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>SpO2</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>GLC</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Talla</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Peso</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>IMC</TableCell>
-                <TableCell sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Registrado por</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Fecha / Hora</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>PA</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FC</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>FR</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Temp</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>SpO2</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>GLC</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Talla</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Peso</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>IMC</TableCell>
+                <TableCell sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', p: 0.5 }}>Registrado por</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

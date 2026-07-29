@@ -42,7 +42,7 @@ const RecipeFormModal = ({ open, onClose, onSave, saving, initialValues }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 'bold', fontSize: '0.85rem' }}>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', fontSize: '0.95rem' }}>
         {initialValues ? 'Editar Receta' : 'Nueva Receta'}
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>

@@ -50,7 +50,7 @@ const APPT_STATUS_CONFIG = {
 
 const KpiCard = memo(function KpiCard({ icon, label, value, bgcolor }) {
   return (
-    <Card sx={{ bgcolor, boxShadow: 3 }} role="status" aria-label={`${label}: ${value ?? 'sin datos'}`}>
+    <Card sx={{ bgcolor, borderRadius: 1 }} role="status" aria-label={`${label}: ${value ?? 'sin datos'}`}>
       <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box sx={{ color: 'white', bgcolor: 'rgba(0,0,0,0.15)', borderRadius: 2, p: 1, display: 'flex' }}>
@@ -72,7 +72,7 @@ const KpiCard = memo(function KpiCard({ icon, label, value, bgcolor }) {
 
 const ChartCard = memo(function ChartCard({ title, extra, children, ariaLabel }) {
   return (
-    <Paper sx={{ p: 1.5, boxShadow: 3, borderRadius: 1, height: '100%' }} role="region" aria-label={ariaLabel || title}>
+    <Paper sx={{ p: 1.5, borderRadius: 1, height: '100%' }} role="region" aria-label={ariaLabel || title}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
         <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.8rem' }}>{title}</Typography>
         {extra}
@@ -105,7 +105,7 @@ const PieLegend = memo(function PieLegend({ data, total }) {
 
 const OperationalTables = memo(function OperationalTables({ activeEmergencies, activeHospitalizations, scheduledSurgeries, roomsMap, open, onToggle }) {
   const theme = useTheme();
-  const headerSx = { bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.8rem', p: 1, whiteSpace: 'nowrap' };
+  const headerSx = { bgcolor: 'primary.main', color: 'white', fontWeight: 600, fontSize: '0.75rem', p: 1, whiteSpace: 'nowrap' };
   const cellSx = { fontSize: '0.8rem', p: 1 };
 
   return (
@@ -116,7 +116,7 @@ const OperationalTables = memo(function OperationalTables({ activeEmergencies, a
       </Box>
       <Collapse in={open}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1.5 }}>
-          <Paper sx={{ boxShadow: 3, borderRadius: 1 }}>
+          <Paper sx={{ borderRadius: 1 }}>
             <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, borderBottom: 1, borderColor: 'divider' }}>
               <LocalHospitalIcon sx={{ fontSize: 20, color: 'primary.main' }} />
               <Typography variant="subtitle2" fontWeight={600}>Emergencias Activas</Typography>
@@ -152,7 +152,7 @@ const OperationalTables = memo(function OperationalTables({ activeEmergencies, a
             </TableContainer>
           </Paper>
 
-          <Paper sx={{ boxShadow: 3, borderRadius: 1 }}>
+          <Paper sx={{ borderRadius: 1 }}>
             <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, borderBottom: 1, borderColor: 'divider' }}>
               <HotelIcon sx={{ fontSize: 20, color: 'secondary.main' }} />
               <Typography variant="subtitle2" fontWeight={600}>Hospitalizaciones Activas</Typography>
@@ -188,7 +188,7 @@ const OperationalTables = memo(function OperationalTables({ activeEmergencies, a
             </TableContainer>
           </Paper>
 
-          <Paper sx={{ boxShadow: 3, borderRadius: 1 }}>
+          <Paper sx={{ borderRadius: 1 }}>
             <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, borderBottom: 1, borderColor: 'divider' }}>
               <MedicalServicesIcon sx={{ fontSize: 20, color: 'success.main' }} />
               <Typography variant="subtitle2" fontWeight={600}>Cirugías Programadas</Typography>
@@ -475,7 +475,7 @@ const Dashboard = () => {
           <KpiCard icon={<CalendarMonthIcon sx={{ fontSize: 24 }} />} label="Citas Hoy" value={data.appointments_today} bgcolor={theme.palette.info.main} />
         </Grid>
         <Grid item xs={12} sm={6} md={2}>
-          <Card sx={{ bgcolor: healthStatus.status === 'ok' ? theme.palette.success.main : theme.palette.error.main, boxShadow: 3 }} role="status">
+          <Card sx={{ bgcolor: healthStatus.status === 'ok' ? theme.palette.success.main : theme.palette.error.main, borderRadius: 1 }} role="status">
             <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box sx={{ color: 'white', bgcolor: 'rgba(0,0,0,0.15)', borderRadius: 2, p: 1, display: 'flex' }}>

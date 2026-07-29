@@ -55,7 +55,7 @@ const NotesSection = ({ emergencyId, readOnly }) => {
         ))
       )}
       <Dialog open={dialogOpen} onClose={() => { setDialogOpen(false); setNoteText(''); }} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: 'secondary.main' }}>Agregar Nota</DialogTitle>
+        <DialogTitle sx={{ fontSize: '0.95rem', bgcolor: 'secondary.main', color: 'white' }}>Agregar Nota</DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>
           <TextField
             variant="standard"

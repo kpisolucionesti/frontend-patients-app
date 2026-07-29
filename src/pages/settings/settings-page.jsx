@@ -18,6 +18,7 @@ import ClinicalStudiesManager from '../../Components/Configuraciones/ClinicalStu
 import SpecialtiesManager from '../../Components/Configuraciones/SpecialtiesManager';
 import DoctorSchedulePanel from '../../Components/Doctors/DoctorSchedulePanel';
 import DisplaysManager from '../../Components/Configuraciones/DisplaysManager';
+import DynamicSettingsPanel from '../../features/dynamic-settings/dynamic-settings-panel';
 
 const SECTION_MAP = {
   medicos: <DoctorsList />,
@@ -30,6 +31,7 @@ const SECTION_MAP = {
   estudios: <ClinicalStudiesManager />,
   tv_screens: <TvScreensManager />,
   displays: <DisplaysManager />,
+  dynamic_settings: <DynamicSettingsPanel />,
 };
 
 const SECTION_LABELS = {
@@ -43,6 +45,7 @@ const SECTION_LABELS = {
   estudios: 'Estudios Clínicos',
   tv_screens: 'TV Screens',
   displays: 'Displays',
+  dynamic_settings: 'Config. Dinamica',
 };
 
 const GROUP_ICONS = {
@@ -78,6 +81,7 @@ const GROUPS = [
       { key: 'tv_screens', label: 'Pantallas TV', perm: 'configuraciones.view', adminOnly: true },
       { key: 'displays', label: 'Pantallas Citas', perm: 'citas.view', adminOnly: true },
       { key: 'correo', label: 'Correo', perm: null, adminOnly: true },
+      { key: 'dynamic_settings', label: 'Config. Dinamica', perm: null, adminOnly: true },
     ],
   },
 ];
@@ -121,7 +125,7 @@ const Configuraciones = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: 'background.default' }}>
       <Box sx={{ px: 1.5, py: 0.75, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper', flexShrink: 0 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1565c0', fontSize: '0.85rem' }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '0.85rem' }}>
           Configuraciones {currentKey && SECTION_LABELS[currentKey] && <Box component="span" sx={{ fontWeight: 400, color: 'text.secondary', fontSize: '0.8rem' }}>&gt; {SECTION_LABELS[currentKey]}</Box>}
         </Typography>
       </Box>

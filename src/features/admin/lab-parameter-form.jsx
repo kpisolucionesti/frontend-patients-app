@@ -54,7 +54,7 @@ function formToRanges(form) {
 }
 
 const SexRefSection = ({ sex, label, data, onChange, onCopyFrom }) => (
-  <Box sx={{ p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1, bgcolor: '#fafafa' }}>
+  <Box sx={{ p: 1.5, border: 1, borderColor: 'divider', borderRadius: 1, bgcolor: 'action.hover' }}>
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
       <Typography variant="subtitle2" fontWeight={600}>{label}</Typography>
       {onCopyFrom && (
@@ -240,7 +240,7 @@ const LabParameterFormModal = ({ open, onClose, param, groups, classifications, 
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions>
         <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
         <Button onClick={handleSave} variant="outlined" color="success" disabled={saving || !values.name.trim() || !values.clinical_study_classification_id}>
           {saving ? 'Guardando...' : 'Guardar'}

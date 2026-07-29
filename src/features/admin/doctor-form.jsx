@@ -145,7 +145,7 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
           <img src={doctor.stamp_url} alt="Sello" style={{ maxWidth: 150, maxHeight: 50, display: 'block', marginTop: 4 }} />
         )}
 
-        <Box sx={{ mt: 2.5, pt: 2, borderTop: '1px solid #e0e0e0' }}>
+        <Box sx={{ mt: 2.5, pt: 2, borderTop: 1, borderColor: 'divider' }}>
           <Typography variant="caption" fontWeight={700} sx={{ color: 'text.secondary', fontSize: '0.7rem', letterSpacing: 0.5, mb: 1, display: 'block' }}>
             USUARIO ASOCIADO
           </Typography>
@@ -187,7 +187,7 @@ const DoctorFormModal = ({ open, onClose, doctor, onSaved }) => {
           )}
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions>
         <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
         <Button onClick={handleSubmit} variant="outlined" color="success">Guardar</Button>
       </DialogActions>

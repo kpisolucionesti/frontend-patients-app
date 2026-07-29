@@ -40,19 +40,20 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns = [], onVita
             <VitalSignsCard vitalSigns={vitalSigns} />
           </Paper>
 
-          {/* ── Laboratorios ── */}
-          <Paper sx={{ p: 1.5 }}>
+          {/* ── Laboratorios — DESHABILITADO: reemplazado por Estudios Clínicos ── */}
+          {/* <Paper sx={{ p: 1.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <SectionHeader icon={<ScienceIcon sx={{ fontSize: 16 }} />} label="LABORATORIOS" color="primary.main" />
               <Button size="small" sx={{ fontSize: '0.7rem', minWidth: 'auto' }} onClick={() => setLabQuickOpen(true)}>
                 Ver resultados
               </Button>
             </Box>
-          </Paper>
+          </Paper> */}
 
           <MedicalPlansDetail emergencyId={emergencyId} readOnly={effectiveReadOnly} doctorId={Number(user?.doctor_id) || null} />
           <InterconsultationsDetail emergencyId={emergencyId} readOnly={effectiveReadOnly} />
-          <ParaclinicalStudiesDetail emergencyId={emergencyId} readOnly={effectiveReadOnly} />
+          {/* ParaclinicalStudiesDetail — DESHABILITADO: reemplazado por Estudios Clínicos
+          <ParaclinicalStudiesDetail emergencyId={emergencyId} readOnly={effectiveReadOnly} /> */}
         </>
       )}
 
@@ -80,7 +81,8 @@ const PatientDashboard = ({ patient, stats, emergencyId, vitalSigns = [], onVita
       <PatientAppointmentsSummary patientId={patient?.id} />
 
       {emergencyId && (
-        <LabResultsQuickModal open={labQuickOpen} onClose={() => setLabQuickOpen(false)}
+        // DESHABILITADO: reemplazado por Estudios Clínicos
+        false && <LabResultsQuickModal open={labQuickOpen} onClose={() => setLabQuickOpen(false)}
           emergencyId={emergencyId} patientGender={patient?.gender}
           onGoToFullPanel={() => { setLabQuickOpen(false); onOpenLabPanel?.(); }} />
       )}

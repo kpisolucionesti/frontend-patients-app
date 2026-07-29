@@ -49,7 +49,7 @@ const SurgeryDetailModal = ({ open, surgery, onClose }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ bgcolor: '#00695c', color: 'white', display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, textAlign: 'center', fontSize: '0.95rem' }}>
         <LocalHospitalIcon />
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>

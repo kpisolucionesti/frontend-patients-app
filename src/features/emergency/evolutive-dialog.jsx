@@ -16,13 +16,13 @@ const EvolutiveDialog = React.memo(function EvolutiveDialog({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ bgcolor: isDischarge ? 'success.main' : 'primary.main', color: 'white', fontSize: '0.85rem', fontWeight: 700 }}>
+      <DialogTitle sx={{ bgcolor: isDischarge ? 'success.main' : 'primary.main', color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>
         {isDischarge ? 'NOTA DE EGRESO' : 'NOTA DE INGRESO'}
         <Typography variant="caption" sx={{ display: 'block', opacity: 0.85, mt: 0.25, fontSize: '0.7rem', fontWeight: 400 }}>
           {patientName} · CI: {patientCi || '—'}
         </Typography>
       </DialogTitle>
-      <DialogContent style={{ paddingTop: 24 }}>
+      <DialogContent sx={{ pt: 2 }}>
         <TextField
           variant="standard"
           fullWidth

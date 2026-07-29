@@ -121,7 +121,7 @@ const DoctorsList = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Box sx={{ px: 2, py: 1.25, flexShrink: 0 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1565c0', fontSize: '1rem' }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1rem' }}>
           Médicos
         </Typography>
       </Box>
@@ -129,8 +129,8 @@ const DoctorsList = () => {
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
-          sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 500 }, '& .Mui-selected': { color: '#1565c0', fontWeight: 700 } }}
-          TabIndicatorProps={{ sx: { bgcolor: '#1565c0', height: 3 } }}
+          sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 500 }, '& .Mui-selected': { color: 'primary.main', fontWeight: 700 } }}
+          TabIndicatorProps={{ sx: { bgcolor: 'primary.main', height: 3 } }}
         >
           <Tab label={`Activos (${activeDoctors.length})`} value="activos" />
           <Tab label={`Suspendidos (${suspendedDoctors.length})`} value="suspendidos" />

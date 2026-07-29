@@ -10,15 +10,15 @@ import { useSnackbar } from '../../hooks/useSnackbar';
 import usePermissions from '../../hooks/usePermissions';
 
 const INDICATION_TYPES = [
-  { key: 'lab', label: 'Laboratorio', color: '#1565c0' },
-  { key: 'image', label: 'Imagenologia', color: '#6a1b9a' },
-  { key: 'medication', label: 'Tratamiento', color: '#2e7d32' },
-  { key: 'procedure', label: 'Procedimiento', color: '#e65100' },
-  { key: 'general', label: 'Estudios Extras', color: '#546e7a' },
+  { key: 'lab', label: 'Laboratorio', color: 'primary.main' },
+  { key: 'image', label: 'Imagenologia', color: 'secondary.main' },
+  { key: 'medication', label: 'Tratamiento', color: 'success.main' },
+  { key: 'procedure', label: 'Procedimiento', color: 'warning.dark' },
+  { key: 'general', label: 'Estudios Extras', color: 'text.secondary' },
 ];
 
 const getTypeLabel = (key) => INDICATION_TYPES.find((t) => t.key === key)?.label || key;
-const getTypeColor = (key) => INDICATION_TYPES.find((t) => t.key === key)?.color || '#999';
+const getTypeColor = (key) => INDICATION_TYPES.find((t) => t.key === key)?.color || 'grey.500';
 
 const MedicalPlanSection = ({ emergencyId, readOnly, doctorId }) => {
   const permissions = usePermissions();
@@ -119,7 +119,7 @@ const MedicalPlanSection = ({ emergencyId, readOnly, doctorId }) => {
       ) : (
         <>
           {activePlans.map((p) => (
-            <Box key={p.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, p: 0.5, bgcolor: '#fafafa', borderRadius: 1 }}>
+            <Box key={p.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, p: 0.5, bgcolor: 'action.hover', borderRadius: 1 }}>
               <Chip label={getTypeLabel(p.indication_type)} size="small" sx={{ height: 18, fontSize: '0.6rem', bgcolor: getTypeColor(p.indication_type), color: 'white' }} />
               <Box sx={{ flex: 1 }}>
                 <Typography variant="caption" sx={{ fontSize: '0.7rem', display: 'block' }}>{p.description}</Typography>
@@ -157,7 +157,7 @@ const MedicalPlanSection = ({ emergencyId, readOnly, doctorId }) => {
                 Completadas ({completedPlans.length})
               </Typography>
               {completedPlans.map((p) => (
-                <Box key={p.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, p: 0.5, bgcolor: '#f5f5f5', borderRadius: 1, opacity: 0.7 }}>
+                <Box key={p.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, p: 0.5, bgcolor: 'action.disabledBackground', borderRadius: 1, opacity: 0.7 }}>
                   <Chip label={getTypeLabel(p.indication_type)} size="small" sx={{ height: 18, fontSize: '0.6rem', bgcolor: getTypeColor(p.indication_type), color: 'white' }} />
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="caption" sx={{ fontSize: '0.7rem', textDecoration: 'line-through', display: 'block' }}>{p.description}</Typography>
@@ -175,7 +175,7 @@ const MedicalPlanSection = ({ emergencyId, readOnly, doctorId }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: 'primary.main', color: 'white' }}>
+        <DialogTitle sx={{ fontSize: '0.95rem', bgcolor: 'primary.main', color: 'white' }}>
           {editing ? 'Editar Indicación' : 'Agregar Indicación'}
         </DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>

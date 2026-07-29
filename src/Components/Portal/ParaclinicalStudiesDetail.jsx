@@ -72,8 +72,8 @@ const ParaclinicalStudiesDetail = ({ emergencyId, readOnly }) => {
       {studies.length > 0 ? (
         <Box>
           {studies.map((s) => (
-            <Box key={s.id} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, mb: 0.5, p: 0.5, bgcolor: '#fafafa', borderRadius: 1 }}>
-              <Chip label={getTypeLabel(s.study_type)} size="small" sx={{ height: 18, fontSize: '0.6rem', bgcolor: '#6a1b9a', color: 'white', mt: 0.15 }} />
+            <Box key={s.id} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, mb: 0.5, p: 0.5, bgcolor: 'action.hover', borderRadius: 1 }}>
+              <Chip label={getTypeLabel(s.study_type)} size="small" sx={{ height: 18, fontSize: '0.6rem', bgcolor: 'secondary.main', color: 'white', mt: 0.15 }} />
               <Typography variant="caption" sx={{ flex: 1, fontSize: '0.7rem' }}>{s.description}</Typography>
               {!readOnly && (
                 <>
@@ -89,7 +89,7 @@ const ParaclinicalStudiesDetail = ({ emergencyId, readOnly }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#6a1b9a', color: 'white' }}>{editing ? 'Editar Estudio' : 'Agregar Estudio'}</DialogTitle>
+        <DialogTitle sx={{ fontSize: '0.95rem', bgcolor: 'secondary.main', color: 'white' }}>{editing ? 'Editar Estudio' : 'Agregar Estudio'}</DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <TextField select variant="standard" size="small" label="Tipo" value={form.study_type} onChange={(e) => handleChange('study_type', e.target.value)} required fullWidth>

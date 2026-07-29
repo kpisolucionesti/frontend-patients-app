@@ -21,7 +21,7 @@ const SectionSidebar = ({ sections, activeSection, onSectionChange, collapsible,
         width: isCollapsible && collapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH,
         minWidth: isCollapsible && collapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH,
         flexShrink: 0,
-        bgcolor: '#f5f7fa',
+        bgcolor: 'action.hover',
         borderRight: '1px solid #e0e0e0',
         display: 'flex',
         flexDirection: 'column',
@@ -50,7 +50,7 @@ const SectionSidebar = ({ sections, activeSection, onSectionChange, collapsible,
                 size="small"
                 startIcon={extraAction.icon}
                 onClick={extraAction.onClick}
-                sx={{ bgcolor: '#1565c0', color: 'white', '&:hover': { bgcolor: '#0d47a1' }, fontSize: '0.75rem', flex: 1, minWidth: 0 }}
+                sx={{ bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' }, fontSize: '0.75rem', flex: 1, minWidth: 0 }}
               >
                 {extraAction.label}
               </Button>

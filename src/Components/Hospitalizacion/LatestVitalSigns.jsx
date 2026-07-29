@@ -47,55 +47,55 @@ const LatestVitalSigns = ({ emergencyId }) => {
       <Grid container spacing={1}>
         {latest.systolic_bp && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>PA</Typography>
+            <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>PA</Typography>
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.systolic_bp}/{latest.diastolic_bp}</Typography>
           </Grid>
         )}
         {latest.heart_rate && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>FC</Typography>
+            <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>FC</Typography>
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.heart_rate} lpm</Typography>
           </Grid>
         )}
         {latest.temperature && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Temp</Typography>
+            <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>Temp</Typography>
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.temperature} °C</Typography>
           </Grid>
         )}
         {latest.oxygen_saturation && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>SpO2</Typography>
+            <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>SpO2</Typography>
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.oxygen_saturation}%</Typography>
           </Grid>
         )}
         {latest.respiratory_rate && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>FR</Typography>
+            <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>FR</Typography>
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.respiratory_rate} rpm</Typography>
           </Grid>
         )}
         {latest.glucose && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>GLC</Typography>
+            <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>GLC</Typography>
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.glucose} mg/dL</Typography>
           </Grid>
         )}
         {latest.height && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Talla</Typography>
+            <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>Talla</Typography>
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.height} cm</Typography>
           </Grid>
         )}
         {latest.weight && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>Peso</Typography>
+            <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>Peso</Typography>
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.weight} kg</Typography>
           </Grid>
         )}
         {latest.bmi && (
           <Grid item xs={4}>
-            <Typography variant="caption" sx={{ color: '#212121', fontWeight: 600, fontSize: '0.65rem' }}>IMC</Typography>
+            <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.65rem' }}>IMC</Typography>
             <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>{latest.bmi}</Typography>
           </Grid>
         )}

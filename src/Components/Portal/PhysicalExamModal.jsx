@@ -49,7 +49,7 @@ const PhysicalExamModal = ({ open, onClose, initialValues, onSave, saving }) => 
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
-      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem', textAlign: 'center' }}>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem', textAlign: 'center' }}>
         {hasAnyData ? 'EDITAR EXAMEN FÍSICO' : 'NUEVO EXAMEN FÍSICO'}
       </DialogTitle>
       <DialogContent sx={{ pt: 3, mt: 3 }}>

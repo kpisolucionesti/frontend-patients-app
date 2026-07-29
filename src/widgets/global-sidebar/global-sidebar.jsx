@@ -21,6 +21,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NotificationBell from './notification-bell';
 import UserSelfPasswordModal from './user-self-password-modal';
 import HelpPanel from '../../Components/Commons/HelpPanel';
@@ -218,17 +219,17 @@ const GlobalSidebar = () => {
                     arrow
                     placement="right"
                   >
-                    <ListItemButton
-                      selected={isMainActive && !hasChildren}
-                      onClick={() => handleMainClick(item)}
-                      sx={{
-                        mx: 0.5,
-                        borderRadius: 0.5,
-                        mb: 0.15,
-                        justifyContent: 'center',
-                        px: 0.5,
-                        minHeight: 32,
-                        bgcolor: isMainActive && hasChildren ? 'rgba(255,255,255,0.12)' : 'transparent',
+                      <ListItemButton
+                        selected={isMainActive && !hasChildren}
+                        onClick={() => handleMainClick(item)}
+                        sx={{
+                          mx: 0.5,
+                          borderRadius: 0.5,
+                          mb: 0.15,
+                          justifyContent: 'center',
+                          px: 0.5,
+                          minHeight: 38,
+                          bgcolor: isMainActive && hasChildren ? 'rgba(255,255,255,0.12)' : 'transparent',
                         '&.Mui-selected': {
                           bgcolor: 'primary.main',
                           color: 'white',
@@ -255,16 +256,16 @@ const GlobalSidebar = () => {
                     </ListItemButton>
                   </Tooltip>
                 ) : (
-                  <ListItemButton
-                    selected={isMainActive && !hasChildren}
-                    onClick={() => handleMainClick(item)}
-                    sx={{
-                      mx: 0.5,
-                      borderRadius: 0.5,
-                      mb: 0.15,
-                      px: 1.5,
-                      minHeight: 32,
-                      bgcolor: isMainActive && hasChildren ? 'rgba(255,255,255,0.12)' : 'transparent',
+                    <ListItemButton
+                      selected={isMainActive && !hasChildren}
+                      onClick={() => handleMainClick(item)}
+                      sx={{
+                        mx: 0.5,
+                        borderRadius: 0.5,
+                        mb: 0.15,
+                        px: 1.5,
+                        minHeight: 38,
+                        bgcolor: isMainActive && hasChildren ? 'rgba(255,255,255,0.12)' : 'transparent',
                       '&.Mui-selected': {
                         bgcolor: 'primary.main',
                         color: 'white',
@@ -282,18 +283,15 @@ const GlobalSidebar = () => {
                       primaryTypographyProps={{ fontSize: 12, fontWeight: isMainActive ? 700 : 500, noWrap: true }}
                     />
                     {hasChildren && (
-                      <Box
-                        component="span"
+                      <ExpandMoreIcon
                         sx={{
                           ml: 'auto',
-                          fontSize: 10,
+                          fontSize: 16,
                           color: isMainActive ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)',
                           transition: 'transform 0.2s ease',
-                          transform: expandedMenu === item.key ? 'rotate(90deg)' : 'rotate(0deg)',
+                          transform: expandedMenu === item.key ? 'rotate(0deg)' : 'rotate(-90deg)',
                         }}
-                      >
-                        ›
-                      </Box>
+                      />
                     )}
                   </ListItemButton>
                 )}
@@ -323,7 +321,7 @@ const GlobalSidebar = () => {
                               borderRadius: 0.5,
                               mb: 0.15,
                               pl: 3.5,
-                              minHeight: 28,
+                              minHeight: 34,
                               bgcolor: isActive ? 'primary.main' : 'transparent',
                               '&.Mui-selected': {
                                 bgcolor: 'primary.main',

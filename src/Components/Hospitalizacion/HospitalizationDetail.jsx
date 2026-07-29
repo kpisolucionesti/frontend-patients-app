@@ -13,6 +13,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import InfoIcon from '@mui/icons-material/Info';
 import ScienceIcon from '@mui/icons-material/Science';
+import BiotechIcon from '@mui/icons-material/Biotech';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import HistoryIcon from '@mui/icons-material/History';
@@ -34,7 +35,7 @@ import LifestyleHabitsSection from '../Emergency/LifestyleHabitsSection';
 import EvaluationsTab from '../Emergency/EvaluationsTab';
 import FluidBalancePanel from './FluidBalancePanel';
 import LatestVitalSigns from './LatestVitalSigns';
-import ParaclinicalStudiesTab from './ParaclinicalStudiesTab';
+import ClinicalStudiesPanel from '../../shared/ui/clinical-studies-panel';
 import SurgeriesTab from './SurgeriesTab';
 import NotesSection from './NotesSection';
 import PatientAppointmentsSummary from '../Commons/PatientAppointmentsSummary';
@@ -50,20 +51,9 @@ const STANDALONE_TABS = [
   { key: 'antecedentes', label: 'Antecedentes', icon: <HistoryIcon /> },
   { key: 'evaluaciones', label: 'Evaluaciones', icon: <AssignmentIcon /> },
   { key: 'balance_hidrico', label: 'Balance Hídrico', icon: <ScienceIcon /> },
+  { key: 'estudios_clinicos', label: 'Estudios Clínicos', icon: <BiotechIcon /> },
   { key: 'cirugias', label: 'Cirugías', icon: <LocalHospitalIcon /> },
   { key: 'documentos', label: 'Documentos', icon: <DescriptionIcon /> },
-];
-
-const TAB_GROUPS = [
-  {
-    key: 'estudios',
-    label: 'Estudios',
-    icon: <ScienceIcon />,
-    sections: [
-      { key: 'laboratorio', label: 'Laboratorio', icon: <ScienceIcon /> },
-      { key: 'paraclinicos', label: 'Paraclínicos', icon: <ScienceIcon /> },
-    ],
-  },
 ];
 
 const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
@@ -312,7 +302,6 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
         </Paper>
 
         <GroupedTabBar
-          groups={TAB_GROUPS}
           standaloneTabs={STANDALONE_TABS}
           activeTab={tab}
           onTabChange={setTab}
@@ -472,17 +461,15 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
         )}
 
         {tab === 'paraclinicos' && (
-          <ParaclinicalStudiesTab emergencyId={emergency.id} />
+          <ClinicalStudiesPanel emergencyId={emergency.id} hospitalizationId={hospitalization?.id} patient={p} />
+        )}
+
+        {tab === 'estudios_clinicos' && (
+          <ClinicalStudiesPanel emergencyId={emergency.id} hospitalizationId={hospitalization?.id} patient={p} />
         )}
 
         {tab === 'cirugias' && hospitalization && (
           <SurgeriesTab hospitalizationId={hospitalization.id} />
-        )}
-
-        {tab === 'laboratorio' && (
-          <Paper sx={{ p: 1.5, borderLeft: 3, borderColor: 'primary.main' }}>
-            <LabResultsPanel emergencyId={emergency.id} patientGender={p.gender} />
-          </Paper>
         )}
 
         {tab === 'documentos' && (
@@ -529,7 +516,7 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
       </Box>
 
       <Dialog open={dischargeDialogOpen} onClose={() => setDischargeDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontSize: '0.85rem', fontWeight: 700 }}>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>
           ALTA HOSPITALARIA
         </DialogTitle>
         <DialogContent>

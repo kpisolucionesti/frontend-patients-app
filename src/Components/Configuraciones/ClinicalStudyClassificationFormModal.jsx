@@ -46,7 +46,7 @@ const ClinicalStudyClassificationFormModal = ({ open, onClose, classification, o
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: 'primary.main', color: 'white' }}>
+      <DialogTitle sx={{ fontSize: '0.95rem', bgcolor: 'primary.main', color: 'white', fontWeight: 700, textAlign: 'center' }}>
         {classification?.id ? 'Editar Clasificación' : 'Nueva Clasificación'}
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>

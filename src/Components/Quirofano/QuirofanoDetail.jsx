@@ -88,10 +88,10 @@ export default function QuirofanoDetail({ open, onClose, surgery, onSaved, onEdi
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
               <span>Detalle de Cirugía</span>
-              <Chip label={surgeryData.surgery_type} size="small" sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.2)' }} />
+              <Chip label={surgeryData.surgery_type} size="small" variant="outlined" sx={{ color: 'inherit', borderColor: 'rgba(255,255,255,0.4)' }} />
               <Chip label={statusCfg.label} size="small" color={statusCfg.color} />
               {surgeryData.ambulatory && (
-                <Chip label="Ambulatorio" size="small" color="info" sx={{ color: 'white' }} />
+                <Chip label="Ambulatorio" size="small" color="info" />
               )}
             </Box>
             {!isFinalized && onEdit && (

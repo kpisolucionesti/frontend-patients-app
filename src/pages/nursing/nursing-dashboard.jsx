@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react';
-import { Box, Paper, Typography, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog, IconButton } from '@mui/material';
+import { Box, Paper, Typography, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import HotelIcon from '@mui/icons-material/Hotel';
-import CloseIcon from '@mui/icons-material/Close';
 import { BackendAPI } from '../../services/BackendApi';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useFetch } from '../../hooks/useFetch';
@@ -74,8 +73,19 @@ const NursingDashboard = () => {
     setSelected(null);
   };
 
+  if (selected) {
+    return (
+      <NursingDetail
+        emergencyId={selected.emergencyId}
+        hospitalizationId={selected.hospitalizationId}
+        patient={selected.patient}
+        onBack={handleClosePanel}
+      />
+    );
+  }
+
   return (
-    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5, overflow: 'auto', flex: 1, position: 'relative' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 1.5, overflow: 'auto', flex: 1 }}>
       <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1rem', color: 'primary.main' }}>
         Dashboard de Enfermería
       </Typography>
@@ -182,28 +192,6 @@ const NursingDashboard = () => {
           <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>Sin hospitalizaciones activas</Typography>
         )}
       </Paper>
-
-      <Dialog
-        open={!!selected}
-        onClose={handleClosePanel}
-        maxWidth="lg"
-        fullWidth
-        PaperProps={{ sx: { height: '85vh' } }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1, pb: 0 }}>
-          <IconButton size="small" onClick={handleClosePanel}>
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Box>
-        {selected && (
-          <NursingDetail
-            emergencyId={selected.emergencyId}
-            hospitalizationId={selected.hospitalizationId}
-            patient={selected.patient}
-            onBack={handleClosePanel}
-          />
-        )}
-      </Dialog>
     </Box>
   );
 };

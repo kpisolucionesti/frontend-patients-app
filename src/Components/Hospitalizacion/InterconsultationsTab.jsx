@@ -165,7 +165,7 @@ const InterconsultationsTab = ({ emergencyId }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem' }}>
+        <DialogTitle sx={{ fontSize: '0.95rem' }}>
           {editing ? 'Editar Interconsulta' : 'Nueva Interconsulta'}
         </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>

@@ -58,7 +58,7 @@ const NotesSection = React.memo(function NotesSection({
       )}
 
       <Dialog open={noteDialogOpen} onClose={() => setNoteDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: 'primary.main', color: 'white', fontWeight: 700 }}>Agregar Nota</DialogTitle>
+        <DialogTitle sx={{ fontSize: '0.95rem', bgcolor: 'primary.main', color: 'white', fontWeight: 700 }}>Agregar Nota</DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>
           <TextField variant="standard" size="small" label="Nota" value={noteText} onChange={(e) => setNoteText(e.target.value)}
             multiline rows={3} required fullWidth />

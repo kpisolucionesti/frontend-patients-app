@@ -124,7 +124,7 @@ export default function InformeMedicoPreview({ open, onClose, emergency, patient
 
   return (
     <Dialog open={open} onClose={approved ? undefined : onClose} maxWidth="lg" fullWidth>
-      <DialogTitle sx={{ bgcolor: '#1565c0', color: 'white', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
         <PictureAsPdfIcon />
         Informe Médico
       </DialogTitle>

@@ -57,7 +57,7 @@ const ReleasePatient = ({ row, onStatusChange }) => {
         </span>
       </Tooltip>
       <Dialog fullWidth maxWidth='xs' open={open} onClose={handleClose}>
-        <DialogTitle sx={{ bgcolor: isDeath ? 'error.main' : 'primary.main', color: 'white', fontWeight: 700, textAlign: 'center', fontSize: '0.85rem' }}>
+        <DialogTitle sx={{ bgcolor: isDeath ? 'error.main' : 'primary.main', color: 'white', fontWeight: 700, textAlign: 'center', fontSize: '0.95rem' }}>
           {isDeath ? 'REGISTRAR FALLECIMIENTO' : 'ALTA PACIENTE'}
           <Typography variant="caption" sx={{ display: 'block', opacity: 0.85, mt: 0.25, fontSize: '0.7rem', fontWeight: 400 }}>
             {row.patient?.name} {row.patient?.lastname} · CI: {row.patient?.ci || '—'}
@@ -93,9 +93,9 @@ const ReleasePatient = ({ row, onStatusChange }) => {
               value={extraData.observations} onChange={({ target }) => handleValueChange(target)} />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleClose} variant="outlined" color="error" sx={{ fontSize: '0.7rem' }}>Cancelar</Button>
-          <Button onClick={handleReleasePatient} variant="outlined" color={isDeath ? 'error' : 'success'} sx={{ fontSize: '0.7rem' }}>
+        <DialogActions>
+          <Button onClick={handleClose} variant="outlined" color="error" size="small">Cancelar</Button>
+          <Button onClick={handleReleasePatient} variant="outlined" color={isDeath ? 'error' : 'success'} size="small">
             {isDeath ? 'Registrar Fallecimiento' : 'Dar de Alta'}
           </Button>
         </DialogActions>

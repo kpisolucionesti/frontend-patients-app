@@ -52,7 +52,12 @@ const sharedComponents = {
       root: {
         fontSize: '0.875rem',
         padding: '6px 16px',
-        minHeight: 44,
+        minHeight: 40,
+      },
+      sizeSmall: {
+        minHeight: 34,
+        fontSize: '0.75rem',
+        padding: '3px 11px',
       },
       contained: { padding: '6px 20px' },
       outlined: { padding: '6px 20px' },
@@ -65,10 +70,10 @@ const sharedComponents = {
     styleOverrides: { root: { height: 32, fontSize: '0.8125rem' } },
   },
   MuiDialogContent: {
-    styleOverrides: { root: { paddingTop: 16 } },
+    styleOverrides: { root: { padding: '20px 24px' } },
   },
   MuiDialogActions: {
-    styleOverrides: { root: { padding: 16, gap: 8 } },
+    styleOverrides: { root: { padding: '12px 24px 16px', gap: 8 } },
   },
   MuiPaper: {
     styleOverrides: { root: { borderRadius: 8 } },
@@ -80,24 +85,18 @@ function makeTheme(palette) {
     palette: { mode: palette === darkPalette ? 'dark' : 'light', ...palette },
     typography: {
       fontSize: 16,
-      h6: { fontWeight: 700 },
-      button: { textTransform: 'none', fontWeight: 600 },
+      fontFamily: '"Roboto","Helvetica","Arial",sans-serif',
+      h5: { fontWeight: 700, fontSize: '1.25rem' },
+      h6: { fontWeight: 700, fontSize: '1rem' },
+      subtitle1: { fontWeight: 600, fontSize: '0.9rem' },
+      body1: { fontSize: '0.85rem' },
+      body2: { fontSize: '0.73rem' },
+      caption: { fontSize: '0.65rem' },
+      button: { textTransform: 'none', fontWeight: 600, fontSize: '0.75rem' },
     },
     shape: { borderRadius: 8 },
     components: {
       ...sharedComponents,
-      MuiDialogTitle: {
-        styleOverrides: {
-          root: {
-            backgroundColor: palette.primary.main,
-            color: palette.primary.contrastText || '#ffffff',
-            textAlign: 'center',
-            fontWeight: 700,
-            fontSize: '0.95rem',
-            padding: '12px 24px',
-          },
-        },
-      },
     },
   });
 }

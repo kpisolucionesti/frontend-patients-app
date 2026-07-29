@@ -12,8 +12,8 @@ const UbicacionesManager = () => {
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
-          sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 500 }, '& .Mui-selected': { color: '#1565c0', fontWeight: 700 } }}
-          TabIndicatorProps={{ sx: { bgcolor: '#1565c0', height: 3 } }}
+          sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 500 }, '& .Mui-selected': { color: 'primary.main', fontWeight: 700 } }}
+          TabIndicatorProps={{ sx: { bgcolor: 'primary.main', height: 3 } }}
         >
           <Tab label="Áreas" value="areas" />
           <Tab label="Salas" value="salas" />

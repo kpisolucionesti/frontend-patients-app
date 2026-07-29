@@ -166,7 +166,7 @@ const Historial = () => {
   };
 
   const renderEmergencias = () => (
-    <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+    <TableContainer component={Paper} sx={{ borderRadius: 1 }}>
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
@@ -201,7 +201,7 @@ const Historial = () => {
   );
 
   const renderHospitalizaciones = () => (
-    <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+    <TableContainer component={Paper} sx={{ borderRadius: 1 }}>
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
@@ -235,7 +235,7 @@ const Historial = () => {
   );
 
   const renderCitas = () => (
-    <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+    <TableContainer component={Paper} sx={{ borderRadius: 1 }}>
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
@@ -273,7 +273,7 @@ const Historial = () => {
   );
 
   const renderCirugias = () => (
-    <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+    <TableContainer component={Paper} sx={{ borderRadius: 1 }}>
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
@@ -321,10 +321,10 @@ const Historial = () => {
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: '#f0f4ff' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: 'background.default' }}>
       <BreadcrumbNav crumbs={[{ label: 'Historial' }]} />
       <Box sx={{ px: 2, py: 1, flexShrink: 0 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1565c0', fontSize: '1rem', mb: 1 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1rem', mb: 1 }}>
           Historial Clínico
         </Typography>
         <Stack direction="row" spacing={1} alignItems="center">
@@ -375,9 +375,9 @@ const Historial = () => {
           value={activeTab}
           onChange={(_, v) => setActiveTab(v)}
           sx={{
-            '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, fontSize: '0.8rem', minHeight: 36 },
-            '& .Mui-selected': { color: '#1565c0', fontWeight: 700 },
-            '& .MuiTabs-indicator': { bgcolor: '#1565c0', height: 3 },
+            '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, fontSize: '0.75rem', minHeight: 36 },
+            '& .Mui-selected': { color: 'primary.main', fontWeight: 700 },
+            '& .MuiTabs-indicator': { bgcolor: 'primary.main', height: 3 },
           }}
         >
           {TABS.map((t) => (

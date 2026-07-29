@@ -135,7 +135,7 @@ const DirectAdmissionModal = ({ open, onClose, onSuccess }) => {
 
   return (
     <Dialog open={open} onClose={handleDialogClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem' }}>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>
         Nuevo Ingreso Directo a Hospitalización
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>

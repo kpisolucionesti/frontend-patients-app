@@ -106,7 +106,7 @@ const DeathDialogButton = ({ emergencyId, patientId, patientName, patientCi, onS
       </Button>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'error.main', color: 'white', fontSize: '0.85rem', fontWeight: 700 }}>
+        <DialogTitle sx={{ bgcolor: 'error.main', color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>
           REGISTRAR FALLECIMIENTO
           {patientName && (
             <Typography variant="caption" sx={{ display: 'block', opacity: 0.85, mt: 0.25, fontSize: '0.7rem', fontWeight: 400 }}>

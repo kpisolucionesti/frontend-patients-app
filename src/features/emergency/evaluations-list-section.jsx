@@ -52,7 +52,7 @@ const EvaluationsListSection = React.memo(function EvaluationsListSection({ emer
       </Paper>
 
       <Dialog open={!!selectedEval} onClose={() => setSelectedEval(null)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem' }}>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>
           DETALLE DE EVALUACIÓN
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>

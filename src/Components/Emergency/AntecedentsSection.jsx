@@ -128,7 +128,7 @@ const AntecedentsSection = ({ patientId, readOnly }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem' }}>{editing ? 'Editar Antecedente' : 'Agregar Antecedente'}</DialogTitle>
+        <DialogTitle sx={{ fontSize: '0.95rem' }}>{editing ? 'Editar Antecedente' : 'Agregar Antecedente'}</DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}><AntecedentForm values={form} onChange={handleChange} /></DialogContent>
         <DialogActions>
           <Button size="small" variant="outlined" onClick={() => setDialogOpen(false)}>Cancelar</Button>

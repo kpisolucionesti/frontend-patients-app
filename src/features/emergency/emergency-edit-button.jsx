@@ -44,7 +44,7 @@ const EmergencyEditButton = ({ row, onRefresh }) => {
                 </IconButton>
             </Tooltip>
             <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle textAlign="center" sx={{ bgcolor: 'warning.main', color: 'white', fontWeight: 'bold', py: 0.75, fontSize: '0.9rem' }}>
+                <DialogTitle textAlign="center" sx={{ bgcolor: 'warning.main', color: 'white', fontWeight: 'bold', fontSize: '0.95rem' }}>
                     EDITAR EMERGENCIA
                 </DialogTitle>
                 <DialogContent sx={{ pt: 2, '&:first-of-type': { pt: 2 } }}>

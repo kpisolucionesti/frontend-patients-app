@@ -198,7 +198,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
     return (
         <>
             <Dialog fullWidth maxWidth='md' open={open} onClose={onClose}>
-                <DialogTitle textAlign="center" sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', py: 0.75, fontSize: '0.9rem' }}>
+                <DialogTitle textAlign="center" sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', textAlign: 'center', fontSize: '0.95rem' }}>
                     DETALLE DE EMERGENCIA
                 </DialogTitle>
                 <DialogContent sx={{
@@ -239,7 +239,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
                                 <Chip label={classificationLabel} size="small" sx={{
                                     height: 20, fontSize: '0.6rem',
                                     bgcolor: CLASSIFICATION_OPTIONS.find((c) => c.key === row.classification)?.color || '#999',
-                                    color: 'white', fontWeight: 600,
+                                    color: ['yellow', 'green'].includes(row.classification) ? '#212121' : 'white', fontWeight: 600,
                                 }} />
                             )}
                         </Box>
@@ -516,7 +516,7 @@ const CaseDetailModal = ({ open, emergencyId, onClose, onDataChange, readOnly, h
             </Dialog>
 
             <Dialog open={cancelDialogOpen} onClose={() => { setCancelDialogOpen(false); setCancelReason(''); }} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ bgcolor: 'error.main', color: 'white', fontSize: '0.8rem' }}>
+                <DialogTitle sx={{ bgcolor: 'error.main', color: 'white', fontSize: '0.95rem' }}>
                     ANULAR EMERGENCIA
                 </DialogTitle>
                 <DialogContent style={{ paddingTop: 24 }}>

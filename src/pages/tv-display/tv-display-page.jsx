@@ -18,13 +18,13 @@ const DoctorColumn = ({ doctorData }) => {
         bgcolor: 'background.paper',
         borderRadius: 3,
         p: 2,
-        boxShadow: 3,
         display: 'flex',
         flexDirection: 'column',
-        borderTop: '4px solid #1565c0',
+        borderTop: 4,
+        borderColor: 'primary.main',
       }}
     >
-      <Typography variant="h5" fontWeight={700} sx={{ color: '#1565c0', mb: 1 }}>
+      <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.main', mb: 1 }}>
         {doctorData.doctor.name}
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
@@ -158,7 +158,7 @@ const AppointmentDisplayScreen = () => {
 
   if (!queue) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: '#f0f4ff' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: 'background.default' }}>
         <Typography variant="h4">Cargando...</Typography>
       </Box>
     );
@@ -168,7 +168,7 @@ const AppointmentDisplayScreen = () => {
     <Box
       sx={{
         height: '100vh',
-        bgcolor: '#f0f4ff',
+        bgcolor: 'background.default',
         p: 3,
         display: 'flex',
         flexDirection: 'column',
@@ -176,7 +176,7 @@ const AppointmentDisplayScreen = () => {
       }}
     >
       <Box sx={{ textAlign: 'center', mb: 3 }}>
-        <Typography variant="h3" fontWeight={700} sx={{ color: '#0d47a1' }}>
+        <Typography variant="h3" fontWeight={700} sx={{ color: 'primary.dark' }}>
           {displayName || 'SALA DE ESPERA'}
         </Typography>
       </Box>

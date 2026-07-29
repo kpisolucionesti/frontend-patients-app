@@ -158,7 +158,7 @@ const CurrentPatients = ({ onSelectEmergency, embedded, refreshKey, searchQuery,
               icon={<Typography sx={{ fontSize: '0.65rem', fontWeight: 800, ml: 0.5 }}>!</Typography>}
               label={`${redCount} crítico${redCount > 1 ? 's' : ''}`}
               size="small"
-              sx={{ bgcolor: '#e53935', color: 'white', fontWeight: 700, fontSize: '0.7rem', height: 22 }}
+              sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 700, fontSize: '0.7rem', height: 22 }}
             />
           )}
           {CLASSIFICATION_OPTIONS.filter(o => o.key !== 'red').map((opt) => {

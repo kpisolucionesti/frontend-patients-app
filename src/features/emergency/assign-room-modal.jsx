@@ -66,8 +66,8 @@ const AsignRoom = ({ row, onStatusChange, iconOnly }) => {
           Cama
         </Button>
       )}
-      <Dialog open={openModal} onClose={handleClose}>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, textAlign: 'center', fontSize: '0.85rem' }}>
+      <Dialog fullWidth maxWidth="xs" open={openModal} onClose={handleClose}>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, textAlign: 'center', fontSize: '0.95rem' }}>
           CAMBIAR UBICACIÓN
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
@@ -86,9 +86,9 @@ const AsignRoom = ({ row, onStatusChange, iconOnly }) => {
             </FormControl>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleClose} variant="outlined" color="error" sx={{ fontSize: '0.7rem' }}>Cancelar</Button>
-          <Button onClick={handleSubmit} variant="outlined" color="success" sx={{ fontSize: '0.7rem' }}>Asignar</Button>
+        <DialogActions>
+          <Button onClick={handleClose} variant="outlined" color="error" size="small">Cancelar</Button>
+          <Button onClick={handleSubmit} variant="outlined" color="success" size="small">Asignar</Button>
         </DialogActions>
       </Dialog>
     </>

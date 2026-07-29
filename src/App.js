@@ -89,33 +89,31 @@ function App() {
   }, []);
 
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        <Route path="/" element={<PublicRoute><SignIn /></PublicRoute>} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/display/:displayId" element={<AppointmentDisplayScreen />} />
-        <Route path="/patients" element={<ProtectedLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="atencion" element={<AtencionLayout />} />
-          <Route path="pacientes" element={<PatientsPage />} />
-          <Route path="hospitalizacion" element={<HospitalizationBoard />} />
-          <Route path="hospitalizacion/:emergencyId" element={<HospitalizationDetail />} />
-          <Route path="citas/*" element={<AppointmentsPage />} />
-          <Route path="configuraciones" element={<SettingsPage />} />
-          <Route path="medicos" element={<DoctorsPage />} />
-        </Route>
-        {tvScreens.map((s) => (
-          <Route
-            key={s.id}
-            path={`/${s.route}`}
-            element={<TvPinGuard screen={s}><RoomTable screenRoute={s.route} /></TvPinGuard>}
-          />
-        ))}
-        {routesLoaded && <Route path="*" element={<Navigate to="/" replace />} />}
-      </Routes>
-    </Suspense>
+    <Routes>
+      <Route path="/" element={<PublicRoute><SignIn /></PublicRoute>} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/display/:displayId" element={<AppointmentDisplayScreen />} />
+      <Route path="/patients" element={<ProtectedLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
+        <Route path="atencion" element={<Suspense fallback={<PageLoader />}><AtencionLayout /></Suspense>} />
+        <Route path="pacientes" element={<Suspense fallback={<PageLoader />}><PatientsPage /></Suspense>} />
+        <Route path="hospitalizacion" element={<Suspense fallback={<PageLoader />}><HospitalizationBoard /></Suspense>} />
+        <Route path="hospitalizacion/:emergencyId" element={<Suspense fallback={<PageLoader />}><HospitalizationDetail /></Suspense>} />
+        <Route path="citas/*" element={<Suspense fallback={<PageLoader />}><AppointmentsPage /></Suspense>} />
+        <Route path="configuraciones" element={<Suspense fallback={<PageLoader />}><SettingsPage /></Suspense>} />
+        <Route path="medicos" element={<Suspense fallback={<PageLoader />}><DoctorsPage /></Suspense>} />
+      </Route>
+      {tvScreens.map((s) => (
+        <Route
+          key={s.id}
+          path={`/${s.route}`}
+          element={<TvPinGuard screen={s}><RoomTable screenRoute={s.route} /></TvPinGuard>}
+        />
+      ))}
+      {routesLoaded && <Route path="*" element={<Navigate to="/" replace />} />}
+    </Routes>
   );
 }
 

@@ -7,6 +7,7 @@ import EvaluationsTab from '../../Components/Emergency/EvaluationsTab';
 import LabResultsPanel from '../../Components/Emergency/LabResultsPanel';
 import HistoricalCasePanel from '../../Components/Emergency/HistoricalCasePanel';
 import DocumentsPanel from '../../shared/ui/documents-panel';
+import ClinicalStudiesPanel from '../../shared/ui/clinical-studies-panel';
 import MedicationAdminPanel from '../../Components/Hospitalizacion/MedicationAdminPanel';
 import AllergiesSection from '../../Components/Emergency/AllergiesSection';
 import AntecedentsSection from '../../Components/Emergency/AntecedentsSection';
@@ -18,7 +19,8 @@ import { generateEmergencyReport } from '../../services/medicalHistoryReport';
 
 const TAB_PANELS = {
   historial_casos: { label: 'Historial de casos', component: HistoricalCasePanel, props: (sel) => ({ patient: sel.patient, currentEmergencyId: sel.emergencyId }) },
-  laboratorio:      { label: 'Laboratorio', component: LabResultsPanel, props: (sel) => ({ emergencyId: sel.emergencyId, patientGender: sel.patientGender }) },
+  // laboratorio — DESHABILITADO: reemplazado por Estudios Clínicos (PDF-based)
+  // laboratorio:      { label: 'Laboratorio', component: LabResultsPanel, props: (sel) => ({ emergencyId: sel.emergencyId, patientGender: sel.patientGender }) },
   evaluaciones:     { label: 'Evaluaciones', component: EvaluationsTab, props: (sel) => ({ emergency: sel.emergency, readOnly: sel.readOnly, onDataChange: sel.onRefresh }) },
   tratamientos:     { label: 'Tratamientos', component: MedicationAdminPanel, props: (sel) => ({ emergencyId: sel.emergencyId, readOnly: true }) },
 };
@@ -73,6 +75,14 @@ const EmergencyTabPanels = React.memo(function EmergencyTabPanels({
         <FamilyAntecedentsSection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} />
         <GynecologicalHistorySection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} patientGender={selectedPatient?.gender} />
         <LifestyleHabitsSection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} />
+      </Box>
+    );
+  }
+
+  if (activePanel === 'estudios_clinicos') {
+    return (
+      <Box component="section" aria-label="Estudios Clínicos" sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default', px: 2, py: 1.5 }}>
+        <ClinicalStudiesPanel emergencyId={selectedEmergency?.id} patient={selectedPatient} />
       </Box>
     );
   }

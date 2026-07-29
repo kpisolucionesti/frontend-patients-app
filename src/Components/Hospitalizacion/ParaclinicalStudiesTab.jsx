@@ -144,7 +144,7 @@ const ParaclinicalStudiesTab = ({ emergencyId }) => {
                 <TableRow key={s.id} hover>
                   <TableCell>
                     <Chip label={getTypeLabel(s.study_type)} size="small"
-                      sx={{ height: 20, fontSize: '0.6rem', bgcolor: '#6a1b9a', color: 'white' }} />
+                      sx={{ height: 20, fontSize: '0.6rem', bgcolor: 'secondary.main', color: 'white' }} />
                   </TableCell>
                   <TableCell sx={{ maxWidth: 250, fontSize: '0.75rem' }}>{s.description}</TableCell>
                   <TableCell sx={{ fontSize: '0.75rem' }}>
@@ -173,7 +173,7 @@ const ParaclinicalStudiesTab = ({ emergencyId }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#6a1b9a', color: 'white' }}>
+        <DialogTitle sx={{ fontSize: '0.95rem', bgcolor: 'secondary.main', color: 'white' }}>
           {editing ? 'Editar Estudio' : 'Nuevo Estudio'}
         </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>

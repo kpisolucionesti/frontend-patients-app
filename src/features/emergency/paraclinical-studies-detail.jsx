@@ -64,8 +64,8 @@ const ParaclinicalStudiesDetail = ({ emergencyId, readOnly }) => {
     <Paper sx={{ p: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <BiotechIcon sx={{ fontSize: 18, color: '#6a1b9a' }} />
-          <Typography variant="caption" fontWeight={600} sx={{ color: '#6a1b9a' }}>PARACLÍNICOS / ESTUDIOS DE IMAGEN</Typography>
+          <BiotechIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+          <Typography variant="caption" fontWeight={600} sx={{ color: 'secondary.main' }}>PARACLÍNICOS / ESTUDIOS DE IMAGEN</Typography>
         </Box>
         {!readOnly && <Tooltip title="Agregar estudio" arrow><IconButton size="small" onClick={handleOpenAdd} sx={{ p: 0.25 }}><AddCircleOutlineIcon fontSize="small" /></IconButton></Tooltip>}
       </Box>
@@ -73,12 +73,12 @@ const ParaclinicalStudiesDetail = ({ emergencyId, readOnly }) => {
         <Box>
           {studies.map((s) => (
             <Box key={s.id} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, mb: 0.5, p: 0.5, bgcolor: '#fafafa', borderRadius: 1 }}>
-              <Chip label={getTypeLabel(s.study_type)} size="small" sx={{ height: 18, fontSize: '0.6rem', bgcolor: '#6a1b9a', color: 'white', mt: 0.15 }} />
+              <Chip label={getTypeLabel(s.study_type)} size="small" sx={{ height: 18, fontSize: '0.6rem', bgcolor: 'secondary.main', color: 'white', mt: 0.15 }} />
               <Typography variant="caption" sx={{ flex: 1, fontSize: '0.7rem' }}>{s.description}</Typography>
               {!readOnly && (
                 <>
                   <Tooltip title="Editar" arrow><IconButton size="small" onClick={() => handleOpenEdit(s)} sx={{ p: 0.15 }}><EditIcon sx={{ fontSize: 12 }} /></IconButton></Tooltip>
-                  <Tooltip title="Eliminar" arrow><IconButton size="small" onClick={() => handleDelete(s.id)} sx={{ p: 0.15 }}><DeleteIcon sx={{ fontSize: 12, color: '#e53935' }} /></IconButton></Tooltip>
+                  <Tooltip title="Eliminar" arrow><IconButton size="small" onClick={() => handleDelete(s.id)} sx={{ p: 0.15 }}><DeleteIcon sx={{ fontSize: 12, color: 'error.main' }} /></IconButton></Tooltip>
                 </>
               )}
             </Box>
@@ -89,8 +89,8 @@ const ParaclinicalStudiesDetail = ({ emergencyId, readOnly }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: '#6a1b9a', color: 'white' }}>{editing ? 'Editar Estudio' : 'Agregar Estudio'}</DialogTitle>
-        <DialogContent style={{ paddingTop: 24 }}>
+        <DialogTitle sx={{ fontSize: '0.95rem', bgcolor: 'secondary.main', color: 'white' }}>{editing ? 'Editar Estudio' : 'Agregar Estudio'}</DialogTitle>
+        <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <TextField select variant="standard" size="small" label="Tipo" value={form.study_type} onChange={(e) => handleChange('study_type', e.target.value)} required fullWidth>
               {STUDY_TYPES.map((t) => <MenuItem key={t.key} value={t.key}>{t.label}</MenuItem>)}

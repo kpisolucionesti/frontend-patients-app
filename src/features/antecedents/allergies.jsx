@@ -84,7 +84,7 @@ const AllergiesSection = ({ patientId, readOnly }) => {
         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>Sin alergias registradas</Typography>
       )}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem' }}>{editing ? 'Editar Alergia' : 'Agregar Alergia'}</DialogTitle>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>{editing ? 'Editar Alergia' : 'Agregar Alergia'}</DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}><AllergyForm values={form} onChange={handleChange} /></DialogContent>
         <DialogActions>
           <Button size="small" variant="outlined" onClick={() => setDialogOpen(false)}>Cancelar</Button>

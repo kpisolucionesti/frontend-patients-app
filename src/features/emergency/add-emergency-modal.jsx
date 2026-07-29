@@ -159,18 +159,17 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
       )}
 
       <Dialog fullWidth maxWidth='sm' open={open} onClose={handleClose} aria-label="Nueva emergencia">
-        <DialogTitle textAlign="center" sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', py: 0.75, fontSize: '0.9rem' }}>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', textAlign: 'center', fontSize: '0.95rem' }}>
           NUEVA EMERGENCIA
         </DialogTitle>
         <DialogContent sx={{
-          pt: 3,
           '& .MuiInputBase-input': { fontSize: '0.75rem' },
           '& .MuiInputLabel-root': { fontSize: '0.75rem' },
           '& .MuiFormHelperText-root': { fontSize: '0.7rem' },
           '& .MuiTypography-root': { fontSize: '0.75rem' },
           '& .MuiChip-label': { fontSize: '0.7rem' },
         }}>
-          <Stepper activeStep={activeStep} sx={{ mt: 2, mb: 3 }} aria-label="Progreso de creación de emergencia">
+          <Stepper activeStep={activeStep} sx={{ mb: 3 }} aria-label="Progreso de creación de emergencia">
             {STEPS.map((label, idx) => (
               <Step key={label} active={idx === activeStep} completed={idx < activeStep}>
                 <StepLabel aria-current={idx === activeStep ? 'step' : undefined}>{label}</StepLabel>
@@ -227,7 +226,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
             )}
           </Box>
         </DialogContent>
-        <DialogActions sx={{ p: '0.75rem 1.25rem' }}>
+        <DialogActions>
           <Button onClick={handleClose} variant="outlined" color="error" disabled={saving}>Cancelar</Button>
           {activeStep > 0 && activeStep < STEPS.length - 1 && (
             <Button onClick={handleBack} variant="outlined" disabled={saving}>Atrás</Button>

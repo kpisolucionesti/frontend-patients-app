@@ -7,6 +7,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import InfoIcon from '@mui/icons-material/Info';
 import ScienceIcon from '@mui/icons-material/Science';
+import BiotechIcon from '@mui/icons-material/Biotech';
 import DescriptionIcon from '@mui/icons-material/Description';
 import RestoreIcon from '@mui/icons-material/Restore';
 import { GENDER_MAP } from '../../entities/emergency/config';
@@ -69,7 +70,7 @@ const ClinicalBar = React.memo(function ClinicalBar({
           <Tab label="Resumen" value="resumen" icon={<AssignmentIcon fontSize="small" />} iconPosition="start" aria-label="Resumen del paciente" sx={tabSx} />
           <Tab label="Evaluaciones" value="evaluaciones" icon={<MedicalServicesIcon fontSize="small" />} iconPosition="start" aria-label="Evaluaciones médicas" sx={tabSx} />
           <Tab label="Antecedentes" value="antecedentes" icon={<InfoIcon fontSize="small" />} iconPosition="start" aria-label="Antecedentes del paciente" sx={tabSx} />
-          <Tab label="Laboratorio" value="laboratorio" icon={<ScienceIcon fontSize="small" />} iconPosition="start" aria-label="Resultados de laboratorio" sx={tabSx} />
+          <Tab label="Estudios Clínicos" value="estudios_clinicos" icon={<BiotechIcon fontSize="small" />} iconPosition="start" aria-label="Estudios clínicos" sx={tabSx} />
           <Tab label="Documentos" value="documentos" icon={<DescriptionIcon fontSize="small" />} iconPosition="start" aria-label="Documentos" sx={tabSx} />
           <Tab label="Historial" value="historial_casos" icon={<RestoreIcon fontSize="small" />} iconPosition="start" aria-label="Historial de casos anteriores" sx={tabSx} />
         </Tabs>

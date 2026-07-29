@@ -171,7 +171,7 @@ const AddEmergencyModal = ({ onEmergencyCreated, disabled = false, open: externa
       )}
 
       <Dialog fullWidth maxWidth='sm' open={open} onClose={handleDialogClose} aria-label="Nueva emergencia">
-        <DialogTitle textAlign="center" sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', py: 0.75, fontSize: '0.9rem' }}>
+        <DialogTitle textAlign="center" sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', textAlign: 'center', fontSize: '0.95rem' }}>
           NUEVA EMERGENCIA
         </DialogTitle>
         <DialogContent sx={{

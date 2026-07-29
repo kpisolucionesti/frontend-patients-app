@@ -94,10 +94,10 @@ const LabParameterGroupFormModal = ({ open, onClose, group, onSaved }) => {
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
-      <DialogTitle>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: '0.95rem' }}>
         {isEdit ? 'EDITAR GRUPO' : 'AGREGAR GRUPO'}
       </DialogTitle>
-      <DialogContent sx={{ pt: 3 }}>
+      <DialogContent>
         <TextField
           variant="standard"
           fullWidth
@@ -173,7 +173,7 @@ const LabParameterGroupFormModal = ({ open, onClose, group, onSaved }) => {
           );
         })}
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions>
         <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
         <Button onClick={handleSave} variant="outlined" color="success" disabled={saving || !name.trim()}>
           {saving ? 'Guardando...' : 'Guardar'}

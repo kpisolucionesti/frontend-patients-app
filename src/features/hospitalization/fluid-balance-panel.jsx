@@ -127,7 +127,7 @@ const FluidBalancePanel = ({ hospitalizationId, readOnly = false }) => {
             <Card sx={{ bgcolor: 'success.light', boxShadow: 3, borderRadius: 1 }}>
               <CardContent sx={{ py: 1, textAlign: 'center' }}>
                 <Typography variant="caption" color="text.secondary">Total Ingresos</Typography>
-                <Typography fontWeight={700} color="common.white" sx={{ fontSize: '1rem' }}>{summary.total_intake || 0} ml</Typography>
+                <Typography fontWeight={700} color="success.dark" sx={{ fontSize: '1rem' }}>{summary.total_intake || 0} ml</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -135,7 +135,7 @@ const FluidBalancePanel = ({ hospitalizationId, readOnly = false }) => {
             <Card sx={{ bgcolor: 'error.light', boxShadow: 3, borderRadius: 1 }}>
               <CardContent sx={{ py: 1, textAlign: 'center' }}>
                 <Typography variant="caption" color="text.secondary">Total Egresos</Typography>
-                <Typography fontWeight={700} color="common.white" sx={{ fontSize: '1rem' }}>{summary.total_output || 0} ml</Typography>
+                <Typography fontWeight={700} color="error.dark" sx={{ fontSize: '1rem' }}>{summary.total_output || 0} ml</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -199,7 +199,7 @@ const FluidBalancePanel = ({ hospitalizationId, readOnly = false }) => {
       </TableContainer>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem' }}>Nuevo Registro de Balance Hídrico</DialogTitle>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>Nuevo Registro de Balance Hídrico</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', gap: 2, mt: 1, mb: 2 }}>
             <FormControl size="small" sx={{ minWidth: 150 }}>

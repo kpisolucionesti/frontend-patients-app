@@ -246,7 +246,7 @@ const MedicalPlansDetail = ({ emergencyId, readOnly, doctorId, patientName, pati
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: '0.85rem', bgcolor: 'primary.main', color: 'white' }}>
+        <DialogTitle sx={{ fontSize: '0.95rem', bgcolor: 'primary.main', color: 'white' }}>
           {editing ? 'Editar Indicación' : 'Agregar Indicación'}
         </DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>

@@ -78,7 +78,7 @@ const GynecologicalHistorySection = ({ patientId, readOnly, patientGender }) => 
         </TableContainer>
       ) : <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>Sin historia ginecobstétrica registrada</Typography>}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem' }}>{editing ? 'Editar' : 'Agregar'} Historia Ginecobstétrica</DialogTitle>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>{editing ? 'Editar' : 'Agregar'} Historia Ginecobstétrica</DialogTitle>
         <DialogContent style={{ paddingTop: 24 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <TextField variant="standard" size="small" label="Evento" value={form.evento} onChange={(e) => handleChange('evento', e.target.value)} required fullWidth />

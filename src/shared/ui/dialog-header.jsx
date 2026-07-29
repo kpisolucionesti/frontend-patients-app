@@ -10,7 +10,6 @@ export default function DialogHeader({ children, color = 'primary', sx = {} }) {
         textAlign: 'center',
         fontWeight: 700,
         fontSize: '0.95rem',
-        padding: '12px 24px',
         ...sx,
       }}
     >

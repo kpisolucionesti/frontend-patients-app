@@ -109,7 +109,7 @@ const AreaFormModal = ({ open, onClose, area, onSaved }) => {
           multiline rows={2}
         />
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions>
         <Button onClick={onClose} variant="outlined" color="error">Cancelar</Button>
         <Button onClick={handleSubmit} variant="outlined" color="success">Guardar</Button>
       </DialogActions>

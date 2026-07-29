@@ -3,7 +3,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 const InterconsultationForm = ({ inter, index, doctors, onUpdate, onRemove }) => (
-  <Box sx={{ p: 0.75, bgcolor: '#fafafa', borderRadius: 1, border: '1px solid #e0e0e0' }}>
+  <Box sx={{ p: 0.75, bgcolor: 'action.hover', borderRadius: 1, border: 1, borderColor: 'divider' }}>
     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
       <Typography variant="caption" fontWeight={600} color="text.secondary">
         Interconsulta #{index + 1}

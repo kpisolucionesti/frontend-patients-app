@@ -125,7 +125,7 @@ const HospitalizationBoard = ({ onSelectPatient }) => {
         </Box>
       ) : (
         <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', px: 2, pb: 2 }}>
-          <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 1 }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 1 }}>>
             <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>

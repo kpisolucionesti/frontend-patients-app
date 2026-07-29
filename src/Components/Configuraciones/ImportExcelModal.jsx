@@ -322,7 +322,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={handleClose}>
-      <DialogTitle sx={{ pb: 1.5 }}>
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: '0.95rem' }}>
         IMPORTAR PARÁMETROS
       </DialogTitle>
       <DialogContent sx={{ pt: 0, px: 3 }}>
@@ -399,7 +399,7 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
             </Box>
 
             {columnAnalysis && (
-              <Paper variant="outlined" sx={{ p: 1.5, mb: 2, bgcolor: '#fafafa' }}>
+              <Paper variant="outlined" sx={{ p: 1.5, mb: 2, bgcolor: 'action.hover' }}>
                 <Typography variant="caption" fontWeight={600} sx={{ mb: 1, display: 'block' }}>
                   Validación de columnas
                 </Typography>
@@ -489,8 +489,8 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
           </>
         )}
       </DialogContent>
-      <DialogActions sx={{ p: 1.5, gap: 0.5 }}>
-        <Button onClick={handleClose} size="small" variant="outlined" color="error" disabled={importing} sx={{ fontSize: '0.75rem' }}>
+      <DialogActions>
+        <Button onClick={handleClose} size="small" variant="outlined" color="error" disabled={importing}>
           {importResult ? 'Cerrar' : 'Cancelar'}
         </Button>
         {hasData && !importResult && (
@@ -501,7 +501,6 @@ const ImportExcelModal = ({ open, onClose, onImported }) => {
             onClick={handleImport}
             disabled={importing || validRows.length === 0 || !columnAnalysis?.valid}
             startIcon={importing ? <CircularProgress size={14} color="inherit" /> : null}
-            sx={{ fontSize: '0.75rem' }}
           >
             {importing ? 'Importando...' : `Importar ${validRows.length} parámetros`}
           </Button>

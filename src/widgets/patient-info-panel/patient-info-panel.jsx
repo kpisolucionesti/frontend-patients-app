@@ -131,7 +131,7 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly, onDa
                   size="small"
                   sx={{
                     bgcolor: CLASSIFICATION_OPTIONS.find((c) => c.key === toFrontendKey(classification || emergency.classification))?.color || 'text.disabled',
-                    color: 'white', fontWeight: 600,
+                    color: ['yellow', 'green'].includes(classification) ? '#212121' : 'white', fontWeight: 600,
                   }}
                 />
               )}

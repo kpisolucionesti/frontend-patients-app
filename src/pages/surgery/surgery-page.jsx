@@ -45,7 +45,7 @@ export default function QuirofanoBoard() {
   };
 
   return (
-    <Box sx={{ p: 3, bgcolor: '#f0f4ff', minHeight: '100%' }}>
+    <Box sx={{ p: 3, bgcolor: 'background.default', minHeight: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.9rem' }}>Módulo Quirófano</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setEditingSurgery(null); setPlanningOpen(true); }}>
@@ -53,7 +53,7 @@ export default function QuirofanoBoard() {
         </Button>
       </Box>
 
-      <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mb: 2 }}>
+      <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mb: 2, '& .MuiTab-root': { textTransform: 'none', fontSize: '0.75rem' } }}>
         <Tab label="Programación Diaria" />
         <Tab label="Vista Semanal" />
       </Tabs>

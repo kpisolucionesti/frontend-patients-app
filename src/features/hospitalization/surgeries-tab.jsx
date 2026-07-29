@@ -210,7 +210,7 @@ const SurgeriesTab = ({ hospitalizationId }) => {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.85rem' }}>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>
           {editing ? 'Editar Cirugía' : 'Nueva Cirugía'}
         </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
