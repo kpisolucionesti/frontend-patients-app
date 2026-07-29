@@ -23,6 +23,12 @@ const useCompanySettings = () => {
         setData(res.data);
       })
       .catch(() => {
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          cached.loaded = true;
+          setData(null);
+          return;
+        }
         companySettingsApi.show()
           .then((d) => {
             cached.data = d;
