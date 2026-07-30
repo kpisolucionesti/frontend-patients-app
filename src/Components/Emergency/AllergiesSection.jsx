@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Autocomplete } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -9,15 +9,37 @@ import { useFetch } from '../../hooks/useFetch';
 
 const EMPTY = { allergy: '', severity: '' };
 
-const AllergyForm = ({ values, onChange }) => (
+const SEVERITY_OPTIONS = [
+  { value: '', label: 'Sin especificar' },
+  { value: 'leve', label: 'Leve' },
+  { value: 'moderado', label: 'Moderado' },
+  { value: 'grave', label: 'Grave' },
+];
+
+const AllergyForm = ({ values, onChange, allergens }) => (
   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-    <TextField variant="standard" size="small" label="Alergia" value={values.allergy} onChange={(e) => onChange('allergy', e.target.value)} required fullWidth />
-    <TextField select variant="standard" size="small" label="Severidad" value={values.severity} onChange={(e) => onChange('severity', e.target.value)} fullWidth>
-      <MenuItem value="">Sin especificar</MenuItem>
-      <MenuItem value="leve">Leve</MenuItem>
-      <MenuItem value="moderado">Moderado</MenuItem>
-      <MenuItem value="grave">Grave</MenuItem>
-    </TextField>
+    <Autocomplete
+      freeSolo
+      size="small"
+      options={allergens}
+      getOptionLabel={(opt) => typeof opt === 'string' ? opt : (opt.name || '')}
+      value={values.allergy}
+      onInputChange={(_e, newValue) => onChange('allergy', newValue)}
+      renderInput={(params) => (
+        <TextField variant="standard" {...params} required label="Alergia" fullWidth />
+      )}
+    />
+    <Autocomplete
+      size="small"
+      options={SEVERITY_OPTIONS}
+      getOptionLabel={(opt) => opt.label}
+      value={SEVERITY_OPTIONS.find((s) => s.value === values.severity) || SEVERITY_OPTIONS[0]}
+      onChange={(_e, v) => onChange('severity', v ? v.value : '')}
+      disableClearable
+      renderInput={(params) => (
+        <TextField variant="standard" {...params} label="Severidad" fullWidth />
+      )}
+    />
   </Box>
 );
 
@@ -28,12 +50,17 @@ const AllergiesSection = ({ patientId, readOnly }) => {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [allergens, setAllergens] = useState([]);
 
   const { data, refetch } = useFetch(
     () => patientId ? BackendAPI.allergies.getAll(patientId) : Promise.resolve([]),
     [patientId],
   );
   const allergies = data || [];
+
+  useEffect(() => {
+    BackendAPI.allergens.getAll().then(setAllergens).catch(() => {});
+  }, []);
 
   const handleChange = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
   const handleOpenAdd = () => { setEditing(null); setForm(EMPTY); setDialogOpen(true); };
@@ -85,7 +112,7 @@ const AllergiesSection = ({ patientId, readOnly }) => {
       )}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>{editing ? 'Editar Alergia' : 'Agregar Alergia'}</DialogTitle>
-        <DialogContent style={{ paddingTop: 24 }}><AllergyForm values={form} onChange={handleChange} /></DialogContent>
+        <DialogContent style={{ paddingTop: 24 }}><AllergyForm values={form} onChange={handleChange} allergens={allergens} /></DialogContent>
         <DialogActions>
           <Button size="small" variant="outlined" onClick={() => setDialogOpen(false)}>Cancelar</Button>
           <Button size="small" variant="outlined" onClick={handleSave} disabled={saving || !form.allergy}>{saving ? 'Guardando...' : 'Guardar'}</Button>

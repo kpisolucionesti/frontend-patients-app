@@ -1,5 +1,6 @@
 // Salus FSD — entities barrel
 export { allergiesApi } from './allergy/api';
+export { allergensCatalogApi } from './allergen/api';
 export { antecedentsApi } from './antecedent/api';
 export { appointmentsApi } from './appointment/api';
 export { clinicalStudyClassificationApi } from './clinical-study-classification/api';
@@ -25,3 +26,5 @@ export { surgeriesApi } from './surgery/api';
 export { tvScreensApi } from './tv-screen/api';
 export { usersApi } from './user/api';
 export { vitalSignsApi } from './vital-sign/api';
+export { medicationsApi } from './medication/api';
+export { medicationRoutesApi } from './medication-route/api';

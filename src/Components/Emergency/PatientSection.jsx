@@ -148,30 +148,30 @@ const PatientSection = ({ values, locked, validation, onCiChange, onFieldChange,
             />
           </Stack>
 
-          {/* Row 3: Nombre */}
-          <TextField
-            variant="standard"
-            size="small"
-            error={validation && !values.name}
-            helperText={validation && !values.name ? 'Requerido' : ''}
-            required
-            label="Nombre"
-            name="name"
-            value={values.name || ''}
-            onChange={({ target }) => onFieldChange(target)}
-            sx={fieldSx}
-          />
-
-          {/* Row 4: Apellido */}
-          <TextField
-            variant="standard"
-            size="small"
-            label="Apellido"
-            name="lastname"
-            value={values.lastname || ''}
-            onChange={({ target }) => onFieldChange(target)}
-            sx={fieldSx}
-          />
+          {/* Row 3: Nombre + Apellido */}
+          <Stack direction="row" spacing={1}>
+            <TextField
+              variant="standard"
+              size="small"
+              error={validation && !values.name}
+              helperText={validation && !values.name ? 'Requerido' : ''}
+              required
+              label="Nombre"
+              name="name"
+              value={values.name || ''}
+              onChange={({ target }) => onFieldChange(target)}
+              sx={{ flex: 1, ...fieldSx }}
+            />
+            <TextField
+              variant="standard"
+              size="small"
+              label="Apellido"
+              name="lastname"
+              value={values.lastname || ''}
+              onChange={({ target }) => onFieldChange(target)}
+              sx={{ flex: 1, ...fieldSx }}
+            />
+          </Stack>
 
           {/* Row 5: Representante — solo si es menor */}
           {isMinor && (

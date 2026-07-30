@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Autocomplete } from '@mui/material';
+import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Autocomplete } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -9,6 +9,13 @@ import { catalogsApi } from '../../../services/catalogsApi';
 import { useFetch } from '../../../hooks/useFetch';
 
 const EMPTY = { allergy: '', severity: '' };
+
+const SEVERITY_OPTIONS = [
+  { key: '', label: 'Sin especificar' },
+  { key: 'leve', label: 'Leve' },
+  { key: 'moderado', label: 'Moderado' },
+  { key: 'grave', label: 'Grave' },
+];
 
 const AllergyForm = ({ values, onChange, allergenOptions, onAllergenSearch }) => (
   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -24,12 +31,14 @@ const AllergyForm = ({ values, onChange, allergenOptions, onAllergenSearch }) =>
       )}
       noOptionsText="Sin coincidencias"
     />
-    <TextField select variant="standard" size="small" label="Severidad" value={values.severity} onChange={(e) => onChange('severity', e.target.value)} fullWidth>
-      <MenuItem value="">Sin especificar</MenuItem>
-      <MenuItem value="leve">Leve</MenuItem>
-      <MenuItem value="moderado">Moderado</MenuItem>
-      <MenuItem value="grave">Grave</MenuItem>
-    </TextField>
+    <Autocomplete
+      size="small"
+      options={SEVERITY_OPTIONS}
+      getOptionLabel={(opt) => opt.label}
+      value={SEVERITY_OPTIONS.find((o) => o.key === values.severity) || null}
+      onChange={(_e, v) => onChange('severity', v ? v.key : '')}
+      renderInput={(params) => <TextField variant="standard" {...params} size="small" label="Severidad" fullWidth />}
+    />
   </Box>
 );
 

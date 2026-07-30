@@ -10,7 +10,6 @@ import DownloadIcon from '@mui/icons-material/Download';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import PersonIcon from '@mui/icons-material/Person';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import InfoIcon from '@mui/icons-material/Info';
 import ScienceIcon from '@mui/icons-material/Science';
 import BiotechIcon from '@mui/icons-material/Biotech';
@@ -37,6 +36,7 @@ import FluidBalancePanel from './FluidBalancePanel';
 import LatestVitalSigns from './LatestVitalSigns';
 import ClinicalStudiesPanel from '../../shared/ui/clinical-studies-panel';
 import SurgeriesTab from './SurgeriesTab';
+import IndicacionesTab from '../../features/clinical-studies/indicaciones-tab';
 import NotesSection from './NotesSection';
 import PatientAppointmentsSummary from '../Commons/PatientAppointmentsSummary';
 import DocumentsPanel from '../Commons/DocumentsPanel';
@@ -50,6 +50,7 @@ const STANDALONE_TABS = [
   { key: 'resumen', label: 'Resumen', icon: <InfoIcon /> },
   { key: 'antecedentes', label: 'Antecedentes', icon: <HistoryIcon /> },
   { key: 'evaluaciones', label: 'Evaluaciones', icon: <AssignmentIcon /> },
+  { key: 'indicaciones', label: 'Indicaciones', icon: <DescriptionIcon /> },
   { key: 'balance_hidrico', label: 'Balance Hídrico', icon: <ScienceIcon /> },
   { key: 'estudios_clinicos', label: 'Estudios Clínicos', icon: <BiotechIcon /> },
   { key: 'cirugias', label: 'Cirugías', icon: <LocalHospitalIcon /> },
@@ -261,45 +262,40 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
           Volver al censo
         </Button>
 
-        <Paper sx={{ p: 1.5, bgcolor: 'primary.light', mb: 1.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                <PersonIcon sx={{ fontSize: 18, color: 'primary.main' }} />
-                <Typography variant="body1" fontWeight={700} sx={{ color: 'primary.main', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {p.name || ''} {p.lastname || ''}
-                </Typography>
-              </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                CI: {p.ci || '-'} | Edad: {p.age || '-'} | Género: {p.gender === 'M' ? 'Masculino' : p.gender === 'F' ? 'Femenino' : '-'}
+        <Box sx={{ bgcolor: 'background.paper', borderRadius: '8px 8px 0 0', borderBottom: 1, borderColor: 'divider', px: 1.5, pt: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
+              <PersonIcon sx={{ fontSize: 18, color: 'primary.main', flexShrink: 0 }} />
+              <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {p.name || ''} {p.lastname || ''}
               </Typography>
-              <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mt: 0.75 }}>
-                <Chip icon={<LocalHospitalIcon />} label={'Emergencia #' + emergency.id} size="small" variant="outlined" sx={{ height: 24, fontSize: '0.7rem' }} />
-                {hospitalization && (
-                  <>
-                    <Chip icon={<MeetingRoomIcon />} label={'Cama: ' + (hospitalization.room?.name || 'Sin asignar')} size="small" variant="outlined" sx={{ height: 24, fontSize: '0.7rem' }} />
-                    <Chip icon={<CalendarTodayIcon />} label={'Ingreso: ' + (hospitalization.admission_date ? new Date(hospitalization.admission_date).toLocaleDateString() : '-')} size="small" variant="outlined" sx={{ height: 24, fontSize: '0.7rem' }} />
-                    <Chip
-                      label={hospitalization.status === 'active' ? 'Hospitalizado' : 'Dado de Alta'}
-                      variant="outlined"
-                      color={hospitalization.status === 'active' ? 'primary' : 'default'}
-                      size="small"
-                      sx={{ height: 24, fontSize: '0.7rem' }}
-                    />
-                    {hospitalization.length_of_stay_days > 0 && (
-                      <Chip label={`${hospitalization.length_of_stay_days} días de estancia`} size="small" variant="outlined" sx={{ height: 24, fontSize: '0.7rem' }} />
-                    )}
-                  </>
-                )}
-              </Box>
+              <Chip label={`CI: ${p.ci || '—'}`} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 500 }} />
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', flexShrink: 0 }}>
+                {p.age || '?'}a · {p.gender === 'M' ? 'Masculino' : p.gender === 'F' ? 'Femenino' : '—'}
+              </Typography>
             </Box>
-            {hospitalization?.status === 'active' && canEdit && (
-              <Button variant="contained" color="warning" onClick={() => setDischargeDialogOpen(true)} sx={{ fontSize: '0.75rem', py: 0.5 }}>
-                Dar de Alta
-              </Button>
-            )}
+            <Box sx={{ display: 'flex', gap: 0.75, ml: 'auto', flexShrink: 0, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              <Chip icon={<LocalHospitalIcon />} label={'Emergencia #' + emergency.id} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+              {hospitalization && (
+                <>
+                  <Chip icon={<MeetingRoomIcon />} label={hospitalization.room?.name || 'Sin asignar'} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+                  <Chip
+                    label={hospitalization.status === 'active' ? 'Hospitalizado' : 'Dado de Alta'}
+                    variant="outlined"
+                    color={hospitalization.status === 'active' ? 'primary' : 'default'}
+                    size="small"
+                    sx={{ height: 20, fontSize: '0.65rem' }}
+                  />
+                </>
+              )}
+              {hospitalization?.status === 'active' && canEdit && (
+                <Button variant="contained" color="warning" onClick={() => setDischargeDialogOpen(true)} sx={{ fontSize: '0.7rem', py: 0.25, px: 1 }}>
+                  Dar de Alta
+                </Button>
+              )}
+            </Box>
           </Box>
-        </Paper>
+        </Box>
 
         <GroupedTabBar
           standaloneTabs={STANDALONE_TABS}
@@ -512,6 +508,10 @@ const HospitalizationDetail = ({ emergencyId: propEmergencyId, onBack }) => {
 
         {tab === 'evaluaciones' && (
           <EvaluationsTab emergency={emergency} readOnly={!canEdit} onDataChange={() => {}} />
+        )}
+
+        {tab === 'indicaciones' && (
+          <IndicacionesTab emergencyId={emergency.id} hospitalizationId={hospitalization?.id} patient={p} />
         )}
       </Box>
 

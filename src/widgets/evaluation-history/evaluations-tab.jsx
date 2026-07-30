@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Paper } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { BackendAPI } from '../../services/BackendApi';
@@ -35,6 +35,14 @@ const EvaluationsTab = ({ emergency, readOnly, onDataChange }) => {
       .filter((ev) => ev.doctor_id === loggedDoctorId)
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }, [evaluations, loggedDoctorId]);
+
+  useEffect(() => {
+    if (editingId) return;
+    const lastEval = myEvaluations[0];
+    if (lastEval?.diagnostic_impression) {
+      setDiagnosticImpression(lastEval.diagnostic_impression);
+    }
+  }, [emergencyId, myEvaluations, editingId]);
 
   const handleEditEvaluation = useCallback((evaluation) => {
     setDiagnosticImpression(evaluation.diagnostic_impression || '');

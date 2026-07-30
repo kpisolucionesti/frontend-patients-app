@@ -8,6 +8,7 @@ import LabResultsPanel from '../../Components/Emergency/LabResultsPanel';
 import HistoricalCasePanel from '../../Components/Emergency/HistoricalCasePanel';
 import DocumentsPanel from '../../shared/ui/documents-panel';
 import ClinicalStudiesPanel from '../../shared/ui/clinical-studies-panel';
+import IndicacionesTab from '../../features/clinical-studies/indicaciones-tab';
 import MedicationAdminPanel from '../../Components/Hospitalizacion/MedicationAdminPanel';
 import AllergiesSection from '../../Components/Emergency/AllergiesSection';
 import AntecedentsSection from '../../Components/Emergency/AntecedentsSection';
@@ -75,6 +76,14 @@ const EmergencyTabPanels = React.memo(function EmergencyTabPanels({
         <FamilyAntecedentsSection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} />
         <GynecologicalHistorySection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} patientGender={selectedPatient?.gender} />
         <LifestyleHabitsSection patientId={selectedPatient?.id} readOnly={selectedPatient?.disabled} />
+      </Box>
+    );
+  }
+
+  if (activePanel === 'indicaciones') {
+    return (
+      <Box component="section" aria-label="Indicaciones" sx={{ flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.default', px: 2, py: 1.5 }}>
+        <IndicacionesTab emergencyId={selectedEmergency?.id} patient={selectedPatient} />
       </Box>
     );
   }

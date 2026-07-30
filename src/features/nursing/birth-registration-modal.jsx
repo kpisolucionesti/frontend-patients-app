@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   Box, Typography, Button, IconButton, Tooltip,
   Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, MenuItem, Chip, Paper, Divider,
+  TextField, Chip, Paper, Divider, Autocomplete,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
@@ -26,6 +26,7 @@ const EMPTY_BABY = {
   name: '',
   gender: 'M',
   birth_type: 'vaginal',
+  birth_certificate_number: '',
   weight_grams: '',
   apgar_1min: '',
   apgar_5min: '',
@@ -61,7 +62,7 @@ const BirthRegistrationModal = ({ open, onClose, motherPatient, motherEmergencyI
   };
 
   const handleSave = async () => {
-    const invalid = babies.some((b) => !b.name.trim() || !b.gender || !b.birth_type);
+    const invalid = babies.some((b) => !b.name.trim() || !b.gender || !b.birth_type || !b.birth_certificate_number.trim());
     if (invalid) { showSnackbar('Complete todos los campos requeridos de cada bebé', 'warning'); return; }
     if (!motherPatient?.id || !motherEmergencyId) { showSnackbar('Faltan datos de la madre', 'error'); return; }
 
@@ -71,6 +72,7 @@ const BirthRegistrationModal = ({ open, onClose, motherPatient, motherEmergencyI
         name: b.name,
         gender: b.gender,
         birth_type: b.birth_type,
+        birth_certificate_number: b.birth_certificate_number,
         weight_grams: b.weight_grams ? Number(b.weight_grams) : null,
         apgar_1min: b.apgar_1min ? Number(b.apgar_1min) : null,
         apgar_5min: b.apgar_5min ? Number(b.apgar_5min) : null,
@@ -117,14 +119,16 @@ const BirthRegistrationModal = ({ open, onClose, motherPatient, motherEmergencyI
         </Paper>
 
         {/* Doctor */}
-        <TextField select label="Médico tratante" size="small" fullWidth
-          value={doctorId} onChange={(e) => setDoctorId(e.target.value)}
-          sx={{ mb: 2 }}>
-          <MenuItem value=""><em>Seleccionar médico...</em></MenuItem>
-          {doctors.map((d) => (
-            <MenuItem key={d.id} value={d.id}>{d.name} — {d.specialty?.name || 'Sin especialidad'}</MenuItem>
-          ))}
-        </TextField>
+        <Autocomplete
+          size="small"
+          options={doctors}
+          getOptionLabel={(d) => `${d.name} — ${d.specialty?.name || 'Sin especialidad'}`}
+          value={doctors.find((d) => d.id === doctorId) || null}
+          onChange={(_e, v) => setDoctorId(v ? v.id : '')}
+          renderInput={(params) => (
+            <TextField {...params} label="Médico tratante" size="small" fullWidth sx={{ mb: 2 }} />
+          )}
+        />
 
         {/* General fields */}
         <Box sx={{ display: 'flex', gap: 1.5, mb: 2 }}>
@@ -160,17 +164,40 @@ const BirthRegistrationModal = ({ open, onClose, motherPatient, motherEmergencyI
             <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
               <TextField label="Nombre del bebé" size="small" sx={{ flex: 1 }}
                 value={baby.name} onChange={(e) => updateBaby(index, 'name', e.target.value)} required />
-              <TextField select label="Sexo" size="small" sx={{ width: 140 }}
-                value={baby.gender} onChange={(e) => updateBaby(index, 'gender', e.target.value)} required>
-                {GENDERS.map((g) => (<MenuItem key={g.value} value={g.value}>{g.label}</MenuItem>))}
-              </TextField>
+              <Autocomplete
+                size="small"
+                options={GENDERS}
+                getOptionLabel={(g) => g.label}
+                value={GENDERS.find((g) => g.value === baby.gender) || null}
+                onChange={(_e, v) => updateBaby(index, 'gender', v ? v.value : 'M')}
+                disableClearable
+                sx={{ width: 140 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Sexo" required />
+                )}
+              />
             </Box>
 
             <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-              <TextField select label="Tipo de parto" size="small" sx={{ flex: 1 }}
-                value={baby.birth_type} onChange={(e) => updateBaby(index, 'birth_type', e.target.value)} required>
-                {BIRTH_TYPES.map((t) => (<MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>))}
-              </TextField>
+              <TextField label="Nro. Acta de Nacimiento" type="number" size="small" sx={{ flex: 1 }}
+                value={baby.birth_certificate_number} onChange={(e) => updateBaby(index, 'birth_certificate_number', e.target.value)}
+                required />
+              <Box sx={{ width: 140 }} />
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+              <Autocomplete
+                size="small"
+                options={BIRTH_TYPES}
+                getOptionLabel={(t) => t.label}
+                value={BIRTH_TYPES.find((t) => t.value === baby.birth_type) || null}
+                onChange={(_e, v) => updateBaby(index, 'birth_type', v ? v.value : 'vaginal')}
+                disableClearable
+                sx={{ flex: 1 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Tipo de parto" required />
+                )}
+              />
               <TextField label="Peso (gramos)" type="number" size="small" sx={{ width: 140 }}
                 value={baby.weight_grams} onChange={(e) => updateBaby(index, 'weight_grams', e.target.value)}
                 InputLabelProps={{ shrink: true }} />

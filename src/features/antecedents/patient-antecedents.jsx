@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Autocomplete, Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import EventNoteIcon from '@mui/icons-material/EventNote';
@@ -24,10 +24,14 @@ const FIELDS = [
 
 const AntecedentForm = ({ values, onChange }) => (
   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-    <TextField select variant="standard" size="small" label="Tipo" value={values.category} onChange={(e) => onChange('category', e.target.value)} fullWidth>
-      <MenuItem value="">Seleccionar</MenuItem>
-      {CATEGORY_OPTIONS.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
-    </TextField>
+    <Autocomplete
+      freeSolo
+      size="small"
+      options={CATEGORY_OPTIONS}
+      value={values.category || ''}
+      onInputChange={(_e, newValue) => onChange('category', newValue)}
+      renderInput={(params) => <TextField variant="standard" {...params} size="small" label="Tipo" fullWidth />}
+    />
     <TextField variant="standard" size="small" label="Condición" value={values.condition_type} onChange={(e) => onChange('condition_type', e.target.value)} required fullWidth />
     <TextField variant="standard" size="small" label="Descripción" value={values.description} onChange={(e) => onChange('description', e.target.value)} fullWidth />
     <LocalizationProvider dateAdapter={AdapterMoment}>

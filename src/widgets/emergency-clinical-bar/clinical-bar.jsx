@@ -69,6 +69,7 @@ const ClinicalBar = React.memo(function ClinicalBar({
         >
           <Tab label="Resumen" value="resumen" icon={<AssignmentIcon fontSize="small" />} iconPosition="start" aria-label="Resumen del paciente" sx={tabSx} />
           <Tab label="Evaluaciones" value="evaluaciones" icon={<MedicalServicesIcon fontSize="small" />} iconPosition="start" aria-label="Evaluaciones médicas" sx={tabSx} />
+          <Tab label="Indicaciones" value="indicaciones" icon={<AssignmentIcon fontSize="small" />} iconPosition="start" aria-label="Indicaciones médicas" sx={tabSx} />
           <Tab label="Antecedentes" value="antecedentes" icon={<InfoIcon fontSize="small" />} iconPosition="start" aria-label="Antecedentes del paciente" sx={tabSx} />
           <Tab label="Estudios Clínicos" value="estudios_clinicos" icon={<BiotechIcon fontSize="small" />} iconPosition="start" aria-label="Estudios clínicos" sx={tabSx} />
           <Tab label="Documentos" value="documentos" icon={<DescriptionIcon fontSize="small" />} iconPosition="start" aria-label="Documentos" sx={tabSx} />

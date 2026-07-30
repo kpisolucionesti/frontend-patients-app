@@ -1,4 +1,4 @@
-import { Autocomplete, Box, MenuItem, Stack, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Stack, TextField, Typography } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { CLASSIFICATION_OPTIONS } from "../../constants";
 
@@ -13,7 +13,7 @@ const DoctorAutocomplete = ({ doctors, value, validation, onChange }) => {
 
   useEffect(() => {
     if (value !== undefined && value !== null) {
-      const found = (doctors || []).find((d) => d.id === value);
+      const found = (doctors || []).find((d) => String(d.id) === String(value));
       if (found) setLocalValue(found);
     } else {
       setLocalValue(null);
@@ -75,23 +75,33 @@ const EmergencySection = ({
 
       {/* Row 2: Clasificación + Ubicación */}
       <Stack direction="row" spacing={1}>
-        <TextField select variant="standard" size="small" required
-          label="Clasificación" name="classification"
-          value={values.classification || ''}
-          onChange={({ target }) => onFieldChange(target)}
-          error={validation && !values.classification}
-          helperText={validation && !values.classification ? 'Requerido' : ''}
-          sx={{ flex: 1, ...fieldSx }}
-        >
-          {CLASSIFICATION_OPTIONS.map((opt) => (
-            <MenuItem key={opt.key} value={opt.key}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: opt.color }} />
-                {opt.label}
-              </Box>
-            </MenuItem>
-          ))}
-        </TextField>
+        <Autocomplete
+          size="small"
+          options={CLASSIFICATION_OPTIONS}
+          getOptionLabel={(opt) => opt.label}
+          value={CLASSIFICATION_OPTIONS.find((c) => c.key === values.classification) || null}
+          onChange={(_e, v) => onFieldChange({ name: 'classification', value: v ? v.key : '' })}
+          sx={{ flex: 1 }}
+          renderInput={(params) => (
+            <TextField
+              variant="standard"
+              {...params} size="small"
+              label="Clasificación" required
+              error={validation && !values.classification}
+              helperText={validation && !values.classification ? 'Requerido' : ''}
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: params.InputProps.startAdornment && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {values.classification && (
+                      <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: CLASSIFICATION_OPTIONS.find((c) => c.key === values.classification)?.color }} />
+                    )}
+                  </Box>
+                ),
+              }}
+            />
+          )}
+        />
         <Autocomplete
           size="small"
           options={availableRooms || []}

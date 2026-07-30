@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Autocomplete, Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -7,6 +7,12 @@ import { BackendAPI } from '../../../services/BackendApi';
 import { useFetch } from '../../../hooks/useFetch';
 
 const EMPTY = { patologia: '', parentesco: '', valor: '' };
+
+const VALOR_OPTIONS = [
+  { key: '', label: 'Seleccionar' },
+  { key: 'Si', label: 'Sí' },
+  { key: 'No', label: 'No' },
+];
 
 const FamilyAntecedentsSection = ({ patientId, readOnly }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -95,11 +101,14 @@ const FamilyAntecedentsSection = ({ patientId, readOnly }) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <TextField variant="standard" size="small" label="Patología" value={form.patologia} onChange={(e) => handleChange('patologia', e.target.value)} required fullWidth />
             <TextField variant="standard" size="small" label="Parentesco" value={form.parentesco} onChange={(e) => handleChange('parentesco', e.target.value)} fullWidth />
-            <TextField select variant="standard" size="small" label="Valor" value={form.valor} onChange={(e) => handleChange('valor', e.target.value)} fullWidth>
-              <MenuItem value="">Seleccionar</MenuItem>
-              <MenuItem value="Si">Sí</MenuItem>
-              <MenuItem value="No">No</MenuItem>
-            </TextField>
+            <Autocomplete
+              size="small"
+              options={VALOR_OPTIONS}
+              getOptionLabel={(opt) => opt.label}
+              value={VALOR_OPTIONS.find((o) => o.key === form.valor) || null}
+              onChange={(_e, v) => handleChange('valor', v ? v.key : '')}
+              renderInput={(params) => <TextField variant="standard" {...params} size="small" label="Valor" fullWidth />}
+            />
           </Box>
         </DialogContent>
         <DialogActions>

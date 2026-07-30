@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, CircularProgress } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import UndoIcon from '@mui/icons-material/Undo';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { BackendAPI } from '../../services/BackendApi';
 import { useSnackbar } from '../../hooks/useSnackbar';
 
@@ -17,8 +19,12 @@ const DeathDialogButton = ({ emergencyId, patientId, patientName, patientCi, onS
   const [cause, setCause] = useState('');
   const [dateTime, setDateTime] = useState(new Date().toISOString().slice(0, 16));
   const [observations, setObservations] = useState('');
+  const [certificateNumber, setCertificateNumber] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [undoing, setUndoing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const undoRef = useRef(null);
   const { show: showSnackbar } = useSnackbar();
 
@@ -32,6 +38,8 @@ const DeathDialogButton = ({ emergencyId, patientId, patientName, patientCi, onS
     setCause('');
     setDateTime(new Date().toISOString().slice(0, 16));
     setObservations('');
+    setCertificateNumber('');
+    setSelectedFile(null);
     setOpen(true);
   };
 
@@ -55,6 +63,7 @@ const DeathDialogButton = ({ emergencyId, patientId, patientName, patientCi, onS
 
   const handleConfirm = async () => {
     if (!cause || !emergencyId || !patientId) return;
+    if (!certificateNumber.trim()) { showSnackbar('El Nro. Acta de Defunción es requerido', 'warning'); return; }
     setSaving(true);
     try {
       await BackendAPI.emergencies.update({
@@ -63,7 +72,20 @@ const DeathDialogButton = ({ emergencyId, patientId, patientName, patientCi, onS
         cause_of_death: cause,
         egress_at: new Date(dateTime).toISOString(),
         observations,
+        death_certificate_number: certificateNumber,
       });
+      if (selectedFile) {
+        setUploading(true);
+        try {
+          const fd = new FormData();
+          fd.append('file', selectedFile);
+          fd.append('attachable_type', 'Emergency');
+          fd.append('attachable_id', emergencyId);
+          fd.append('file_type', selectedFile.type);
+          await BackendAPI.documents.create(fd);
+        } catch { /* file upload failure is non-blocking */ }
+        setUploading(false);
+      }
       await BackendAPI.patients.update(patientId, { disabled: true });
       showSnackbar(
         <>
@@ -124,6 +146,34 @@ const DeathDialogButton = ({ emergencyId, patientId, patientName, patientCi, onS
               type="datetime-local" value={dateTime}
               onChange={(e) => setDateTime(e.target.value)}
               InputLabelProps={{ shrink: true }} />
+            <TextField variant="standard" fullWidth size="small" required label="Nro. Acta de Defunción"
+              type="number" value={certificateNumber}
+              onChange={(e) => setCertificateNumber(e.target.value)}
+              error={!certificateNumber.trim()}
+              helperText={!certificateNumber.trim() ? 'Requerido' : ''} />
+            <Box>
+              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: 'text.secondary', mb: 0.5, display: 'block' }}>
+                Adjuntar Acta de Defunción
+              </Typography>
+              <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" hidden
+                onChange={(e) => setSelectedFile(e.target.files[0] || null)} />
+              {selectedFile ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.primary', flex: 1 }}>
+                    {selectedFile.name}
+                  </Typography>
+                  <Button size="small" onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                    startIcon={<DeleteIcon />} color="error" sx={{ fontSize: '0.65rem', py: 0.1 }}>
+                    Quitar
+                  </Button>
+                </Box>
+              ) : (
+                <Button size="small" variant="outlined" startIcon={<AttachFileIcon />}
+                  onClick={() => fileInputRef.current?.click()} sx={{ fontSize: '0.7rem' }}>
+                  Seleccionar archivo
+                </Button>
+              )}
+            </Box>
             <TextField variant="standard" fullWidth size="small" label="Observaciones"
               value={observations} onChange={(e) => setObservations(e.target.value)}
               inputProps={{ maxLength: 2000 }} multiline rows={2} />
@@ -131,8 +181,8 @@ const DeathDialogButton = ({ emergencyId, patientId, patientName, patientCi, onS
         </DialogContent>
         <DialogActions>
           <Button size="small" variant="outlined" color="error" onClick={() => setOpen(false)}>Cancelar</Button>
-          <Button size="small" variant="outlined" color="error" onClick={handleConfirm} disabled={saving || !cause}>
-            {saving ? 'Guardando...' : 'Confirmar Fallecimiento'}
+          <Button size="small" variant="outlined" color="error" onClick={handleConfirm} disabled={saving || uploading || !cause || !certificateNumber.trim()}>
+            {saving || uploading ? 'Guardando...' : 'Confirmar Fallecimiento'}
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Button, Dialog, DialogActions, DialogContent, DialogTitle,
-  TextField, MenuItem, Grid
+  TextField, Grid, Autocomplete
 } from '@mui/material';
-
-const ROUTE_OPTIONS = [
-  'Oral', 'Intravenoso', 'Intramuscular', 'Subcutáneo',
-  'Tópico', 'Inhalación', 'Rectal', 'Sublingual',
-];
+import { BackendAPI } from '../../services/BackendApi';
 
 const RecipeFormModal = ({ open, onClose, onSave, saving, initialValues }) => {
   const [form, setForm] = useState({
     medication: '', dosage: '', frequency: '', duration: '', route: '', indications: '',
   });
+  const [medications, setMedications] = useState([]);
+  const [routes, setRoutes] = useState([]);
 
   useEffect(() => {
     if (open) {
+      BackendAPI.medications.getAll().then(setMedications).catch(() => {});
+      BackendAPI.medicationRoutes.getAll().then(setRoutes).catch(() => {});
+
       if (initialValues) {
         setForm({
           medication: initialValues.medication || '',
@@ -48,8 +49,18 @@ const RecipeFormModal = ({ open, onClose, onSave, saving, initialValues }) => {
       <DialogContent sx={{ pt: 3 }}>
         <Grid container spacing={1.5}>
           <Grid item xs={12}>
-            <TextField variant="standard" fullWidth required label="Medicamento" value={form.medication}
-              onChange={handleChange('medication')} sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }} />
+            <Autocomplete
+              freeSolo
+              size="small"
+              options={medications}
+              getOptionLabel={(opt) => typeof opt === 'string' ? opt : (opt.name || '')}
+              value={form.medication}
+              onInputChange={(_e, newValue) => setForm((prev) => ({ ...prev, medication: newValue }))}
+              renderInput={(params) => (
+                <TextField variant="standard" {...params} required label="Medicamento"
+                  sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }} />
+              )}
+            />
           </Grid>
           <Grid item xs={6}>
             <TextField variant="standard" fullWidth label="Dosis" value={form.dosage}
@@ -67,10 +78,18 @@ const RecipeFormModal = ({ open, onClose, onSave, saving, initialValues }) => {
               sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }} />
           </Grid>
           <Grid item xs={6}>
-            <TextField variant="standard" fullWidth select label="Vía" value={form.route}
-              onChange={handleChange('route')} sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }}>
-              {ROUTE_OPTIONS.map((r) => <MenuItem key={r} value={r}>{r}</MenuItem>)}
-            </TextField>
+            <Autocomplete
+              freeSolo
+              size="small"
+              options={routes}
+              getOptionLabel={(opt) => typeof opt === 'string' ? opt : (opt.name || '')}
+              value={form.route}
+              onInputChange={(_e, newValue) => setForm((prev) => ({ ...prev, route: newValue }))}
+              renderInput={(params) => (
+                <TextField variant="standard" {...params} label="Vía"
+                  sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }} />
+              )}
+            />
           </Grid>
           <Grid item xs={12}>
             <TextField variant="standard" fullWidth multiline rows={2} label="Indicaciones" value={form.indications}

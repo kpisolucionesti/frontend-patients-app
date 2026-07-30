@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Chip } from '@mui/material';
+import { Autocomplete, Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Chip } from '@mui/material';
 import BiotechIcon from '@mui/icons-material/Biotech';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -92,9 +92,14 @@ const ParaclinicalStudiesDetail = ({ emergencyId, readOnly }) => {
         <DialogTitle sx={{ fontSize: '0.95rem', bgcolor: 'secondary.main', color: 'white' }}>{editing ? 'Editar Estudio' : 'Agregar Estudio'}</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <TextField select variant="standard" size="small" label="Tipo" value={form.study_type} onChange={(e) => handleChange('study_type', e.target.value)} required fullWidth>
-              {STUDY_TYPES.map((t) => <MenuItem key={t.key} value={t.key}>{t.label}</MenuItem>)}
-            </TextField>
+            <Autocomplete
+              size="small"
+              options={STUDY_TYPES}
+              getOptionLabel={(opt) => opt.label}
+              value={STUDY_TYPES.find((t) => t.key === form.study_type) || null}
+              onChange={(_e, v) => handleChange('study_type', v ? v.key : '')}
+              renderInput={(params) => <TextField variant="standard" {...params} size="small" label="Tipo" required fullWidth />}
+            />
             <TextField variant="standard" size="small" label="Descripción" value={form.description} onChange={(e) => handleChange('description', e.target.value)} required multiline rows={2} fullWidth />
           </Box>
         </DialogContent>

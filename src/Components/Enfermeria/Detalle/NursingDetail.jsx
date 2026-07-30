@@ -1,7 +1,7 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   Box, Paper, Typography, Button, TextField, CircularProgress, IconButton,
-  InputAdornment, Chip, Grid, Dialog, DialogTitle, DialogContent, DialogActions,
+  InputAdornment, Chip, Checkbox, Grid, Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -10,6 +10,8 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import SendIcon from '@mui/icons-material/Send';
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
@@ -80,6 +82,50 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
 
   // ── Birth registration modal ──
   const [birthModalOpen, setBirthModalOpen] = useState(false);
+
+  // ── Pending tasks ──
+  const [pendingTasks, setPendingTasks] = useState([]);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [taskText, setTaskText] = useState('');
+  const [savingTask, setSavingTask] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+
+  const fetchPendingTasks = useCallback(async () => {
+    if (!emergencyId) return;
+    try { setPendingTasks(await (BackendAPI.nursingTasks?.getAll?.(emergencyId) || Promise.resolve([]))); } catch { }
+  }, [emergencyId]);
+
+  useEffect(() => { fetchPendingTasks(); }, [fetchPendingTasks]);
+
+  const handleSaveTask = async () => {
+    if (!taskText.trim()) return;
+    setSavingTask(true);
+    try {
+      if (editingTask && BackendAPI.nursingTasks) {
+        await BackendAPI.nursingTasks.update(emergencyId, editingTask.id, { description: taskText });
+      } else if (BackendAPI.nursingTasks) {
+        await BackendAPI.nursingTasks.create(emergencyId, { description: taskText });
+      }
+      setTaskText('');
+      setTaskDialogOpen(false);
+      setEditingTask(null);
+      fetchPendingTasks();
+    } catch { }
+    setSavingTask(false);
+  };
+
+  const handleToggleTask = async (task) => {
+    if (!BackendAPI.nursingTasks) return;
+    try {
+      await BackendAPI.nursingTasks.update(emergencyId, task.id, { completed: !task.completed });
+      fetchPendingTasks();
+    } catch { }
+  };
+
+  const handleDeleteTask = async (id) => {
+    if (!BackendAPI.nursingTasks) return;
+    try { await BackendAPI.nursingTasks.delete(emergencyId, id); fetchPendingTasks(); } catch { }
+  };
 
   // ── Handlers: notes ──
   const handleSaveNursingNote = async () => {
@@ -184,10 +230,10 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
           onClick={handleOpenVitalModal} sx={{ fontSize: '0.7rem', py: 0.25, flexShrink: 0 }}>
           Registrar Signos Vitales
         </Button>
-        <Button variant="outlined" size="small" color="success" startIcon={<DescriptionIcon sx={{ fontSize: 16 }} />}
-          onClick={() => setNursingNoteOpen(true)} sx={{ fontSize: '0.7rem', py: 0.25, flexShrink: 0 }}>
-          Nueva Nota
-        </Button>
+          <Button variant="outlined" size="small" color="success" startIcon={<DescriptionIcon sx={{ fontSize: 16 }} />}
+            onClick={() => setNursingNoteOpen(true)} sx={{ fontSize: '0.7rem', py: 0.25, flexShrink: 0 }}>
+            Nuevo Reporte
+          </Button>
         {p?.gender === 'F' && (
           <Button variant="outlined" size="small" color="secondary" startIcon={<ChildCareIcon sx={{ fontSize: 16 }} />}
             onClick={() => setBirthModalOpen(true)} sx={{ fontSize: '0.7rem', py: 0.25, flexShrink: 0 }}>
@@ -222,7 +268,7 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
           </Paper>
 
           <Paper sx={{ p: 1.5 }}>
-            <SectionHeader icon={<DescriptionIcon sx={{ fontSize: 16 }} />} label="NOTAS DE ENFERMERÍA" color="success.main" />
+            <SectionHeader icon={<DescriptionIcon sx={{ fontSize: 16 }} />} label="REPORTE DE ENFERMERÍA" color="success.main" />
             {nursingNotes.length === 0 ? (
               <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem', mt: 0.5, display: 'block' }}>Sin notas registradas</Typography>
             ) : (
@@ -275,7 +321,39 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
                 if (!deleteNoteTarget) return; setDeletingNote(true);
                 try { await BackendAPI.notes.delete(deleteNoteTarget.id); } catch { /* ignore */ }
                 setDeletingNote(false); setDeleteNoteTarget(null); refetchNursingNotes();
-              }} loading={deletingNote} message="¿Eliminar esta nota de enfermería?" />
+              }} loading={deletingNote} message="¿Eliminar este reporte de enfermería?" />
+          </Paper>
+
+          <Paper sx={{ p: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+              <SectionHeader icon={<AssignmentLateIcon sx={{ fontSize: 16 }} />} label="PENDIENTES" color="warning.dark" />
+              <IconButton size="small" onClick={() => { setEditingTask(null); setTaskText(''); setTaskDialogOpen(true); }} sx={{ p: 0.25 }}>
+                <AddCircleOutlineIcon color="primary" fontSize="small" />
+              </IconButton>
+            </Box>
+            {pendingTasks.length === 0 ? (
+              <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem', mt: 0.5, display: 'block' }}>Sin pendientes registrados</Typography>
+            ) : (
+              pendingTasks.map((task) => (
+                <Box key={task.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, py: 0.3, borderBottom: 1, borderColor: 'divider', '&:last-child': { borderBottom: 0 } }}>
+                  <Checkbox
+                    size="small"
+                    checked={task.completed}
+                    onChange={() => handleToggleTask(task)}
+                    sx={{ p: 0.25, '& .MuiSvgIcon-root': { fontSize: 16 } }}
+                  />
+                  <Typography variant="body2" sx={{ fontSize: '0.73rem', flex: 1, textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? 'text.secondary' : 'text.primary' }}>
+                    {task.description}
+                  </Typography>
+                  <IconButton size="small" onClick={() => { setEditingTask(task); setTaskText(task.description); setTaskDialogOpen(true); }} sx={{ p: 0.15 }} aria-label="Editar pendiente">
+                    <EditOutlinedIcon sx={{ fontSize: 14 }} />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => handleDeleteTask(task.id)} sx={{ p: 0.15, color: 'error.main' }} aria-label="Eliminar pendiente">
+                    <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
+                  </IconButton>
+                </Box>
+              ))
+            )}
           </Paper>
         </Box>
 
@@ -334,10 +412,14 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
       {/* ── Note modal ── */}
       <Dialog open={nursingNoteOpen} onClose={() => { setNursingNoteOpen(false); setNursingNoteText(''); }} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ bgcolor: 'success.main', color: 'white', fontWeight: 700, fontSize: '0.95rem', textAlign: 'center' }}>
-          NUEVA NOTA DE ENFERMERÍA
+          NUEVO REPORTE DE ENFERMERÍA
         </DialogTitle>
         <DialogContent>
-          <TextField variant="standard" size="small" placeholder="Escribir nota de enfermería..."
+          <TextField variant="standard" size="small" label="Fecha y Hora"
+            value={new Date().toLocaleString()} disabled fullWidth
+            InputProps={{ readOnly: true }}
+            sx={{ mt: 1, '& .MuiInputBase-input': { fontSize: '0.8rem' } }} />
+          <TextField variant="standard" size="small" placeholder="Escribir reporte de enfermería..."
             value={nursingNoteText} onChange={(e) => setNursingNoteText(e.target.value)}
             multiline rows={4} fullWidth autoFocus
             inputProps={{ style: { fontSize: '0.75rem' } }}
@@ -348,6 +430,27 @@ const NursingDetail = ({ emergencyId, hospitalizationId, patient, onBack }) => {
           <Button onClick={() => { setNursingNoteOpen(false); setNursingNoteText(''); }} variant="outlined" color="error">Cancelar</Button>
           <Button onClick={handleSaveNursingNote} variant="outlined" color="success" disabled={savingNursingNote || !nursingNoteText.trim()}>
             {savingNursingNote ? 'Guardando...' : 'Registrar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ── Task modal ── */}
+      <Dialog open={taskDialogOpen} onClose={() => { setTaskDialogOpen(false); setTaskText(''); setEditingTask(null); }} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ bgcolor: 'warning.dark', color: 'white', fontWeight: 700, fontSize: '0.95rem', textAlign: 'center' }}>
+          {editingTask ? 'EDITAR PENDIENTE' : 'NUEVO PENDIENTE'}
+        </DialogTitle>
+        <DialogContent>
+          <TextField variant="standard" size="small" placeholder="Escribir pendiente..."
+            value={taskText} onChange={(e) => setTaskText(e.target.value)}
+            multiline rows={3} fullWidth autoFocus
+            inputProps={{ style: { fontSize: '0.75rem' } }}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setTaskDialogOpen(false); setTaskText(''); setEditingTask(null); }} variant="outlined" color="error">Cancelar</Button>
+          <Button onClick={handleSaveTask} variant="outlined" color="success" disabled={savingTask || !taskText.trim()}>
+            {savingTask ? 'Guardando...' : 'Guardar'}
           </Button>
         </DialogActions>
       </Dialog>

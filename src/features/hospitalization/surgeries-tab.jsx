@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Chip, CircularProgress, Alert } from '@mui/material';
+import { Autocomplete, Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Chip, CircularProgress, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -88,13 +88,27 @@ const SurgeriesTab = ({ hospitalizationId }) => {
         <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>{editing ? 'Editar Cirugía' : 'Nueva Cirugía'}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
-            <TextField select variant="standard" size="small" label="Tipo de Cirugía" value={form.surgery_type} onChange={(e) => setForm({ ...form, surgery_type: e.target.value })} required fullWidth>{SURGERY_TYPES.map((t) => <MenuItem key={t.key} value={t.key}>{t.label}</MenuItem>)}</TextField>
+            <Autocomplete
+              size="small"
+              options={SURGERY_TYPES}
+              getOptionLabel={(opt) => opt.label}
+              value={SURGERY_TYPES.find((t) => t.key === form.surgery_type) || null}
+              onChange={(_e, v) => setForm({ ...form, surgery_type: v ? v.key : '' })}
+              renderInput={(params) => <TextField variant="standard" {...params} size="small" label="Tipo de Cirugía" required fullWidth />}
+            />
             <TextField variant="standard" size="small" label="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} multiline rows={2} fullWidth />
             <TextField variant="standard" size="small" label="Cirujano" value={form.surgeon_name} onChange={(e) => setForm({ ...form, surgeon_name: e.target.value })} fullWidth />
             <TextField variant="standard" size="small" label="Fecha Cirugía" type="date" value={form.surgery_date} onChange={(e) => setForm({ ...form, surgery_date: e.target.value })} InputLabelProps={{ shrink: true }} fullWidth />
             <TextField variant="standard" size="small" label="Hora Inicio" type="time" value={form.scheduled_start_time} onChange={(e) => setForm({ ...form, scheduled_start_time: e.target.value })} InputLabelProps={{ shrink: true }} fullWidth />
             <TextField variant="standard" size="small" label="Hora Fin" type="time" value={form.scheduled_end_time} onChange={(e) => setForm({ ...form, scheduled_end_time: e.target.value })} InputLabelProps={{ shrink: true }} fullWidth />
-            <TextField select variant="standard" size="small" label="Estado" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} fullWidth>{STATUS_OPTIONS.map((o) => <MenuItem key={o.key} value={o.key}>{o.label}</MenuItem>)}</TextField>
+            <Autocomplete
+              size="small"
+              options={STATUS_OPTIONS}
+              getOptionLabel={(opt) => opt.label}
+              value={STATUS_OPTIONS.find((o) => o.key === form.status) || null}
+              onChange={(_e, v) => setForm({ ...form, status: v ? v.key : '' })}
+              renderInput={(params) => <TextField variant="standard" {...params} size="small" label="Estado" fullWidth />}
+            />
             <TextField variant="standard" size="small" label="Post-Op" value={form.postop_notes} onChange={(e) => setForm({ ...form, postop_notes: e.target.value })} multiline rows={2} fullWidth />
           </Box>
         </DialogContent>

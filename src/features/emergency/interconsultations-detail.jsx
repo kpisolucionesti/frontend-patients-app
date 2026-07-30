@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Autocomplete, Box, IconButton, MenuItem, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Chip } from '@mui/material';
+import { Autocomplete, Box, IconButton, Paper, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Chip } from '@mui/material';
 import GroupIcon from '@mui/icons-material/Group';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -133,9 +133,14 @@ const InterconsultationsDetail = ({ emergencyId, readOnly }) => {
             />
             <TextField variant="standard" size="small" label="Motivo" value={form.reason} onChange={(e) => handleChange('reason', e.target.value)} fullWidth />
             <TextField variant="standard" size="small" label="Observaciones" value={form.observations} onChange={(e) => handleChange('observations', e.target.value)} multiline rows={2} fullWidth />
-            <TextField select variant="standard" size="small" label="Estado" value={form.status} onChange={(e) => handleChange('status', e.target.value)} fullWidth>
-              {STATUS_OPTIONS.map((s) => <MenuItem key={s.key} value={s.key}>{s.label}</MenuItem>)}
-            </TextField>
+            <Autocomplete
+              size="small"
+              options={STATUS_OPTIONS}
+              getOptionLabel={(opt) => opt.label}
+              value={STATUS_OPTIONS.find((s) => s.key === form.status) || null}
+              onChange={(_e, v) => handleChange('status', v ? v.key : '')}
+              renderInput={(params) => <TextField variant="standard" {...params} size="small" label="Estado" fullWidth />}
+            />
           </Box>
         </DialogContent>
         <DialogActions>

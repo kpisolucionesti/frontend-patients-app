@@ -27,4 +27,9 @@ export const documentsApi = {
   destroy: async (id) => {
     await api.delete(`/documents/${id}`);
   },
+
+  send: async (id) => {
+    const { data } = await api.post(`/documents/${id}/send_email`);
+    return data;
+  },
 };

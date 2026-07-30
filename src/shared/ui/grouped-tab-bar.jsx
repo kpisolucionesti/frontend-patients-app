@@ -25,12 +25,13 @@ export default function GroupedTabBar({ groups = [], standaloneTab, standaloneTa
   const badgeSx = { '& .MuiBadge-badge': { top: 6, right: -6, width: 8, height: 8, minWidth: 8 } };
 
   const tabSx = {
-    textTransform: 'none', fontWeight: 600, fontSize: '0.78rem', minHeight: 32,
-    '& .MuiTab-iconWrapper': { mr: 0.5 },
+    textTransform: 'none', fontWeight: 600, fontSize: '0.7rem', minHeight: 30,
+    px: 1.25, py: 0.5, gap: 0.5,
+    '& .MuiTab-iconWrapper': { fontSize: '0.9rem', m: '0 !important' },
   };
   const selectedSx = { color: 'primary.main', fontWeight: 700 };
-  const indicatorSx = { height: 3 };
-  const groupTabSx = { ...tabSx, fontSize: '0.75rem', minHeight: 34, py: 0.5 };
+  const indicatorSx = { bgcolor: 'primary.main', height: 2 };
+  const groupTabSx = { ...tabSx };
 
   const currentRow1Value = isStandaloneActive ? activeTab : (activeGroup?.key || false);
 
@@ -69,7 +70,7 @@ export default function GroupedTabBar({ groups = [], standaloneTab, standaloneTa
             bgcolor: '#f5f5f5',
             borderRadius: '0 0 8px 8px',
             minHeight: 30,
-            '& .MuiTab-root': { ...tabSx, fontSize: '0.72rem', minHeight: 28, py: 0.15 },
+            '& .MuiTab-root': { ...tabSx, fontSize: '0.7rem', minHeight: 28, py: 0.15 },
             '& .Mui-selected': selectedSx,
             '& .MuiTabs-indicator': { ...indicatorSx, bgcolor: 'primary.main' },
           }}

@@ -226,18 +226,24 @@ const PatientInfoPanel = ({ patient, emergency, onStartEmergency, readOnly, onDa
               <TextField variant="standard" fullWidth size="small" label="Observaciones" value={observations}
                 onChange={(e) => setObservations(sanitizeInput(e.target.value, { maxLength: 2000 }))} multiline rows={2}
                 inputProps={{ maxLength: 2000 }} sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
-              <TextField select variant="standard" fullWidth size="small" label="Clasificación" value={classification}
-                onChange={(e) => setClassification(e.target.value)} sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }}>
-                <MenuItem value=""><em>Sin clasificación</em></MenuItem>
-                {CLASSIFICATION_OPTIONS.map((opt) => (
-                  <MenuItem key={opt.key} value={opt.key}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: opt.color }} />
-                      {opt.label}
-                    </Box>
-                  </MenuItem>
-                ))}
-              </TextField>
+              <Autocomplete
+                size="small"
+                options={[{ key: '', label: 'Sin clasificación' }, ...CLASSIFICATION_OPTIONS]}
+                getOptionLabel={(opt) => opt.label}
+                value={CLASSIFICATION_OPTIONS.find((c) => c.key === classification) || { key: '', label: 'Sin clasificación' }}
+                onChange={(_e, v) => setClassification(v ? v.key : '')}
+                sx={{ mt: 0.75 }}
+                renderOption={(props, opt) => (
+                  <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {opt.key && <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: opt.color }} />}
+                    {opt.label}
+                  </Box>
+                )}
+                renderInput={(params) => (
+                  <TextField variant="standard" {...params} size="small" label="Clasificación"
+                    sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />
+                )}
+              />
               <TextField variant="standard" fullWidth size="small" label="Diagnóstico Final" value={finalDiagnostic}
                 onChange={(e) => setFinalDiagnostic(sanitizeInput(e.target.value, { maxLength: 2000 }))}
                 multiline rows={2} inputProps={{ maxLength: 2000 }} sx={{ mt: 0.75, '& .MuiInputBase-input': { fontSize: '0.75rem' } }} />

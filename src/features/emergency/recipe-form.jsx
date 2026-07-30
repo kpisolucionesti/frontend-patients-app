@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle,
-  TextField, MenuItem, Grid
+  Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+  TextField, Grid
 } from '@mui/material';
 
 const ROUTE_OPTIONS = [
@@ -67,10 +67,17 @@ const RecipeFormModal = ({ open, onClose, onSave, saving, initialValues }) => {
               sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }} />
           </Grid>
           <Grid item xs={6}>
-            <TextField variant="standard" fullWidth select label="Vía" value={form.route}
-              onChange={handleChange('route')} sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }}>
-              {ROUTE_OPTIONS.map((r) => <MenuItem key={r} value={r}>{r}</MenuItem>)}
-            </TextField>
+            <Autocomplete
+              freeSolo
+              size="small"
+              options={ROUTE_OPTIONS}
+              value={form.route}
+              onInputChange={(_e, newValue) => handleChange('route')({ target: { value: newValue } })}
+              renderInput={(params) => (
+                <TextField variant="standard" fullWidth label="Vía" {...params}
+                  sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }} />
+              )}
+            />
           </Grid>
           <Grid item xs={12}>
             <TextField variant="standard" fullWidth multiline rows={2} label="Indicaciones" value={form.indications}
