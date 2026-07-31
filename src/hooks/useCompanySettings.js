@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { companySettingsApi } from '../services/companySettingsApi';
 
-const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
 const baseURL = API_ENDPOINT || `http://${hostname}:3100`;
 

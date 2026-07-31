@@ -6,7 +6,7 @@ RUN yarn
 RUN yarn build
 
 FROM nginx:stable-alpine
-RUN rm -rf /usr/share/nginx/hmtl/*
-COPY --from=build /app/build /usr/share/nginx/html
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=build /app/dist /usr/share/nginx/html
 COPY --from=build /app/nginx/nginx.conf /etc/nginx/nginx.conf
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
